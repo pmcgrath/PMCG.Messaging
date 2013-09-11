@@ -11,6 +11,7 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 		public string DisconnectedMessagesStoragePath;
 		public TimeSpan ReconnectionPauseInterval;
 		public uint NumberOfPublishers;
+		public ushort SubscriptionMessagePrefetchCount;
 		public IDictionary<Type, List<MessageDelivery>> MessagePublications;
 		public IDictionary<string, MessageSubscription> MessageSubscriptions;
 
@@ -19,6 +20,7 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 		{
 			this.ReconnectionPauseInterval = TimeSpan.FromSeconds(4);
 			this.NumberOfPublishers = 1U;
+			this.SubscriptionMessagePrefetchCount = 1;
 
 			this.MessagePublications = new Dictionary<Type, List<MessageDelivery>>();
 			this.MessageSubscriptions = new Dictionary<string, MessageSubscription>();
@@ -97,6 +99,7 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 						.Keys
 						.Select(type => new MessagePublication(type, this.MessagePublications[type]))),
 				new MessageSubscriptions(
+					this.SubscriptionMessagePrefetchCount,
 					this.MessageSubscriptions.Values));
 		}
 	}

@@ -26,6 +26,7 @@ namespace PMCG.Messaging.RabbitMQ
 
 			this.c_logger.Info("About to create channel");
 			this.c_channel = connection.CreateModel();
+			this.c_channel.BasicQos(0, messageSubscriptionConfigurations.PrefetchCount, false);
 
 			this.c_logger.Info("About to create consumer");
 			this.c_consumer = new Consumer(this.c_channel, this.c_logger, this);
@@ -41,7 +42,8 @@ namespace PMCG.Messaging.RabbitMQ
 			foreach (var _queueName in this.c_messageSubscriptionConfigurations.GetDistinctQueueNames())
 			{
 				this.c_logger.InfoFormat("Consume for queue {0}", _queueName);
-				this.c_channel.BasicConsume(_queueName, false, this.c_consumer);
+				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, this.c_consumer);
+				this.c_logger.InfoFormat("Consume for queue {0}, consumer tag is {1}", _queueName, _consumerTag);
 			}
 
 			this.c_logger.Info("Completed");
@@ -66,15 +68,16 @@ namespace PMCG.Messaging.RabbitMQ
 			if (!this.c_messageSubscriptionConfigurations.HasConfiguration(subject.Type))
 			{
 				this.c_logger.DebugFormat("No match found for message, {0}", _logMessageContext);
+				//pending - see errored below
 				this.c_channel.BasicNack(subject.DeliveryTag, false, false);
 				return;
 			}
 
-			MessageSubscriptionActionResult _actionResult = MessageSubscriptionActionResult.None;
+			var _configuration = this.c_messageSubscriptionConfigurations[subject.Type];
+			var _actionResult = MessageSubscriptionActionResult.None;
 			try
 			{
 				this.c_logger.DebugFormat("About to deserialze message for message, {0}", _logMessageContext);
-				var _configuration = this.c_messageSubscriptionConfigurations[subject.Type];
 				var _messageJson = Encoding.UTF8.GetString(subject.Body);
 				var _message = JsonConvert.DeserializeObject(_messageJson, _configuration.Type);
 				
@@ -90,6 +93,8 @@ namespace PMCG.Messaging.RabbitMQ
 
 			if (_actionResult == MessageSubscriptionActionResult.Errored)
 			{
+				//pending - should i use configuration properties
+				// Nack, do not requeue, dead letter the message if dead letter exchange configured for the queue
 				this.c_channel.BasicNack(subject.DeliveryTag, false, false);
 			}
 			else if (_actionResult == MessageSubscriptionActionResult.Completed)
@@ -98,6 +103,7 @@ namespace PMCG.Messaging.RabbitMQ
 			}
 			else if (_actionResult == MessageSubscriptionActionResult.Requeue)
 			{
+				//pending does this make sense ?
 				this.c_channel.BasicReject(subject.DeliveryTag, true);
 			}
 

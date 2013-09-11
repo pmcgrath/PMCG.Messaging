@@ -21,6 +21,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 		public void SetUp()
 		{
 			this.c_messageSubscriptionConfigurations = new MessageSubscriptions(
+				1,
 				new[]
 					{
 						new MessageSubscription(
