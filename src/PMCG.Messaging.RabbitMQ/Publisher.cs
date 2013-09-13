@@ -17,6 +17,9 @@ namespace PMCG.Messaging.RabbitMQ
 		private readonly BlockingCollection<QueuedMessage> c_queuedMessages;
 
 
+		private bool c_hasBeenStarted;
+
+
 		public Publisher(
 			ILog logger,
 			IConnection connection,
@@ -36,6 +39,9 @@ namespace PMCG.Messaging.RabbitMQ
 		public void Start()
 		{
 			this.c_logger.Info();
+
+			Check.Ensure(!this.c_hasBeenStarted, "Publisher has already been started, can only do so once");
+			this.c_hasBeenStarted = true;
 
 			try
 			{
@@ -74,25 +80,27 @@ namespace PMCG.Messaging.RabbitMQ
 
 
 		private void Publish(
-			QueuedMessage subject)
+			QueuedMessage message)
 		{
-			this.c_logger.DebugFormat("About to publish message with Id {0} to exchange {1}", subject.Data.Id, subject.ExchangeName);
+			this.c_logger.DebugFormat("About to publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
 
-			var _basicProperties = this.c_channel.CreateBasicProperties();
-			_basicProperties.ContentType = "application/json";
-			_basicProperties.DeliveryMode = subject.DeliveryMode;
-			_basicProperties.Type = subject.TypeHeader;
+			var _properties = this.c_channel.CreateBasicProperties();
+			_properties.ContentType = "application/json";
+			_properties.DeliveryMode = message.DeliveryMode;
+			_properties.Type = message.TypeHeader;
+			_properties.MessageId = message.Data.Id.ToString();
+			_properties.UserId = Environment.UserName;
 
-			var _messageJson = JsonConvert.SerializeObject(subject.Data);
+			var _messageJson = JsonConvert.SerializeObject(message.Data);
 			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);
 
 			this.c_channel.BasicPublish(
-				subject.ExchangeName,
-				subject.RoutingKey,
-				_basicProperties,
+				message.ExchangeName,
+				message.RoutingKey,
+				_properties,
 				_messageBody);
 
-			this.c_logger.DebugFormat("Completed publish message with Id {0} to exchange {1}", subject.Data.Id, subject.ExchangeName);
+			this.c_logger.DebugFormat("Completed publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
 		}
 	}
 }

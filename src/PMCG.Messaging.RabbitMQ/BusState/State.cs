@@ -15,9 +15,8 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 		protected readonly IBusContext Context;
 
 
-		protected MessagePublications MessagePublications { get { return this.Configuration.MessagePublications; } }
-		protected MessageSubscriptions MessageSubscriptions { get { return this.Configuration.MessageSubscriptions; } }
 		protected uint NumberOfPublishers { get { return this.Configuration.NumberOfPublishers; } }
+		protected uint NumberOfSubscribers { get { return this.Configuration.NumberOfSubscribers; } }
 
 
 		protected State(

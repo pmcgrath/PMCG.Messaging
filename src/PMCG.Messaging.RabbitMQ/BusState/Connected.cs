@@ -12,7 +12,7 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 	{
 		private readonly CancellationTokenSource c_cancellationTokenSource;
 		private readonly Task[] c_publisherTasks;
-		private readonly Subscriber c_subscriber;
+		private readonly Task[] c_subscriberTasks;
 
 
 		public Connected(
@@ -46,12 +46,23 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 				this.c_publisherTasks[_index].Start();
 			}
 
-			base.Logger.Info("About to create subscriber");
-			this.c_subscriber = new Subscriber(
-				base.Logger,
-				base.ConnectionManager.Connection,
-				base.MessageSubscriptions);
-			this.c_subscriber.Start();
+			base.Logger.Info("About to create subcriber tasks");
+			this.c_subscriberTasks = new Task[base.NumberOfSubscribers];
+			for (var _index = 0; _index < this.c_subscriberTasks.Length; _index++)
+			{
+				this.c_subscriberTasks[_index] = new Task(
+					() =>
+					{
+						new Subscriber(
+							base.Logger,
+							base.ConnectionManager.Connection,
+							base.Configuration,
+							this.c_cancellationTokenSource.Token)
+							.Start();
+					},
+					TaskCreationOptions.LongRunning);
+				this.c_subscriberTasks[_index].Start();
+			}
 
 			base.Logger.Info("Completed");
 		}
@@ -60,8 +71,6 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 		public override void Close()
 		{
 			base.Logger.Info();
-
-			this.c_subscriber.Stop();
 
 			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
 			this.c_cancellationTokenSource.Cancel();
@@ -86,8 +95,6 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 			ConnectionDisconnectedEventArgs eventArgs)
 		{
 			base.Logger.InfoFormat("Connection has been disconnected for code ({0}) and reason ({1})", eventArgs.Code, eventArgs.Reason);
-
-			this.c_subscriber.Stop();
 
 			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
 			this.c_cancellationTokenSource.Cancel();

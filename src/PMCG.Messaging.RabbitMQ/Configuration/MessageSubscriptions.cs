@@ -8,7 +8,6 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 {
 	public class MessageSubscriptions
 	{
-		public readonly ushort PrefetchCount;
 		public readonly IEnumerable<MessageSubscription> Configurations;
 
 
@@ -23,15 +22,12 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 
 
 		public MessageSubscriptions(
-			ushort prefetchCount,
 			IEnumerable<MessageSubscription> configurations)
 		{
-			Check.RequireArgument("prefetchCount", prefetchCount, prefetchCount > 0);
 			Check.RequireArgumentNotNull("configurations", configurations);
 			Check.RequireArgument("configurations", configurations, configurations.Count() == 
 				configurations.Select(configuration => configuration.TypeHeader).Distinct().Count());
 
-			this.PrefetchCount = prefetchCount;
 			this.Configurations = configurations.ToArray();
 		}
 

@@ -1,35 +1,43 @@
-﻿using Newtonsoft.Json;
-using PMCG.Messaging.RabbitMQ.Configuration;
+﻿using PMCG.Messaging.RabbitMQ.Configuration;
 using PMCG.Messaging.RabbitMQ.Utility;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 using System;
-using System.Text;
+using System.IO;
+using System.Threading;
 
 
 namespace PMCG.Messaging.RabbitMQ
 {
-	public class Subscriber : IMessageDeliveryHandler
+	public class Subscriber
 	{
 		private readonly ILog c_logger;
-		private readonly MessageSubscriptions c_messageSubscriptionConfigurations;
+		private readonly BusConfiguration c_configuration;
 		private readonly IModel c_channel;
-		private readonly Consumer c_consumer;
+		private readonly CancellationToken c_cancellationToken;
+		private readonly SubscriptionMessageProcessor c_messageProcessor;
+
+
+		private bool c_hasBeenStarted;
 
 
 		public Subscriber(
 			ILog logger,
 			IConnection connection,
-			MessageSubscriptions messageSubscriptionConfigurations)
+			BusConfiguration configuration,
+			CancellationToken cancellationToken)
 		{
 			this.c_logger = logger;
-			this.c_messageSubscriptionConfigurations = messageSubscriptionConfigurations;
+			this.c_configuration = configuration;
+			this.c_cancellationToken = cancellationToken;
 
 			this.c_logger.Info("About to create channel");
 			this.c_channel = connection.CreateModel();
-			this.c_channel.BasicQos(0, messageSubscriptionConfigurations.PrefetchCount, false);
+			this.c_channel.BasicQos(0, this.c_configuration.SubscriptionMessagePrefetchCount, false);
 
-			this.c_logger.Info("About to create consumer");
-			this.c_consumer = new Consumer(this.c_channel, this.c_logger, this);
+			this.c_logger.Info("About to create subscription message processor");
+			this.c_messageProcessor = new SubscriptionMessageProcessor(this.c_logger, this.c_configuration);
 
 			this.c_logger.Info("Completed");
 		}
@@ -39,75 +47,48 @@ namespace PMCG.Messaging.RabbitMQ
 		{
 			this.c_logger.Info();
 
-			foreach (var _queueName in this.c_messageSubscriptionConfigurations.GetDistinctQueueNames())
+			Check.Ensure(!this.c_hasBeenStarted, "Subsriber has already been started, can only do so once");
+			this.c_hasBeenStarted = true;
+
+			var _consumer = new QueueingBasicConsumer(this.c_channel);
+			foreach (var _queueName in this.c_configuration.MessageSubscriptions.GetDistinctQueueNames())
 			{
 				this.c_logger.InfoFormat("Consume for queue {0}", _queueName);
-				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, this.c_consumer);
+				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, _consumer);
 				this.c_logger.InfoFormat("Consume for queue {0}, consumer tag is {1}", _queueName, _consumerTag);
 			}
 
-			this.c_logger.Info("Completed");
-		}
-
-
-		public void Stop()
-		{
-			this.c_logger.Info();
-			// Cater for case where connection has been broken
-			try { this.c_channel.Close(); } catch { }
-			this.c_logger.Info("Completed");
-		}
-
-
-		public void Handle(
-			SubscriptionMessage subject)
-		{
-			var _logMessageContext = string.Format("type header = {0} and delivery tag = {1}", subject.Type, subject.DeliveryTag);
-			this.c_logger.DebugFormat("About to handle message, {0}", _logMessageContext);
-
-			if (!this.c_messageSubscriptionConfigurations.HasConfiguration(subject.Type))
+			this.c_logger.Info("About to start consuming loop");
+			var _timeoutInMilliseconds = (int)this.c_configuration.SubscriptionDequeueTimeout.TotalMilliseconds;
+			while (!this.c_cancellationToken.IsCancellationRequested)
 			{
-				this.c_logger.DebugFormat("No match found for message, {0}", _logMessageContext);
-				//pending - see errored below
-				this.c_channel.BasicNack(subject.DeliveryTag, false, false);
-				return;
+				try
+				{
+					object _result = null;
+					if (_consumer.Queue.Dequeue(_timeoutInMilliseconds, out _result))
+					{
+						this.c_messageProcessor.Process(this.c_channel, (BasicDeliverEventArgs)_result);
+					}
+				}
+				catch (EndOfStreamException)
+				{
+					this.c_logger.Info("End of stream");
+					break;
+				}
+				catch (Exception genericException)
+				{
+					this.c_logger.ErrorFormat("Exception : {0}", genericException);
+					throw;
+				}
 			}
 
-			var _configuration = this.c_messageSubscriptionConfigurations[subject.Type];
-			var _actionResult = MessageSubscriptionActionResult.None;
-			try
+			if (this.c_channel.IsOpen)
 			{
-				this.c_logger.DebugFormat("About to deserialze message for message, {0}", _logMessageContext);
-				var _messageJson = Encoding.UTF8.GetString(subject.Body);
-				var _message = JsonConvert.DeserializeObject(_messageJson, _configuration.Type);
-				
-				this.c_logger.DebugFormat("About to invoke action for message, {0}", _logMessageContext);
-				_actionResult = _configuration.Action(_message as Message);
-			}
-			catch
-			{
-				_actionResult = MessageSubscriptionActionResult.Errored;
-			}
-			this.c_logger.DebugFormat("Completed processing for message, {0}, result is {1}", _logMessageContext, _actionResult);
-
-
-			if (_actionResult == MessageSubscriptionActionResult.Errored)
-			{
-				//pending - should i use configuration properties
-				// Nack, do not requeue, dead letter the message if dead letter exchange configured for the queue
-				this.c_channel.BasicNack(subject.DeliveryTag, false, false);
-			}
-			else if (_actionResult == MessageSubscriptionActionResult.Completed)
-			{
-				this.c_channel.BasicAck(subject.DeliveryTag, false);
-			}
-			else if (_actionResult == MessageSubscriptionActionResult.Requeue)
-			{
-				//pending does this make sense ?
-				this.c_channel.BasicReject(subject.DeliveryTag, true);
+				// Cater for race condition, when stopping - Is open but when we get to this line it is closed
+				try { this.c_channel.Close(); } catch { }
 			}
 
-			this.c_logger.DebugFormat("Completed handling message, {0}, Result is {1}", _logMessageContext, _actionResult);
+			this.c_logger.Info("Completed consuming");
 		}
 	}
 }

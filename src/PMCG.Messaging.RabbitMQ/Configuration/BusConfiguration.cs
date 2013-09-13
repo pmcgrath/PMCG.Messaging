@@ -9,7 +9,10 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 		public readonly string ConnectionUri;
 		public readonly string DisconnectedMessagesStoragePath;
 		public readonly TimeSpan ReconnectionPauseInterval;
-		public readonly uint NumberOfPublishers;
+		public readonly ushort NumberOfPublishers;
+		public readonly ushort NumberOfSubscribers;
+		public readonly ushort SubscriptionMessagePrefetchCount;
+		public readonly TimeSpan SubscriptionDequeueTimeout;
 		public readonly MessagePublications MessagePublications;
 		public readonly MessageSubscriptions MessageSubscriptions;
 
@@ -18,14 +21,20 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 			string connectionUri,
 			string disconnectedMessagesStoragePath,
 			TimeSpan reconnectionPauseInterval,
-			uint numberOfPublishers,
+			ushort numberOfPublishers,
+			ushort numberOfSubscribers,
+			ushort subscriptionMessagePrefetchCount,
+			TimeSpan subscriptionDequeueTimeout,
 			MessagePublications messagePublications,
 			MessageSubscriptions messageSubscriptions)
 		{
 			Check.RequireArgumentNotEmpty("connectionUri", connectionUri);
 			Check.RequireArgumentNotEmpty("disconnectedMessagesStoragePath", disconnectedMessagesStoragePath);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.TotalSeconds > 0);
-			Check.RequireArgument("numberOfPublishers", numberOfPublishers, numberOfPublishers > 0U);
+			Check.RequireArgument("numberOfPublishers", numberOfPublishers, numberOfPublishers > 0);
+			Check.RequireArgument("numberOfSubscribers", numberOfSubscribers, numberOfSubscribers > 0);
+			Check.RequireArgument("subscriptionMessagePrefetchCount", subscriptionMessagePrefetchCount, subscriptionMessagePrefetchCount > 0);
+			Check.RequireArgument("subscriptionDequeueTimeout", subscriptionDequeueTimeout, subscriptionDequeueTimeout.TotalSeconds > 0);
 			Check.RequireArgumentNotNull("messagePublications", messagePublications);
 			Check.RequireArgumentNotNull("messageSubscriptions", messageSubscriptions);
 			
@@ -33,6 +42,9 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 			this.DisconnectedMessagesStoragePath = disconnectedMessagesStoragePath;
 			this.ReconnectionPauseInterval = reconnectionPauseInterval;
 			this.NumberOfPublishers = numberOfPublishers;
+			this.NumberOfSubscribers = numberOfSubscribers;
+			this.SubscriptionMessagePrefetchCount = subscriptionMessagePrefetchCount;
+			this.SubscriptionDequeueTimeout = subscriptionDequeueTimeout;
 			this.MessagePublications = messagePublications;
 			this.MessageSubscriptions = messageSubscriptions;
 		}

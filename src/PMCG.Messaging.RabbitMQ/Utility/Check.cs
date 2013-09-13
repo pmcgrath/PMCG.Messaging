@@ -28,5 +28,13 @@ namespace PMCG.Messaging.RabbitMQ.Utility
 		{
 			if (argumentValue == null) { throw new ArgumentNullException(argumentName); }
 		}
+
+
+		public static void Ensure(
+			bool isConditionSatisfied,
+			string conditionNotSatisfiedMessage)
+		{
+			if (!isConditionSatisfied) { throw new ApplicationException(string.Format("Pre-condition not satisfied - {0}", conditionNotSatisfiedMessage)); }
+		}
 	}
 }
