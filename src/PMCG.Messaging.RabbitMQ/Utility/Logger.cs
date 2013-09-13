@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace PMCG.Messaging.RabbitMQ.Utility
 {
-	public class Log : ILog
+	public class Logger : ILog
 	{
 		public void DebugFormat(
 			string formatMessage,
