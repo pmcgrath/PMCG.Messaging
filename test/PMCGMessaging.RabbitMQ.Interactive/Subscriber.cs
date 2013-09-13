@@ -57,7 +57,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 
 		public void InstantiateSubscriber()
 		{
-			var _logger = new Logger();
+			var _logger = new ConsoleLogger();
 
 			var _connectionUri = "amqp://guest:guest@localhost:5672/dev";
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();
