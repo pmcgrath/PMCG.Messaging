@@ -24,7 +24,7 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 			this.NumberOfPublishers = 1;
 			this.NumberOfSubscribers = 1;
 			this.SubscriptionMessagePrefetchCount = 1;
-			this.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(500);
+			this.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(100);
 
 			this.MessagePublications = new Dictionary<Type, List<MessageDelivery>>();
 			this.MessageSubscriptions = new Dictionary<string, MessageSubscription>();
