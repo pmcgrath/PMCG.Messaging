@@ -18,6 +18,10 @@ namespace PMCG.Messaging.RabbitMQ
 
 
 		private bool c_hasBeenStarted;
+		private bool c_isCompleted;
+
+
+		public bool IsCompleted { get { return this.c_isCompleted; } }
 
 
 		public Publisher(
@@ -39,10 +43,35 @@ namespace PMCG.Messaging.RabbitMQ
 		public void Start()
 		{
 			this.c_logger.Info();
-
 			Check.Ensure(!this.c_hasBeenStarted, "Publisher has already been started, can only do so once");
-			this.c_hasBeenStarted = true;
+			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation token is already canceled");
 
+			try
+			{
+				this.c_hasBeenStarted = true;
+				this.RunPublicationLoop();
+			}
+			catch (Exception exception)
+			{
+				this.c_logger.ErrorFormat("Exception : {0}", exception);
+				throw;
+			}
+			finally
+			{
+				if (this.c_channel.IsOpen)
+				{
+					// Cater for race condition, when stopping - Is open but when we get to this line it is closed
+					try { this.c_channel.Close(); } catch { }
+				}
+
+				this.c_isCompleted = true;
+				this.c_logger.Info("Completed publishing");
+			}
+		}
+
+
+		private void RunPublicationLoop()
+		{
 			try
 			{
 				foreach (var _queuedMessage in this.c_queuedMessages.GetConsumingEnumerable(this.c_cancellationToken))
@@ -52,9 +81,11 @@ namespace PMCG.Messaging.RabbitMQ
 						this.c_logger.DebugFormat("About to publish message with Id ({0})", _queuedMessage.Data.Id);
 						this.Publish(_queuedMessage);
 					}
-					catch (Exception genericException)
+					catch (Exception exception)
 					{
-						this.c_logger.ErrorFormat("Publication error {0}", genericException.Message);
+						this.c_logger.ErrorFormat("Publication error for message with Id ({0}) error message: {0}, requeuing the messaage",
+							_queuedMessage.Data.Id,
+							exception.Message);
 						this.c_queuedMessages.Add(_queuedMessage);
 						throw;
 					}
@@ -64,18 +95,6 @@ namespace PMCG.Messaging.RabbitMQ
 			{
 				this.c_logger.Info("Operation canceled");
 			}
-			catch (Exception genericException)
-			{
-				this.c_logger.ErrorFormat("EXCEPTION {0}", genericException.Message);
-			}
-
-			if (this.c_channel.IsOpen)
-			{
-				// Cater for race condition, when stopping - Is open but when we get to this line it is closed
-				try { this.c_channel.Close(); } catch { }
-			}
-
-			this.c_logger.Info("Completed");
 		}
 
 
@@ -89,7 +108,7 @@ namespace PMCG.Messaging.RabbitMQ
 			_properties.DeliveryMode = message.DeliveryMode;
 			_properties.Type = message.TypeHeader;
 			_properties.MessageId = message.Data.Id.ToString();
-			_properties.UserId = Environment.UserName;
+//			_properties.UserId = Environment.UserName;
 
 			var _messageJson = JsonConvert.SerializeObject(message.Data);
 			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);

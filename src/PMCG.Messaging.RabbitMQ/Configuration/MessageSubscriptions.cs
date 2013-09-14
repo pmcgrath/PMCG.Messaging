@@ -32,16 +32,22 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 		}
 
 
+		public bool HasConfiguration(
+			string typeHeader)
+		{
+			return this.Configurations.Any(configuration => configuration.TypeHeader == typeHeader);
+		}
+
+
 		public IEnumerable<string> GetDistinctQueueNames()
 		{
 			return this.Configurations.Select(configuration => configuration.QueueName).Distinct();
 		}
 
 
-		public bool HasConfiguration(
-			string typeHeader)
+		public IEnumerable<MessageSubscription> GetTransientQueueConfigurations()
 		{
-			return this.Configurations.Any(configuration => configuration.TypeHeader == typeHeader);
+			return this.Configurations.Where(configuration => configuration.UseTransientQueue);
 		}
 	}
 }

@@ -20,6 +20,11 @@ namespace PMCG.Messaging.RabbitMQ
 
 
 		private bool c_hasBeenStarted;
+		private bool c_isCompleted;
+		private QueueingBasicConsumer c_consumer;
+
+
+		public bool IsCompleted { get { return this.c_isCompleted; } }
 
 
 		public Subscriber(
@@ -46,18 +51,60 @@ namespace PMCG.Messaging.RabbitMQ
 		public void Start()
 		{
 			this.c_logger.Info();
-
 			Check.Ensure(!this.c_hasBeenStarted, "Subsriber has already been started, can only do so once");
-			this.c_hasBeenStarted = true;
+			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation token is already canceled");
 
-			var _consumer = new QueueingBasicConsumer(this.c_channel);
+			try
+			{
+				this.c_hasBeenStarted = true;
+				this.EnsureTransientQueuesExist();
+				this.CreateAndConfigureConsumer();
+				this.RunConsumeLoop();
+			}
+			catch (Exception exception)
+			{
+				this.c_logger.ErrorFormat("Exception : {0}", exception);
+				throw;
+			}
+			finally
+			{
+				if (this.c_channel.IsOpen)
+				{
+					// Cater for race condition, when stopping - Is open but when we get to this line it is closed
+					try { this.c_channel.Close(); } catch { }
+				}
+
+				this.c_isCompleted = true;
+				this.c_logger.Info("Completed consuming");
+			}
+		}
+
+
+		private void EnsureTransientQueuesExist()
+		{
+			foreach (var _configuration in this.c_configuration.MessageSubscriptions.GetTransientQueueConfigurations())
+			{
+				this.c_logger.InfoFormat("Verifying for transient queue {0}", _configuration.QueueName);
+				this.c_channel.QueueDeclare(_configuration.QueueName, false, false, true, null);
+				this.c_channel.QueueBind(_configuration.QueueName, _configuration.ExchangeName, string.Empty);
+			}
+		}
+
+
+		private void CreateAndConfigureConsumer()
+		{
+			this.c_consumer = new QueueingBasicConsumer(this.c_channel);
 			foreach (var _queueName in this.c_configuration.MessageSubscriptions.GetDistinctQueueNames())
 			{
 				this.c_logger.InfoFormat("Consume for queue {0}", _queueName);
-				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, _consumer);
+				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, this.c_consumer);
 				this.c_logger.InfoFormat("Consume for queue {0}, consumer tag is {1}", _queueName, _consumerTag);
 			}
+		}
 
+
+		private void RunConsumeLoop()
+		{
 			this.c_logger.Info("About to start consuming loop");
 			var _timeoutInMilliseconds = (int)this.c_configuration.SubscriptionDequeueTimeout.TotalMilliseconds;
 			while (!this.c_cancellationToken.IsCancellationRequested)
@@ -65,7 +112,7 @@ namespace PMCG.Messaging.RabbitMQ
 				try
 				{
 					object _result = null;
-					if (_consumer.Queue.Dequeue(_timeoutInMilliseconds, out _result))
+					if (this.c_consumer.Queue.Dequeue(_timeoutInMilliseconds, out _result))
 					{
 						this.c_messageProcessor.Process(this.c_channel, (BasicDeliverEventArgs)_result);
 					}
@@ -75,20 +122,7 @@ namespace PMCG.Messaging.RabbitMQ
 					this.c_logger.Info("End of stream");
 					break;
 				}
-				catch (Exception genericException)
-				{
-					this.c_logger.ErrorFormat("Exception : {0}", genericException);
-					throw;
-				}
 			}
-
-			if (this.c_channel.IsOpen)
-			{
-				// Cater for race condition, when stopping - Is open but when we get to this line it is closed
-				try { this.c_channel.Close(); } catch { }
-			}
-
-			this.c_logger.Info("Completed consuming");
 		}
 	}
 }

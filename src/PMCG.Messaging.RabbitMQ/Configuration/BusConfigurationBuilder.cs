@@ -32,23 +32,46 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 
 
 		public BusConfigurationBuilder RegisterPublication<TMessage>(
-			string exchangeName,
-			MessageDeliveryMode deliveryMode)
+			string exchangeName)
 			where TMessage : Message
 		{
 			return this.RegisterPublication<TMessage>(
 				exchangeName,
-				deliveryMode,
-				message => string.Empty,
 				typeof(TMessage).FullName);
+		}
+
+	
+		public BusConfigurationBuilder RegisterPublication<TMessage>(
+			string exchangeName,
+			string typeHeader)
+			where TMessage : Message
+		{
+			return this.RegisterPublication<TMessage>(
+				exchangeName,
+				typeHeader,
+				MessageDeliveryMode.Persistent);
 		}
 
 
 		public BusConfigurationBuilder RegisterPublication<TMessage>(
 			string exchangeName,
+			string typeHeader,
+			MessageDeliveryMode deliveryMode)
+			where TMessage : Message
+		{
+			return this.RegisterPublication<TMessage>(
+				exchangeName,
+				typeHeader,
+				deliveryMode,
+				message => string.Empty);
+		}
+
+
+		public BusConfigurationBuilder RegisterPublication<TMessage>(
+			string exchangeName,
+			string typeHeader,
 			MessageDeliveryMode deliveryMode,
-			Func<Message, string> routingKeyFunc,
-			string typeHeader)
+			Func<Message, string> routingKeyFunc)
 			where TMessage : Message
 		{
 			var _messageType = typeof(TMessage);
@@ -63,9 +86,9 @@ namespace PMCG.Messaging.RabbitMQ.Configuration
 			this.MessagePublications[_messageType].Add(
 				new MessageDelivery(
 					exchangeName,
+					typeHeader,
 					deliveryMode,
-					routingKeyFunc,
-					typeHeader));
+					routingKeyFunc));
 
 			return this;
 		}

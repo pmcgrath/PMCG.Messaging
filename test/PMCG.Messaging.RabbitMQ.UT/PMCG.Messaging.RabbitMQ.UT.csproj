@@ -58,6 +58,7 @@
     <Compile Include="Configuration\MessageSubscription.cs" />
     <Compile Include="Configuration\MessageSubscriptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Subscriber.cs" />
     <Compile Include="SubscriptionMessageProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

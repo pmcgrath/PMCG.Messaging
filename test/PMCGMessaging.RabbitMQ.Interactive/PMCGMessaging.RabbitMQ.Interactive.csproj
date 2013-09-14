@@ -45,7 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationFactory.cs" />
+    <Compile Include="Bus.cs" />
+    <Compile Include="ConnectionManager.cs" />
     <Compile Include="Subscribers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="TheEvent.cs" />

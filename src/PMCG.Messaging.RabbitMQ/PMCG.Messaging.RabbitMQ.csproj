@@ -78,6 +78,7 @@
     <Compile Include="Subscriber.cs" />
     <Compile Include="Utility\Check.cs" />
     <Compile Include="Utility\ConsoleLogger.cs" />
+    <Compile Include="Utility\NullLogger.cs" />
     <Compile Include="Utility\ILog.cs" />
   </ItemGroup>
   <ItemGroup>

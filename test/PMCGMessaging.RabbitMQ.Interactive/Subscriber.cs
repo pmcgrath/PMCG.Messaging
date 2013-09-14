@@ -1,4 +1,5 @@
-﻿using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.RabbitMQ.Configuration;
+using PMCG.Messaging.RabbitMQ.Utility;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
@@ -32,7 +33,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 			new Task(this.c_subscriber.Start).Start();
 
 			Console.WriteLine("Close the connection from the dashboard");
-			Console.WriteLine("After clsoing the connecton hit enter to exit");
+			Console.WriteLine("After closing the connecton hit enter to exit");
 			Console.ReadLine();
 		}
 
@@ -57,20 +58,26 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 
 		public void InstantiateSubscriber()
 		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+
+			this.InstantiateSubscriber(_busConfigurationBuilder.Build());
+		}
+
+
+		public void InstantiateSubscriber(
+			BusConfiguration busConfiguration)
+		{
 			var _logger = new ConsoleLogger();
-
-			var _connectionUri = "amqp://guest:guest@localhost:5672/dev";
-			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();
-
-			var _busConfiguration = ConfigurationFactory.CreateABusConfiguration();
-
+			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUri }.CreateConnection();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
 			this.c_subscriber = new PMCG.Messaging.RabbitMQ.Subscriber(
 				_logger,
 				this.c_connection,
- 				_busConfiguration,
- 				this.c_cancellationTokenSource.Token);
+				busConfiguration,
+				this.c_cancellationTokenSource.Token);
 		}
 	}
 }
