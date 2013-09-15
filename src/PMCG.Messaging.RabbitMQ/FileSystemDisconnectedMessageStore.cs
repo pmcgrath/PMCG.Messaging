@@ -8,6 +8,7 @@ using System.Text;
 
 namespace PMCG.Messaging.RabbitMQ
 {
+	// This will not scale !
 	public class FileSystemDisconnectedMessageStore : IDisconnectedMessageStore
 	{
 		private readonly string c_directoryPath;

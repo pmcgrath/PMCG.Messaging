@@ -2,7 +2,6 @@
 using PMCG.Messaging.RabbitMQ.Utility;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -64,33 +63,8 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 			base.Logger.Info();
 
 			base.OpenConnection();
-			this.RequeueDisconnectedMessages();
+			base.RequeueDisconnectedMessages(this.c_disconnectedMessageStore);
 			base.TransitionToNewState(typeof(Connected));
-
-			base.Logger.Info("Completed");
-		}
-
-
-		private void RequeueDisconnectedMessages()
-		{
-			base.Logger.Info();
-
-			var _queuedMessageIds = base.QueuedMessages
-				.Select(queuedMessage => queuedMessage.Data.Id)
-				.Distinct()
-				.ToArray();
-
-			foreach (var _messageId in this.c_disconnectedMessageStore.GetAllIds())
-			{
-				var _isDisconnectedMessageInQueue = _queuedMessageIds.Any(id => id == _messageId);
-				if (!_isDisconnectedMessageInQueue)
-				{
-					var _message = this.c_disconnectedMessageStore.Get(_messageId);
-					base.QueueMessageForDelivery(_message);
-				}
-
-				this.c_disconnectedMessageStore.Delete(_messageId);
-			}
 
 			base.Logger.Info("Completed");
 		}

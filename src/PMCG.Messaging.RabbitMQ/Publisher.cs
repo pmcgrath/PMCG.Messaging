@@ -84,22 +84,29 @@ namespace PMCG.Messaging.RabbitMQ
 
 		private void RunPublicationLoop()
 		{
-			foreach (var _queuedMessage in this.c_queuedMessages.GetConsumingEnumerable(this.c_cancellationToken))
+			try
 			{
-				try
+				foreach (var _queuedMessage in this.c_queuedMessages.GetConsumingEnumerable(this.c_cancellationToken))
 				{
-					this.Publish(_queuedMessage);
+					try
+					{
+						this.Publish(_queuedMessage);
+					}
+					catch (OperationCanceledException)
+					{
+						this.c_logger.Info("Operation canceled");
+						this.c_queuedMessages.Add(_queuedMessage);
+					}
+					catch (Exception exception)
+					{
+						this.c_queuedMessages.Add(_queuedMessage);
+						throw;
+					}
 				}
-				catch (OperationCanceledException)
-				{
-					this.c_logger.Info("Operation canceled");
-					this.c_queuedMessages.Add(_queuedMessage);
-				}
-				catch (Exception exception)
-				{
-					this.c_queuedMessages.Add(_queuedMessage);
-					throw;
-				}
+			}
+			catch (OperationCanceledException)
+			{
+				this.c_logger.Info("Operation canceled");
 			}
 		}
 

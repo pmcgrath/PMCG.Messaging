@@ -120,7 +120,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 
 		public void Run_Where_We_Publish_Multiple_Messages_And_Subscribe_For_The_Same_Messsages()
 		{
-			var _numberOfMessagesToPublish = 250;
+			var _numberOfMessagesToPublish = 2500;
 			var _receivedMessages = new ConcurrentStack<MyEvent>();
 
 			var _logger = new NullLogger();

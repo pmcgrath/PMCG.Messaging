@@ -46,6 +46,11 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 				this.c_publisherTasks[_index].Start();
 			}
 
+			base.Logger.Info("About to reqeue disconnected messages");
+			base.RequeueDisconnectedMessages(
+				new FileSystemDisconnectedMessageStore(
+					base.Configuration.DisconnectedMessagesStoragePath));
+
 			base.Logger.Info("About to create subcriber tasks");
 			this.c_subscriberTasks = new Task[base.NumberOfSubscribers];
 			for (var _index = 0; _index < this.c_subscriberTasks.Length; _index++)

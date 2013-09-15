@@ -2,6 +2,7 @@
 using PMCG.Messaging.RabbitMQ.Utility;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 
 
 namespace PMCG.Messaging.RabbitMQ.BusState
@@ -97,6 +98,32 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 					this.QueuedMessages.Add(_queuedMessage);
 				}
 			}
+		}
+
+
+		protected void RequeueDisconnectedMessages(
+			IDisconnectedMessageStore disconnectedMessageStore)
+		{
+			this.Logger.Info();
+
+			var _queuedMessageIds = this.QueuedMessages
+				.Select(queuedMessage => queuedMessage.Data.Id)
+				.Distinct()
+				.ToArray();
+
+			foreach (var _messageId in disconnectedMessageStore.GetAllIds())
+			{
+				var _isDisconnectedMessageInQueue = _queuedMessageIds.Any(id => id == _messageId);
+				if (!_isDisconnectedMessageInQueue)
+				{
+					var _message = disconnectedMessageStore.Get(_messageId);
+					this.QueueMessageForDelivery(_message);
+				}
+
+				disconnectedMessageStore.Delete(_messageId);
+			}
+
+			this.Logger.Info("Completed");
 		}
 	}
 }
