@@ -8,7 +8,7 @@ namespace PMCG.Messaging.RabbitMQ
 	{
 		IEnumerable<Guid> GetAllIds();
 
-		string Add(
+		void Add(
 			Message message);
 
 		Message Get(

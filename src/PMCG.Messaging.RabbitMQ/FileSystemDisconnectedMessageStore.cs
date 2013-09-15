@@ -8,7 +8,7 @@ using System.Text;
 
 namespace PMCG.Messaging.RabbitMQ
 {
-	public class DisconnectedMessageStore
+	public class FileSystemDisconnectedMessageStore : IDisconnectedMessageStore
 	{
 		private readonly string c_directoryPath;
 
@@ -16,31 +16,23 @@ namespace PMCG.Messaging.RabbitMQ
 		public static readonly string FileExtension = ".message";
 
 
-		public DisconnectedMessageStore(
+		public FileSystemDisconnectedMessageStore(
 			string directoryPath)
 		{
 			this.c_directoryPath = directoryPath;
 		}
 
 
-		public void Store(
-			params Message[] messages)
+		public IEnumerable<Guid> GetAllIds()
 		{
-			foreach (var _message in messages)
-			{
-				this.WriteMessage(_message);
-			}
+			return Directory.GetFiles(this.c_directoryPath, "*" + FileSystemDisconnectedMessageStore.FileExtension)
+				.OrderBy(filePath => filePath)
+				.Select(filePath => this.GetMessageIdFromFilePath(filePath))
+				.ToArray();
 		}
 
 
-		public IEnumerable<string> GetAllMessageKeys()
-		{
-			var _messageFilePaths = Directory.GetFiles(this.c_directoryPath, "*" + DisconnectedMessageStore.FileExtension);
-			return _messageFilePaths.OrderBy(filePath => filePath).ToArray();
-		}
-
-
-		public string WriteMessage(
+		public void Add(
 			Message message)
 		{
 			var _nowAsString = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fffffff");
@@ -52,7 +44,7 @@ namespace PMCG.Messaging.RabbitMQ
 				_messageType.Namespace,
 				_messageType.Name,
 				message.Id,
-				DisconnectedMessageStore.FileExtension);
+				FileSystemDisconnectedMessageStore.FileExtension);
 			var _filePath = Path.Combine(this.c_directoryPath, _fileName);
 
 			var _fileContent = string.Format("{1}{0}{2}{0}{3}{0}{0}{4}",
@@ -63,15 +55,16 @@ namespace PMCG.Messaging.RabbitMQ
 				_messageJson);
 
 			File.WriteAllText(_filePath, _fileContent, Encoding.Default);
-
-			return _filePath;
 		}
 
 
-		public Message ReadMessage(
-			string key)
+		public Message Get(
+			Guid id)
 		{
-			var _fileContentAsLines = File.ReadAllLines(key, Encoding.Default);
+			var _fileSearchPattern = string.Format("*_{0}{1}", id, FileSystemDisconnectedMessageStore.FileExtension);
+			var _filePath = Directory.GetFiles(this.c_directoryPath, _fileSearchPattern).First();
+
+			var _fileContentAsLines = File.ReadAllLines(_filePath, Encoding.Default);
 			var _messageTypeAssemblyQualifiedName = _fileContentAsLines[1];
 			var _messageJson = string.Join(Environment.NewLine, _fileContentAsLines.Skip(4));
 
@@ -81,18 +74,26 @@ namespace PMCG.Messaging.RabbitMQ
 		}
 
 
-		public void RemoveMessage(
-			string key)
+		public void Delete(
+			Guid id)
 		{
-			File.Delete(key);
+			File.Delete(this.GetFilePathForMessageId(id));
 		}
 
 
-		public Guid GetMessageIdFromKey(
+		private Guid GetMessageIdFromFilePath(
 			string key)
 		{
-			var _keyPart = key.Substring(key.LastIndexOf('_') + 1).Replace(DisconnectedMessageStore.FileExtension, string.Empty);
+			var _keyPart = key.Substring(key.LastIndexOf('_') + 1).Replace(FileSystemDisconnectedMessageStore.FileExtension, string.Empty);
 			return new Guid(_keyPart);
+		}
+
+
+		private string GetFilePathForMessageId(
+			Guid id)
+		{
+			var _fileSearchPattern = string.Format("*_{0}{1}", id, FileSystemDisconnectedMessageStore.FileExtension);
+			return Directory.GetFiles(this.c_directoryPath, _fileSearchPattern).First();
 		}
 	}
 }

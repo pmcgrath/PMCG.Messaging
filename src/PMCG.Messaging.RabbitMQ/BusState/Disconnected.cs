@@ -11,7 +11,7 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 {
 	public class Disconnected : State
 	{
-		private readonly DisconnectedMessageStore c_disconnectedMessageStore;
+		private readonly IDisconnectedMessageStore c_disconnectedMessageStore;
 
 
 		public Disconnected(
@@ -24,7 +24,7 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 		{
 			base.Logger.Info();
 			
-			this.c_disconnectedMessageStore = new DisconnectedMessageStore(base.Configuration.DisconnectedMessagesStoragePath);
+			this.c_disconnectedMessageStore = new FileSystemDisconnectedMessageStore(base.Configuration.DisconnectedMessagesStoragePath);
 			this.StoreDisconnectedMessages();
 			new Task(this.TryRestablishingConnection).Start();
 
@@ -44,15 +44,18 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 			TMessage message)
 		{
 			base.Logger.InfoFormat("Storing message ({0}) with Id {1}", message, message.Id);
-			this.c_disconnectedMessageStore.Store(message);
+			this.c_disconnectedMessageStore.Add(message);
 			base.Logger.Info("Completed");
 		}
 
 
 		private void StoreDisconnectedMessages()
 		{
-			var _distinctMessages = base.QueuedMessages.Select(queuedMessage => queuedMessage.Data).Distinct().ToArray();
-			this.c_disconnectedMessageStore.Store(_distinctMessages);
+			var _distinctMessages = base.QueuedMessages.Select(queuedMessage => queuedMessage.Data).Distinct();
+			foreach (var _message in _distinctMessages)
+			{
+				this.c_disconnectedMessageStore.Add(_message);
+			}
 		}
 
 
@@ -77,17 +80,16 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 				.Distinct()
 				.ToArray();
 
-			foreach (var _messageKey in this.c_disconnectedMessageStore.GetAllMessageKeys())
+			foreach (var _messageId in this.c_disconnectedMessageStore.GetAllIds())
 			{
-				var _messageId = this.c_disconnectedMessageStore.GetMessageIdFromKey(_messageKey);
 				var _isDisconnectedMessageInQueue = _queuedMessageIds.Any(id => id == _messageId);
 				if (!_isDisconnectedMessageInQueue)
 				{
-					var _message = this.c_disconnectedMessageStore.ReadMessage(_messageKey);
+					var _message = this.c_disconnectedMessageStore.Get(_messageId);
 					base.QueueMessageForDelivery(_message);
 				}
 
-				this.c_disconnectedMessageStore.RemoveMessage(_messageKey);
+				this.c_disconnectedMessageStore.Delete(_messageId);
 			}
 
 			base.Logger.Info("Completed");
