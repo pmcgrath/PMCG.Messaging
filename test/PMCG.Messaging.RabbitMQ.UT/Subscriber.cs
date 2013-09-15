@@ -24,7 +24,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 		public void SetUp()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "....";
+			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
 			_busConfigurationBuilder.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(20);
 			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
