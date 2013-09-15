@@ -25,30 +25,30 @@ namespace PMCG.Messaging.RabbitMQ.UT
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "....";
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
-			_busConfigurationBuilder.RegisterSubscription<AnEvent>(
+			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
-				typeof(AnEvent).Name,
+				typeof(MyEvent).Name,
 				message =>
 					{
 						this.c_messageProcessrResult = MessageSubscriptionActionResult.Completed;
 						return MessageSubscriptionActionResult.Completed;
 					});
-			_busConfigurationBuilder.RegisterSubscription<AnEvent>(
+			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
-				typeof(AnEvent).FullName,
+				typeof(MyEvent).FullName,
 				message =>
 					{
 						this.c_messageProcessrResult = MessageSubscriptionActionResult.Completed;
 						return MessageSubscriptionActionResult.Completed;
 					});
-			_busConfigurationBuilder.RegisterSubscription<AnEvent>(
+			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
 				"Throw_Error_Type_Header",
 				message =>
 					{
 						throw new ApplicationException("Bang !");
 					});
-			_busConfigurationBuilder.RegisterSubscription<AnEvent>(
+			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
 				"Returns_Errored_Result",
 				message =>
@@ -97,7 +97,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 		public void Process_Where_Known_Type_Results_In_Channel_Being_Acked()
 		{
 			var _properties = Substitute.For<IBasicProperties>();
-			_properties.Type.Returns(typeof(AnEvent).Name);
+			_properties.Type.Returns(typeof(MyEvent).Name);
 
 			var _message = new BasicDeliverEventArgs(
 				consumerTag: Guid.NewGuid().ToString(),

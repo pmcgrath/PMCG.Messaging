@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using PMCG.Messaging.RabbitMQ.Utility;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Text;
 using System.Threading;
 
@@ -36,6 +38,8 @@ namespace PMCG.Messaging.RabbitMQ
 
 			this.c_logger.Info("About to create channel");
 			this.c_channel = connection.CreateModel();
+			this.c_channel.ConfirmSelect();
+			this.c_channel.BasicAcks += this.OnChannelAcked;
 			this.c_logger.Info("Completed");
 		}
 
@@ -70,30 +74,32 @@ namespace PMCG.Messaging.RabbitMQ
 		}
 
 
+		private void OnChannelAcked(
+			IModel channel,
+			BasicAckEventArgs args)
+		{
+			this.c_logger.DebugFormat("Channel acked, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
+		}
+
+
 		private void RunPublicationLoop()
 		{
-			try
+			foreach (var _queuedMessage in this.c_queuedMessages.GetConsumingEnumerable(this.c_cancellationToken))
 			{
-				foreach (var _queuedMessage in this.c_queuedMessages.GetConsumingEnumerable(this.c_cancellationToken))
+				try
 				{
-					try
-					{
-						this.c_logger.DebugFormat("About to publish message with Id ({0})", _queuedMessage.Data.Id);
-						this.Publish(_queuedMessage);
-					}
-					catch (Exception exception)
-					{
-						this.c_logger.ErrorFormat("Publication error for message with Id ({0}) error message: {0}, requeuing the messaage",
-							_queuedMessage.Data.Id,
-							exception.Message);
-						this.c_queuedMessages.Add(_queuedMessage);
-						throw;
-					}
+					this.Publish(_queuedMessage);
 				}
-			}
-			catch (OperationCanceledException)
-			{
-				this.c_logger.Info("Operation canceled");
+				catch (OperationCanceledException)
+				{
+					this.c_logger.Info("Operation canceled");
+					this.c_queuedMessages.Add(_queuedMessage);
+				}
+				catch (Exception exception)
+				{
+					this.c_queuedMessages.Add(_queuedMessage);
+					throw;
+				}
 			}
 		}
 
@@ -101,14 +107,16 @@ namespace PMCG.Messaging.RabbitMQ
 		private void Publish(
 			QueuedMessage message)
 		{
-			this.c_logger.DebugFormat("About to publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
+			this.c_logger.DebugFormat("About to publish message with Id {0} to exchange {1}, next channel sequence number {2}", 
+				message.Data.Id, 
+				message.ExchangeName, 
+				this.c_channel.NextPublishSeqNo);
 
 			var _properties = this.c_channel.CreateBasicProperties();
 			_properties.ContentType = "application/json";
 			_properties.DeliveryMode = message.DeliveryMode;
 			_properties.Type = message.TypeHeader;
 			_properties.MessageId = message.Data.Id.ToString();
-//			_properties.UserId = Environment.UserName;
 
 			var _messageJson = JsonConvert.SerializeObject(message.Data);
 			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);
@@ -119,7 +127,7 @@ namespace PMCG.Messaging.RabbitMQ
 				_properties,
 				_messageBody);
 
-			this.c_logger.DebugFormat("Completed publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
+			this.c_logger.DebugFormat("Completed publishing message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
 		}
 	}
 }

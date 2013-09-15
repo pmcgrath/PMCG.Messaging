@@ -27,9 +27,9 @@ namespace PMCG.Messaging.RabbitMQ.UT
 			_busConfigurationBuilder.ConnectionUri = "....";
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
 			_busConfigurationBuilder.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(20);
-			_busConfigurationBuilder.RegisterSubscription<AnEvent>(
+			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
-				typeof(AnEvent).Name,
+				typeof(MyEvent).Name,
 				message =>
 				{
 					return MessageSubscriptionActionResult.Completed;

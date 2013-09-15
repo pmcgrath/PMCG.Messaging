@@ -51,13 +51,8 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 
 		private void StoreDisconnectedMessages()
 		{
-			var _queuedMessages = new List<QueuedMessage>();
-			foreach (var _queuedMessage in base.QueuedMessages)
-			{
-				_queuedMessages.Add(_queuedMessage);
-			}
-			var _distinctMessages = _queuedMessages.Select(queuedMessage => queuedMessage.Data).Distinct();
-			this.c_disconnectedMessageStore.Store(_distinctMessages.ToArray());
+			var _distinctMessages = base.QueuedMessages.Select(queuedMessage => queuedMessage.Data).Distinct().ToArray();
+			this.c_disconnectedMessageStore.Store(_distinctMessages);
 		}
 
 
@@ -77,10 +72,22 @@ namespace PMCG.Messaging.RabbitMQ.BusState
 		{
 			base.Logger.Info();
 
-			var _disconnectedMessages = this.c_disconnectedMessageStore.GetAll(purgeMessages: true);
-			foreach (var _message in _disconnectedMessages)
+			var _queuedMessageIds = base.QueuedMessages
+				.Select(queuedMessage => queuedMessage.Data.Id)
+				.Distinct()
+				.ToArray();
+
+			foreach (var _messageKey in this.c_disconnectedMessageStore.GetAllMessageKeys())
 			{
-				base.QueueMessageForDelivery(_message);
+				var _messageId = this.c_disconnectedMessageStore.GetMessageIdFromKey(_messageKey);
+				var _isDisconnectedMessageInQueue = _queuedMessageIds.Any(id => id == _messageId);
+				if (!_isDisconnectedMessageInQueue)
+				{
+					var _message = this.c_disconnectedMessageStore.ReadMessage(_messageKey);
+					base.QueueMessageForDelivery(_message);
+				}
+
+				this.c_disconnectedMessageStore.RemoveMessage(_messageKey);
 			}
 
 			base.Logger.Info("Completed");

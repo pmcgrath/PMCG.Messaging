@@ -13,6 +13,9 @@ namespace PMCG.Messaging.RabbitMQ
 		private readonly string c_directoryPath;
 
 
+		public static readonly string FileExtension = ".message";
+
+
 		public DisconnectedMessageStore(
 			string directoryPath)
 		{
@@ -25,66 +28,71 @@ namespace PMCG.Messaging.RabbitMQ
 		{
 			foreach (var _message in messages)
 			{
-				this.WriteMessageToDisk(_message);
+				this.WriteMessage(_message);
 			}
 		}
 
 
-		public IEnumerable<Message> GetAll(
-			bool purgeMessages = true)
+		public IEnumerable<string> GetAllMessageKeys()
 		{
-			var _messageFilePaths = Directory.GetFiles(this.c_directoryPath, "*.json");
-			var _result = _messageFilePaths
-				.OrderBy(messageFilePath => messageFilePath)
-				.Select(filePath => this.ReadMessageFromDisk(filePath))
-				.ToArray();
-
-			if (purgeMessages) { this.DeleteMessageFiles(_messageFilePaths); }
-
-			return _result;
+			var _messageFilePaths = Directory.GetFiles(this.c_directoryPath, "*" + DisconnectedMessageStore.FileExtension);
+			return _messageFilePaths.OrderBy(filePath => filePath).ToArray();
 		}
 
 
-		private void WriteMessageToDisk(
+		public string WriteMessage(
 			Message message)
 		{
-			var _fileName = string.Format("{0:yyyyMMddHHmmssfffffff}_{1}.{2}_{3}.json",
-				DateTime.UtcNow,
-				message.GetType().Namespace,
-				message.GetType().Name,
-				message.Id);
-			var _filePath = Path.Combine(this.c_directoryPath, _fileName);
-
+			var _nowAsString = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fffffff");
+			var _messageType = message.GetType();
 			var _messageJson = JsonConvert.SerializeObject(message);
 
-			File.WriteAllText(_filePath, _messageJson, Encoding.Default);
+			var _fileName = string.Format("{0}_{1}.{2}_{3}{4}",
+				_nowAsString,
+				_messageType.Namespace,
+				_messageType.Name,
+				message.Id,
+				DisconnectedMessageStore.FileExtension);
+			var _filePath = Path.Combine(this.c_directoryPath, _fileName);
+
+			var _fileContent = string.Format("{1}{0}{2}{0}{3}{0}{0}{4}",
+				Environment.NewLine,
+				_nowAsString,
+				_messageType.AssemblyQualifiedName,							// Version issues, seem okay
+				message.Id,
+				_messageJson);
+
+			File.WriteAllText(_filePath, _fileContent, Encoding.Default);
+
+			return _filePath;
 		}
 
 
-		private Message ReadMessageFromDisk(
-			string filePath)
+		public Message ReadMessage(
+			string key)
 		{
-			var _messageTypeName = this.GetMessageTypeName(filePath);
-			var _messageType = Type.GetType(_messageTypeName);
+			var _fileContentAsLines = File.ReadAllLines(key, Encoding.Default);
+			var _messageTypeAssemblyQualifiedName = _fileContentAsLines[1];
+			var _messageJson = string.Join(Environment.NewLine, _fileContentAsLines.Skip(4));
 
-			var _messageJson = File.ReadAllText(filePath, Encoding.Default);
-			
+			var _messageType = Type.GetType(_messageTypeAssemblyQualifiedName);
+
 			return (Message)JsonConvert.DeserializeObject(_messageJson, _messageType);
 		}
 
 
-		private string GetMessageTypeName(
-			string filePath)
+		public void RemoveMessage(
+			string key)
 		{
-			// Assumes no underscore in message type name
-			return Path.GetFileName(filePath).Split('_')[1];
+			File.Delete(key);
 		}
 
 
-		private void DeleteMessageFiles(
-			IEnumerable<string> filePaths)
+		public Guid GetMessageIdFromKey(
+			string key)
 		{
-			foreach(var _filePath in filePaths) { File.Delete(_filePath); }
+			var _keyPart = key.Substring(key.LastIndexOf('_') + 1).Replace(DisconnectedMessageStore.FileExtension, string.Empty);
+			return new Guid(_keyPart);
 		}
 	}
 }

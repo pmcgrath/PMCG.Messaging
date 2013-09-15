@@ -14,15 +14,15 @@ namespace PMCG.Messaging.RabbitMQ.UT.Configuration
 		public void Ctor_Where_Good_Params_Results_In_Object_Creation()
 		{
 			this.c_SUT = new PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
-				typeof(AnEvent),
+				typeof(MyEvent),
 				"TheQueueName",
-				typeof(AnEvent).Name,
+				typeof(MyEvent).Name,
 				message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed);
 
 			Assert.IsNotNull(this.c_SUT);
-			Assert.AreEqual(typeof(AnEvent), this.c_SUT.Type);
+			Assert.AreEqual(typeof(MyEvent), this.c_SUT.Type);
 			Assert.AreEqual("TheQueueName", this.c_SUT.QueueName);
-			Assert.AreEqual(typeof (AnEvent).Name, this.c_SUT.TypeHeader);
+			Assert.AreEqual(typeof (MyEvent).Name, this.c_SUT.TypeHeader);
 		}
 
 
@@ -32,7 +32,7 @@ namespace PMCG.Messaging.RabbitMQ.UT.Configuration
 			this.c_SUT = new PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
 				this.GetType(),
 				"TheQueueName",
-				typeof(AnEvent).Name,
+				typeof(MyEvent).Name,
 				message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed);
 		}
 	}

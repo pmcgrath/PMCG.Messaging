@@ -29,16 +29,16 @@ namespace PMCG.Messaging.RabbitMQ.UT.Configuration
 				new []
 					{
 						new  PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
-							typeof(AnEvent),
+							typeof(MyEvent),
 							"TheQueueName",
-							typeof(AnEvent).Name,
+							typeof(MyEvent).Name,
 							message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed)
 					});
 
 			Assert.IsNotNull(this.c_SUT);
 			Assert.AreEqual(1, this.c_SUT.Configurations.Count());
-			Assert.IsTrue(this.c_SUT.HasConfiguration(typeof(AnEvent).Name));
-			Assert.IsNotNull(this.c_SUT[typeof(AnEvent).Name]);
+			Assert.IsTrue(this.c_SUT.HasConfiguration(typeof(MyEvent).Name));
+			Assert.IsNotNull(this.c_SUT[typeof(MyEvent).Name]);
 			Assert.AreEqual(new[] { "TheQueueName" }, this.c_SUT.GetDistinctQueueNames().ToArray());
 		}
 
@@ -50,12 +50,12 @@ namespace PMCG.Messaging.RabbitMQ.UT.Configuration
 				new[]
 					{
 						new  PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
-							typeof(AnEvent),
+							typeof(MyEvent),
 							"TheQueueName",
 							"** DUPLICATE_TYPE_HEADER ***",
 							message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed),
 						new  PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
-							typeof(AnEvent),
+							typeof(MyEvent),
 							"TheQueueName",
 							"** DUPLICATE_TYPE_HEADER ***",
 							message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed)
@@ -70,12 +70,12 @@ namespace PMCG.Messaging.RabbitMQ.UT.Configuration
 				new[]
 					{
 						new  PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
-							typeof(AnEvent),
+							typeof(MyEvent),
 							"Q_1",
 							"TYPE_HEADER_1",
 							message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed),
 						new  PMCG.Messaging.RabbitMQ.Configuration.MessageSubscription(
-							typeof(AnEvent),
+							typeof(MyEvent),
 							"Q_2",
 							"TYPE_HEADER_2",
 							message => PMCG.Messaging.RabbitMQ.Configuration.MessageSubscriptionActionResult.Completed)

@@ -68,4 +68,9 @@ do
 
 
 
+# Purge queue
+curl -i -u 'guest:guest' -H 'Content-Type:application/json' -X DELETE http://127.0.0.1:15672/api/queues/dev/pcs.offerevents.fxs/contents
+
+
+
 

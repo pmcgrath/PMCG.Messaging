@@ -4,16 +4,20 @@ using System;
 
 namespace PMCGMessaging.RabbitMQ.Interactive
 {
-	public class TheEvent : Event
+	public class MyEvent : Event
 	{
 		public readonly string Detail;
+		public readonly int Number;
 
-		public TheEvent(
+
+		public MyEvent(
 			Guid id,
-			string detail)
+			string detail,
+			int number)
 			: base(id)
 		{
 			this.Detail = detail;
+			this.Number = number;
 		}
 	}
 }

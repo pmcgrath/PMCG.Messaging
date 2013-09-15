@@ -54,7 +54,8 @@
     <Compile Include="..\..\src\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AnEvent.cs" />
+    <Compile Include="DisconnectedMessageStore.cs" />
+    <Compile Include="MyEvent.cs" />
     <Compile Include="Configuration\MessageSubscription.cs" />
     <Compile Include="Configuration\MessageSubscriptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
