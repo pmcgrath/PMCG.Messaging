@@ -17,7 +17,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 				typeof(MyEvent),
 				"TheQueueName",
 				typeof(MyEvent).Name,
-				message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed);
+				message => SubscriptionHandlerResult.Completed);
 
 			Assert.IsNotNull(this.c_SUT);
 			Assert.AreEqual(typeof(MyEvent), this.c_SUT.Type);
@@ -33,7 +33,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 				this.GetType(),
 				"TheQueueName",
 				typeof(MyEvent).Name,
-				message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed);
+				message => SubscriptionHandlerResult.Completed);
 		}
 	}
 }

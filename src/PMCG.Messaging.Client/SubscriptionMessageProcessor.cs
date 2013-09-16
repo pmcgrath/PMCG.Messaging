@@ -44,7 +44,7 @@ namespace PMCG.Messaging.Client
 			}
 
 			var _configuration = this.c_configuration.MessageSubscriptions[message.BasicProperties.Type];
-			var _actionResult = MessageSubscriptionActionResult.None;
+			var _actionResult = SubscriptionHandlerResult.None;
 			try
 			{
 				this.c_logger.DebugFormat("About to deserialze message for message, {0}", _logMessageContext);
@@ -56,21 +56,21 @@ namespace PMCG.Messaging.Client
 			}
 			catch
 			{
-				_actionResult = MessageSubscriptionActionResult.Errored;
+				_actionResult = SubscriptionHandlerResult.Errored;
 			}
 			this.c_logger.DebugFormat("Completed processing for message, {0}, result is {1}", _logMessageContext, _actionResult);
 
-			if (_actionResult == MessageSubscriptionActionResult.Errored)
+			if (_actionResult == SubscriptionHandlerResult.Errored)
 			{
 				//pending - should i use configuration properties
 				// Nack, do not requeue, dead letter the message if dead letter exchange configured for the queue
 				channel.BasicNack(message.DeliveryTag, false, false);
 			}
-			else if (_actionResult == MessageSubscriptionActionResult.Completed)
+			else if (_actionResult == SubscriptionHandlerResult.Completed)
 			{
 				channel.BasicAck(message.DeliveryTag, false);
 			}
-			else if (_actionResult == MessageSubscriptionActionResult.Requeue)
+			else if (_actionResult == SubscriptionHandlerResult.Requeue)
 			{
 				//pending does this make sense ?
 				channel.BasicReject(message.DeliveryTag, true);

@@ -97,12 +97,12 @@ namespace PMCG.Messaging.Client.Configuration
 		public BusConfigurationBuilder RegisterSubscription<TMessage>(
 			string queueName,
 			string typeHeader,
-			Func<TMessage, MessageSubscriptionActionResult> action)
+			Func<TMessage, SubscriptionHandlerResult> action)
 			where TMessage : Message
 		{
 			// Check that no exiting entry for the typeHeader
 
-			Func<Message, MessageSubscriptionActionResult> _actionWrapper = message => action(message as TMessage);
+			Func<Message, SubscriptionHandlerResult> _actionWrapper = message => action(message as TMessage);
 
 			this.MessageSubscriptions[typeHeader] = new MessageSubscription(
 				typeof(TMessage),

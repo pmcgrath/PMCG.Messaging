@@ -47,6 +47,7 @@
     <Compile Include="IBus.cs" />
     <Compile Include="IBusController.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="SubscriptionHandlerResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

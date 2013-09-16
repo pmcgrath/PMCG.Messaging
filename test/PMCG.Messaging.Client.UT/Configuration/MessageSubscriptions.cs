@@ -32,7 +32,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 							typeof(MyEvent),
 							"TheQueueName",
 							typeof(MyEvent).Name,
-							message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed)
+							message => SubscriptionHandlerResult.Completed)
 					});
 
 			Assert.IsNotNull(this.c_SUT);
@@ -53,12 +53,12 @@ namespace PMCG.Messaging.Client.UT.Configuration
 							typeof(MyEvent),
 							"TheQueueName",
 							"** DUPLICATE_TYPE_HEADER ***",
-							message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed),
+							message => SubscriptionHandlerResult.Completed),
 						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
 							typeof(MyEvent),
 							"TheQueueName",
 							"** DUPLICATE_TYPE_HEADER ***",
-							message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed)
+							message => SubscriptionHandlerResult.Completed)
 					});
 		}
 
@@ -73,12 +73,12 @@ namespace PMCG.Messaging.Client.UT.Configuration
 							typeof(MyEvent),
 							"Q_1",
 							"TYPE_HEADER_1",
-							message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed),
+							message => SubscriptionHandlerResult.Completed),
 						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
 							typeof(MyEvent),
 							"Q_2",
 							"TYPE_HEADER_2",
-							message => PMCG.Messaging.Client.Configuration.MessageSubscriptionActionResult.Completed)
+							message => SubscriptionHandlerResult.Completed)
 					});
 
 			Assert.IsNotNull(this.c_SUT);

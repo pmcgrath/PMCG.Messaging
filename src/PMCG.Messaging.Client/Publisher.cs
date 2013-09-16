@@ -99,7 +99,7 @@ namespace PMCG.Messaging.Client
 						this.c_logger.Info("Operation canceled");
 						this.c_queuedMessages.Add(_queuedMessage);
 					}
-					catch (Exception exception)
+					catch
 					{
 						this.c_queuedMessages.Add(_queuedMessage);
 						throw;

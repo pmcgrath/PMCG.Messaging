@@ -15,7 +15,7 @@ namespace PMCG.Messaging.Client.UT
 	{
 		private IModel c_channel;
 		private PMCG.Messaging.Client.SubscriptionMessageProcessor c_SUT;
-		private MessageSubscriptionActionResult c_messageProcessrResult;
+		private SubscriptionHandlerResult c_messageProcessrResult;
 		private CancellationTokenSource c_cancellationTokenSource;
 
 
@@ -30,16 +30,16 @@ namespace PMCG.Messaging.Client.UT
 				typeof(MyEvent).Name,
 				message =>
 					{
-						this.c_messageProcessrResult = MessageSubscriptionActionResult.Completed;
-						return MessageSubscriptionActionResult.Completed;
+						this.c_messageProcessrResult = SubscriptionHandlerResult.Completed;
+						return SubscriptionHandlerResult.Completed;
 					});
 			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
 				typeof(MyEvent).FullName,
 				message =>
 					{
-						this.c_messageProcessrResult = MessageSubscriptionActionResult.Completed;
-						return MessageSubscriptionActionResult.Completed;
+						this.c_messageProcessrResult = SubscriptionHandlerResult.Completed;
+						return SubscriptionHandlerResult.Completed;
 					});
 			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
 				"TheQueueName",
@@ -53,8 +53,8 @@ namespace PMCG.Messaging.Client.UT
 				"Returns_Errored_Result",
 				message =>
 					{
-						this.c_messageProcessrResult = MessageSubscriptionActionResult.Errored;
-						return MessageSubscriptionActionResult.Errored;
+						this.c_messageProcessrResult = SubscriptionHandlerResult.Errored;
+						return SubscriptionHandlerResult.Errored;
 					});
 			var _busConfiguration = _busConfigurationBuilder.Build();
 
@@ -68,7 +68,7 @@ namespace PMCG.Messaging.Client.UT
 
 			this.c_SUT = new PMCG.Messaging.Client.SubscriptionMessageProcessor(_logger, _busConfiguration);
 
-			this.c_messageProcessrResult = MessageSubscriptionActionResult.None;
+			this.c_messageProcessrResult = SubscriptionHandlerResult.None;
 		}
 
 
@@ -111,7 +111,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_SUT.Process(this.c_channel, _message);
 
 			this.c_channel.Received().BasicAck(_message.DeliveryTag, false);
-			Assert.AreEqual(MessageSubscriptionActionResult.Completed, this.c_messageProcessrResult);
+			Assert.AreEqual(SubscriptionHandlerResult.Completed, this.c_messageProcessrResult);
 		}
 
 
@@ -133,7 +133,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_SUT.Process(this.c_channel, _message);
 
 			this.c_channel.Received().BasicNack(_message.DeliveryTag, false, false);
-			Assert.AreEqual(MessageSubscriptionActionResult.None, this.c_messageProcessrResult);
+			Assert.AreEqual(SubscriptionHandlerResult.None, this.c_messageProcessrResult);
 		}
 
 
@@ -155,7 +155,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_SUT.Process(this.c_channel, _message);
 
 			this.c_channel.Received().BasicNack(_message.DeliveryTag, false, false);
-			Assert.AreEqual(MessageSubscriptionActionResult.Errored, this.c_messageProcessrResult);
+			Assert.AreEqual(SubscriptionHandlerResult.Errored, this.c_messageProcessrResult);
 		}
 	}
 }

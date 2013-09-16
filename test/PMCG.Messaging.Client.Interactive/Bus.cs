@@ -1,4 +1,5 @@
-﻿using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging;
+using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
@@ -96,7 +97,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 				.RegisterSubscription<MyEvent>(
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
-					message => { _capturedMessageId = message.Id.ToString(); return MessageSubscriptionActionResult.Completed; });
+					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
 			_SUT.Connect();
 
@@ -133,7 +134,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 				.RegisterSubscription<MyEvent>(
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
-					message => { _receivedMessages.Push(message);  return MessageSubscriptionActionResult.Completed; });
+					message => { _receivedMessages.Push(message); return SubscriptionHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
 			_SUT.Connect();
 

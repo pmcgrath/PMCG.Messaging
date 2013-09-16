@@ -32,7 +32,7 @@ namespace PMCG.Messaging.Client.UT
 				typeof(MyEvent).Name,
 				message =>
 				{
-					return MessageSubscriptionActionResult.Completed;
+					return SubscriptionHandlerResult.Completed;
 				});
 			this.c_busConfiguration = _busConfigurationBuilder.Build();
 

@@ -63,7 +63,6 @@
     <Compile Include="Configuration\MessagePublication.cs" />
     <Compile Include="Configuration\MessagePublications.cs" />
     <Compile Include="Configuration\MessageSubscription.cs" />
-    <Compile Include="Configuration\MessageSubscriptionActionResult.cs" />
     <Compile Include="Configuration\MessageSubscriptions.cs" />
     <Compile Include="ConnectionDisconnectedEventArgs.cs" />
     <Compile Include="ConnectionManager.cs" />

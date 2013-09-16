@@ -10,7 +10,7 @@ namespace PMCG.Messaging.Client.Configuration
 		public readonly Type Type;
 		public readonly string QueueName;
 		public readonly string TypeHeader;
-		public readonly Func<Message, MessageSubscriptionActionResult> Action;
+		public readonly Func<Message, SubscriptionHandlerResult> Action;
 		public readonly string ExchangeName;
 
 
@@ -21,7 +21,7 @@ namespace PMCG.Messaging.Client.Configuration
 			Type type,
 			string queueName,
 			string typeHeader,
-			Func<Message, MessageSubscriptionActionResult> action)
+			Func<Message, SubscriptionHandlerResult> action)
 		{
 			Check.RequireArgumentNotNull("type", type);
 			Check.RequireArgument("type", type, type.IsSubclassOf(typeof(Message)));
@@ -40,7 +40,7 @@ namespace PMCG.Messaging.Client.Configuration
 		public MessageSubscription(
 			Type type,
 			string typeHeader,
-			Func<Message, MessageSubscriptionActionResult> action,
+			Func<Message, SubscriptionHandlerResult> action,
 			string exchangeName)
 		{
 			Check.RequireArgumentNotNull("type", type);
