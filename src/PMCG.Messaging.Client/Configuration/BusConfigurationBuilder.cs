@@ -114,6 +114,27 @@ namespace PMCG.Messaging.Client.Configuration
 		}
 
 
+		public BusConfigurationBuilder RegisterSubscription<TMessage>(
+			string typeHeader,
+			Func<TMessage, SubscriptionHandlerResult> action,
+			string exchangeName)
+			where TMessage : Message
+		{
+			// Check that no exiting entry for the typeHeader
+
+			Func<Message, SubscriptionHandlerResult> _actionWrapper = message => action(message as TMessage);
+
+			this.MessageSubscriptions[typeHeader] = new MessageSubscription(
+				typeof(TMessage),
+				typeHeader,
+				_actionWrapper,
+				exchangeName);
+
+			return this;
+		}
+
+
+
 		public BusConfiguration Build()
 		{
 			return new BusConfiguration(

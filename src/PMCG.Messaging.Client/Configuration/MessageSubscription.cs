@@ -54,7 +54,7 @@ namespace PMCG.Messaging.Client.Configuration
 			this.Action = action;
 			this.ExchangeName = exchangeName;
 
-			// In case of a transient queue, we want a deterministic queue name
+			// In case of a transient queue, we want a deterministic queue name (Exclusive and competing consumers if two bus's in same app domain)
 			this.QueueName = string.Format("{0}_{1}_{2}_{3}",
 				Environment.MachineName,
 				Process.GetCurrentProcess().Id,

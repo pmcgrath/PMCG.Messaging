@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace PMCGMessaging.RabbitMQ.Interactive
+namespace PMCG.Messaging.Client.Interactive
 {
 	public class Subscribers
 	{

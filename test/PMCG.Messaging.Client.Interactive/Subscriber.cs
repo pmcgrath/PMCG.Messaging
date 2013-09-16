@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace PMCGMessaging.RabbitMQ.Interactive
+namespace PMCG.Messaging.Client.Interactive
 {
 	public class Subscriber
 	{
@@ -38,12 +38,25 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 		}
 
 
-		public void Run_Where_We_Start_Then_Cancel_Token_And_Then_Close_Connection()
+		public void Run_Where_We_Create_A_Transient_Queue_And_Then_Close_Connection()
 		{
-			this.InstantiateSubscriber();
+			var _capturedMessageId = string.Empty;
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder
+				.RegisterPublication<MyEvent>(
+					"pcs.offerevents",
+					typeof(MyEvent).Name)
+				.RegisterSubscription<MyEvent>(
+					typeof(MyEvent).Name,
+					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; },
+				"pcs.offerevents");
+			this.InstantiateSubscriber(_busConfigurationBuilder.Build());
 			new Task(this.c_subscriber.Start).Start();
 
-			Console.WriteLine("Hit enter to cancel the token, should terminate the subscriber, subject to the dequeue timeout");
+			Console.WriteLine("You should see a new transient queue in the dashboard)");
 			Console.ReadLine();
 			this.c_cancellationTokenSource.Cancel();
 

@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading;
 
 
-namespace PMCGMessaging.RabbitMQ.Interactive
+namespace PMCG.Messaging.Client.Interactive
 {
 	public class Bus
 	{
@@ -98,6 +98,42 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; });
+			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to publish message");
+			Console.ReadLine();
+			var _message = new MyEvent(Guid.NewGuid(), "...", 1);
+			_SUT.Publish(_message);
+
+			Console.WriteLine("Hit enter to display captured message Id");
+			Console.ReadLine();
+			Console.WriteLine("Captured message Id [{0}]", _capturedMessageId);
+
+			Console.WriteLine("Hit enter to close");
+			Console.ReadLine();
+			_SUT.Close();
+
+			Console.WriteLine("Hit enter to exit");
+			Console.ReadLine();
+		}
+
+
+		public void Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage_On_A_Transient_Queue()
+		{
+			var _capturedMessageId = string.Empty;
+
+			var _logger = new ConsoleLogger();
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder
+				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
+				.RegisterSubscription<MyEvent>(
+					typeof(MyEvent).Name,
+					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; },
+					"pcs.offerevents");
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
 			_SUT.Connect();
 

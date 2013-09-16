@@ -2,7 +2,7 @@
 using System;
 
 
-namespace PMCGMessaging.RabbitMQ.Interactive
+namespace PMCG.Messaging.Client.Interactive
 {
 	public class MyEvent : Event
 	{
