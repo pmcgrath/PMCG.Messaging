@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace PMCG.Messaging.RabbitMQ.BusState
+namespace PMCG.Messaging.Client.BusState
 {
 	public interface IBusContext
 	{

@@ -1,8 +1,8 @@
-﻿using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Utility;
 using System;
 
 
-namespace PMCG.Messaging.RabbitMQ.Configuration
+namespace PMCG.Messaging.Client.Configuration
 {
 	public class BusConfiguration
 	{

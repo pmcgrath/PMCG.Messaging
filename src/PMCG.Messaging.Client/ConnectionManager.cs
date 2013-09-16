@@ -1,4 +1,4 @@
-﻿using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 
 
-namespace PMCG.Messaging.RabbitMQ
+namespace PMCG.Messaging.Client
 {
 	public class ConnectionManager : IConnectionManager
 	{

@@ -1,5 +1,5 @@
-﻿using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using System;
 
 
@@ -11,7 +11,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 		{
 			var _logger = new ConsoleLogger();
 
-			var _SUT = new PMCG.Messaging.RabbitMQ.ConnectionManager(
+			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
 				_logger,
 				"amqp://guest:guest@localhost:5672/dev",
 				TimeSpan.FromSeconds(4));
@@ -24,7 +24,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 		{
 			var _logger = new ConsoleLogger();
 
-			var _SUT = new PMCG.Messaging.RabbitMQ.ConnectionManager(
+			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
 				_logger,
 				"amqp://guest:guest@localhost:5672/dev",
 				TimeSpan.FromSeconds(4));

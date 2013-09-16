@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace PMCG.Messaging.RabbitMQ
+namespace PMCG.Messaging.Client
 {
 	// This will not scale !
 	// Use

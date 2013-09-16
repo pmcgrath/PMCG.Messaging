@@ -1,5 +1,5 @@
-﻿using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
@@ -74,7 +74,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 			for(var _index = 0; _index < this.c_numberOfSubscribers; _index++)
 			{
 				this.c_subscriberTasks[_index] = new Task(() =>
-					new PMCG.Messaging.RabbitMQ.Subscriber(
+					new PMCG.Messaging.Client.Subscriber(
 						_logger,
 						this.c_connection,
 						_busConfigurationBuilder.Build(),

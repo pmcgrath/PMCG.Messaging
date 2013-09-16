@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace PMCG.Messaging.RabbitMQ.Utility
+namespace PMCG.Messaging.Client.Utility
 {
 	public interface ILog
 	{

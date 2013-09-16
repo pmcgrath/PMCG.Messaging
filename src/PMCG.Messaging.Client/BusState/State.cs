@@ -1,11 +1,11 @@
-﻿using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
 
-namespace PMCG.Messaging.RabbitMQ.BusState
+namespace PMCG.Messaging.Client.BusState
 {
 	public abstract class State
 	{

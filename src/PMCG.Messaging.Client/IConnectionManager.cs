@@ -2,7 +2,7 @@
 using System;
 
 
-namespace PMCG.Messaging.RabbitMQ
+namespace PMCG.Messaging.Client
 {
 	public interface IConnectionManager
 	{

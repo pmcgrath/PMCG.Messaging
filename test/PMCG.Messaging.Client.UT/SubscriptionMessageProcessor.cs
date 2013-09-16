@@ -1,20 +1,20 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
-using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Threading;
 
 
-namespace PMCG.Messaging.RabbitMQ.UT
+namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
 	public class SubscriptionMessageProcessor
 	{
 		private IModel c_channel;
-		private PMCG.Messaging.RabbitMQ.SubscriptionMessageProcessor c_SUT;
+		private PMCG.Messaging.Client.SubscriptionMessageProcessor c_SUT;
 		private MessageSubscriptionActionResult c_messageProcessrResult;
 		private CancellationTokenSource c_cancellationTokenSource;
 
@@ -66,7 +66,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 			this.c_channel = Substitute.For<IModel>();
 			_connection.CreateModel().Returns(this.c_channel);
 
-			this.c_SUT = new PMCG.Messaging.RabbitMQ.SubscriptionMessageProcessor(_logger, _busConfiguration);
+			this.c_SUT = new PMCG.Messaging.Client.SubscriptionMessageProcessor(_logger, _busConfiguration);
 
 			this.c_messageProcessrResult = MessageSubscriptionActionResult.None;
 		}

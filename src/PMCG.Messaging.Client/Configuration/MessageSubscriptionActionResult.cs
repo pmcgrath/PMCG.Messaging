@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace PMCG.Messaging.RabbitMQ.Configuration
+namespace PMCG.Messaging.Client.Configuration
 {
 	public enum MessageSubscriptionActionResult
 	{

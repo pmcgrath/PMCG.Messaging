@@ -7,8 +7,8 @@
     <ProjectGuid>{7B81E458-F56D-418E-A51F-210B94B73175}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PMCGMessaging.RabbitMQ.Interactive</RootNamespace>
-    <AssemblyName>PMCGMessaging.RabbitMQ.Interactive</AssemblyName>
+    <RootNamespace>PMCGMessaging.Client.Interactive</RootNamespace>
+    <AssemblyName>PMCGMessaging.Client.Interactive</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="RabbitMQ.Client">
-      <HintPath>..\..\..\Bus\lib\RabbitMQ\RabbitMQ.Client.dll</HintPath>
+      <HintPath>..\..\lib\RabbitMQ\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,9 +54,9 @@
     <Compile Include="Subscriber.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PMCG.Messaging.RabbitMQ\PMCG.Messaging.RabbitMQ.csproj">
+    <ProjectReference Include="..\..\src\PMCG.Messaging.Client\PMCG.Messaging.Client.csproj">
       <Project>{8d3f71e3-22bf-41ab-86aa-80702d74b4d9}</Project>
-      <Name>PMCG.Messaging.RabbitMQ</Name>
+      <Name>PMCG.Messaging.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\PMCG.Messaging\PMCG.Messaging.csproj">
       <Project>{961aba37-a451-4137-a1a5-1a6a7d25af09}</Project>

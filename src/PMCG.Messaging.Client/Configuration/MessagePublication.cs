@@ -1,11 +1,11 @@
-﻿using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 
 
-namespace PMCG.Messaging.RabbitMQ.Configuration
+namespace PMCG.Messaging.Client.Configuration
 {
 	public class MessagePublication
 	{

@@ -1,5 +1,5 @@
-﻿using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
@@ -12,7 +12,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 	{
 		private IConnection c_connection;
 		private CancellationTokenSource c_cancellationTokenSource;
-		private PMCG.Messaging.RabbitMQ.Subscriber c_subscriber;
+		private PMCG.Messaging.Client.Subscriber c_subscriber;
 
 
 		public void Run_Where_We_Instruct_To_Stop_The_Broker()
@@ -73,7 +73,7 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUri }.CreateConnection();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
-			this.c_subscriber = new PMCG.Messaging.RabbitMQ.Subscriber(
+			this.c_subscriber = new PMCG.Messaging.Client.Subscriber(
 				_logger,
 				this.c_connection,
 				busConfiguration,

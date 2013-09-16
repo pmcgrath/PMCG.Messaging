@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 
 
-namespace PMCG.Messaging.RabbitMQ.Utility
+namespace PMCG.Messaging.Client.Utility
 {
 	public class NullLogger : ILog
 	{

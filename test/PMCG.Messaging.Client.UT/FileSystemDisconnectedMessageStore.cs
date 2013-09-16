@@ -1,17 +1,17 @@
 ﻿using NUnit.Framework;
-using PMCG.Messaging.RabbitMQ;
+using PMCG.Messaging.Client;
 using System;
 using System.IO;
 using System.Linq;
 
 
-namespace PMCG.Messaging.RabbitMQ.UT
+namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
 	public class FileSystemDisconnectedMessageStore
 	{
 		private string c_testDirectoryPath;
-		private PMCG.Messaging.RabbitMQ.FileSystemDisconnectedMessageStore c_SUT;
+		private PMCG.Messaging.Client.FileSystemDisconnectedMessageStore c_SUT;
 
 
 		[SetUp]
@@ -20,7 +20,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 			this.c_testDirectoryPath = string.Format(@"d:\temp\{0}", Guid.NewGuid());
 			Directory.CreateDirectory(this.c_testDirectoryPath);
 
-			this.c_SUT = new PMCG.Messaging.RabbitMQ.FileSystemDisconnectedMessageStore(this.c_testDirectoryPath);
+			this.c_SUT = new PMCG.Messaging.Client.FileSystemDisconnectedMessageStore(this.c_testDirectoryPath);
 		}
 
 

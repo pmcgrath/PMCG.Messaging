@@ -1,8 +1,8 @@
-﻿using PMCG.Messaging.RabbitMQ.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using System;
 
 
-namespace PMCG.Messaging.RabbitMQ
+namespace PMCG.Messaging.Client
 {
 	public class QueuedMessage
 	{

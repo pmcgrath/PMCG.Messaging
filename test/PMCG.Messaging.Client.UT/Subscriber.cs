@@ -1,14 +1,14 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
-using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace PMCG.Messaging.RabbitMQ.UT
+namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
 	public class Subscriber
@@ -49,7 +49,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 		public void Start_Where_Cancellation_Token_Already_Canceled_Results_In_an_Exception()
 		{
 			this.c_cancellationTokenSource.Cancel();
-			var _SUT = new PMCG.Messaging.RabbitMQ.Subscriber(
+			var _SUT = new PMCG.Messaging.Client.Subscriber(
 				this.c_logger,
 				this.c_connection,
 				this.c_busConfiguration,
@@ -63,7 +63,7 @@ namespace PMCG.Messaging.RabbitMQ.UT
 		{
 			this.c_channel.IsOpen.Returns(true);
 
-			var _SUT = new PMCG.Messaging.RabbitMQ.Subscriber(
+			var _SUT = new PMCG.Messaging.Client.Subscriber(
 				this.c_logger,
 				this.c_connection,
 				this.c_busConfiguration,

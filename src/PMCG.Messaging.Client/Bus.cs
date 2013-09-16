@@ -1,12 +1,12 @@
-﻿using PMCG.Messaging.RabbitMQ.BusState;
-using PMCG.Messaging.RabbitMQ.Configuration;
-using PMCG.Messaging.RabbitMQ.Utility;
+﻿using PMCG.Messaging.Client.BusState;
+using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
 
 
-namespace PMCG.Messaging.RabbitMQ
+namespace PMCG.Messaging.Client
 {
 	public class Bus : IBusContext, IBusController, IBus
 	{

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using PMCG.Messaging.RabbitMQ.Utility;
+using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 
 
-namespace PMCG.Messaging.RabbitMQ
+namespace PMCG.Messaging.Client
 {
 	public class Publisher
 	{

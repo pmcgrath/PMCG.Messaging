@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace PMCG.Messaging.RabbitMQ.Configuration
+namespace PMCG.Messaging.Client.Configuration
 {
 	public class BusConfigurationBuilder
 	{
