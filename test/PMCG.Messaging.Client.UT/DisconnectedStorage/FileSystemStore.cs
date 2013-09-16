@@ -1,11 +1,10 @@
 ﻿using NUnit.Framework;
-using PMCG.Messaging.Client;
 using System;
 using System.IO;
 using System.Linq;
 
 
-namespace PMCG.Messaging.Client.UT
+namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 {
 	[TestFixture]
 	public class FileSystemStore
