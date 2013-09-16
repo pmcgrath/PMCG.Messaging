@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 
 
-namespace PMCG.Messaging.Client
+namespace PMCG.Messaging.Client.DisconnectedStorage
 {
-	public interface IDisconnectedMessageStore
+	public interface IStore
 	{
 		IEnumerable<Guid> GetAllIds();
 

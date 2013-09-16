@@ -1,4 +1,5 @@
 ﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.DisconnectedStorage;
 using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
@@ -48,7 +49,7 @@ namespace PMCG.Messaging.Client.BusState
 
 			base.Logger.Info("About to reqeue disconnected messages");
 			base.RequeueDisconnectedMessages(
-				new FileSystemDisconnectedMessageStore(
+				new FileSystemStore(
 					base.Configuration.DisconnectedMessagesStoragePath));
 
 			base.Logger.Info("About to create subcriber tasks");

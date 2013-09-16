@@ -8,10 +8,10 @@ using System.Linq;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class FileSystemDisconnectedMessageStore
+	public class FileSystemStore
 	{
 		private string c_testDirectoryPath;
-		private PMCG.Messaging.Client.FileSystemDisconnectedMessageStore c_SUT;
+		private PMCG.Messaging.Client.DisconnectedStorage.FileSystemStore c_SUT;
 
 
 		[SetUp]
@@ -20,7 +20,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_testDirectoryPath = string.Format(@"d:\temp\{0}", Guid.NewGuid());
 			Directory.CreateDirectory(this.c_testDirectoryPath);
 
-			this.c_SUT = new PMCG.Messaging.Client.FileSystemDisconnectedMessageStore(this.c_testDirectoryPath);
+			this.c_SUT = new PMCG.Messaging.Client.DisconnectedStorage.FileSystemStore(this.c_testDirectoryPath);
 		}
 
 

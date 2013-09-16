@@ -1,4 +1,5 @@
 ﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.DisconnectedStorage;
 using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
@@ -102,7 +103,7 @@ namespace PMCG.Messaging.Client.BusState
 
 
 		protected void RequeueDisconnectedMessages(
-			IDisconnectedMessageStore disconnectedMessageStore)
+			IStore disconnectedMessageStore)
 		{
 			this.Logger.Info();
 

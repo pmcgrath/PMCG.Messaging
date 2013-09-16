@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 
 
-namespace PMCG.Messaging.Client
+namespace PMCG.Messaging.Client.DisconnectedStorage
 {
 	// This will not scale !
 	// Use
 	//		http://redis.io/
 	//		http://managedesent.codeplex.com/	- ravendb storage engine
-	public class FileSystemDisconnectedMessageStore : IDisconnectedMessageStore
+	public class FileSystemStore : IStore
 	{
 		private readonly string c_directoryPath;
 
@@ -20,7 +20,7 @@ namespace PMCG.Messaging.Client
 		public static readonly string FileExtension = ".message";
 
 
-		public FileSystemDisconnectedMessageStore(
+		public FileSystemStore(
 			string directoryPath)
 		{
 			this.c_directoryPath = directoryPath;
@@ -29,7 +29,7 @@ namespace PMCG.Messaging.Client
 
 		public IEnumerable<Guid> GetAllIds()
 		{
-			return Directory.GetFiles(this.c_directoryPath, "*" + FileSystemDisconnectedMessageStore.FileExtension)
+			return Directory.GetFiles(this.c_directoryPath, "*" + FileSystemStore.FileExtension)
 				.OrderBy(filePath => filePath)
 				.Select(filePath => this.GetMessageIdFromFilePath(filePath))
 				.ToArray();
@@ -48,7 +48,7 @@ namespace PMCG.Messaging.Client
 				_messageType.Namespace,
 				_messageType.Name,
 				message.Id,
-				FileSystemDisconnectedMessageStore.FileExtension);
+				FileSystemStore.FileExtension);
 			var _filePath = Path.Combine(this.c_directoryPath, _fileName);
 
 			var _fileContent = string.Format("{1}{0}{2}{0}{3}{0}{0}{4}",
@@ -65,7 +65,7 @@ namespace PMCG.Messaging.Client
 		public Message Get(
 			Guid id)
 		{
-			var _fileSearchPattern = string.Format("*_{0}{1}", id, FileSystemDisconnectedMessageStore.FileExtension);
+			var _fileSearchPattern = string.Format("*_{0}{1}", id, FileSystemStore.FileExtension);
 			var _filePath = Directory.GetFiles(this.c_directoryPath, _fileSearchPattern).First();
 
 			var _fileContentAsLines = File.ReadAllLines(_filePath, Encoding.Default);
@@ -88,7 +88,7 @@ namespace PMCG.Messaging.Client
 		private Guid GetMessageIdFromFilePath(
 			string key)
 		{
-			var _keyPart = key.Substring(key.LastIndexOf('_') + 1).Replace(FileSystemDisconnectedMessageStore.FileExtension, string.Empty);
+			var _keyPart = key.Substring(key.LastIndexOf('_') + 1).Replace(FileSystemStore.FileExtension, string.Empty);
 			return new Guid(_keyPart);
 		}
 
@@ -96,7 +96,7 @@ namespace PMCG.Messaging.Client
 		private string GetFilePathForMessageId(
 			Guid id)
 		{
-			var _fileSearchPattern = string.Format("*_{0}{1}", id, FileSystemDisconnectedMessageStore.FileExtension);
+			var _fileSearchPattern = string.Format("*_{0}{1}", id, FileSystemStore.FileExtension);
 			return Directory.GetFiles(this.c_directoryPath, _fileSearchPattern).First();
 		}
 	}

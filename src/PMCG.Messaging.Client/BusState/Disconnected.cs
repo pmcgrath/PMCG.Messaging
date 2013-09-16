@@ -1,4 +1,5 @@
 ﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.DisconnectedStorage;
 using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
@@ -10,7 +11,7 @@ namespace PMCG.Messaging.Client.BusState
 {
 	public class Disconnected : State
 	{
-		private readonly IDisconnectedMessageStore c_disconnectedMessageStore;
+		private readonly IStore c_disconnectedMessageStore;
 
 
 		public Disconnected(
@@ -23,7 +24,7 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			base.Logger.Info();
 			
-			this.c_disconnectedMessageStore = new FileSystemDisconnectedMessageStore(base.Configuration.DisconnectedMessagesStoragePath);
+			this.c_disconnectedMessageStore = new FileSystemStore(base.Configuration.DisconnectedMessagesStoragePath);
 			this.StoreDisconnectedMessages();
 			new Task(this.TryRestablishingConnection).Start();
 
