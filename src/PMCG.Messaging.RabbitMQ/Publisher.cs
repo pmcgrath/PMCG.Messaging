@@ -78,6 +78,8 @@ namespace PMCG.Messaging.RabbitMQ
 			IModel channel,
 			BasicAckEventArgs args)
 		{
+			// http://comments.gmane.org/gmane.comp.networking.rabbitmq.general/11009
+			// Should i have a local store that i can remove entries from based on the delivery tag here
 			this.c_logger.DebugFormat("Channel acked, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
 

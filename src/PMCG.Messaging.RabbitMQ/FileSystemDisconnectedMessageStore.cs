@@ -9,6 +9,9 @@ using System.Text;
 namespace PMCG.Messaging.RabbitMQ
 {
 	// This will not scale !
+	// Use
+	//		http://redis.io/
+	//		http://managedesent.codeplex.com/	- ravendb storage engine
 	public class FileSystemDisconnectedMessageStore : IDisconnectedMessageStore
 	{
 		private readonly string c_directoryPath;

@@ -142,8 +142,10 @@ namespace PMCGMessaging.RabbitMQ.Interactive
 			Console.WriteLine("About to publish messages {0}", DateTime.Now);
 			for (var _sequence = 1; _sequence <= _numberOfMessagesToPublish; _sequence++)
 			{
+				Console.WriteLine("About to publish {0}", _sequence);
 				var _message = new MyEvent(Guid.NewGuid(), "...", _sequence);
 				_SUT.Publish(_message);
+				Thread.Sleep(100);
 			}
 			Console.WriteLine("Completed publishing messages {0}", DateTime.Now);
 
