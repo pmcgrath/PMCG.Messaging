@@ -28,10 +28,7 @@ namespace PMCG.Messaging.Client
 			this.c_logger = logger;
 			this.c_logger.Info();
 
-			var _connectionManager = new ConnectionManager(
-				this.c_logger,
-				configuration.ConnectionUri,
-				configuration.ReconnectionPauseInterval);
+			var _connectionManager = ServiceLocator.GetConnectionManager(this.c_logger, configuration);
 
 			this.State = new Initialised(
 				this.c_logger,

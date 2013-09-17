@@ -48,9 +48,7 @@ namespace PMCG.Messaging.Client.BusState
 			}
 
 			base.Logger.Info("About to reqeue disconnected messages");
-			base.RequeueDisconnectedMessages(
-				new FileSystemStore(
-					base.Configuration.DisconnectedMessagesStoragePath));
+			base.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
 
 			base.Logger.Info("About to create subcriber tasks");
 			this.c_subscriberTasks = new Task[base.NumberOfSubscribers];

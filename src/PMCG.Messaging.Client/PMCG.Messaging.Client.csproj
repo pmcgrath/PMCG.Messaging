@@ -68,6 +68,7 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="DisconnectedStorage\FileSystemStore.cs" />
     <Compile Include="DisconnectedStorage\IStore.cs" />
+    <Compile Include="ServiceLocator.cs" />
     <Compile Include="SubscriptionMessageProcessor.cs" />
     <Compile Include="IConnectionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

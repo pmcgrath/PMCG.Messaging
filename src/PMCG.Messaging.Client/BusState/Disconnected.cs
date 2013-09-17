@@ -24,7 +24,7 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			base.Logger.Info();
 			
-			this.c_disconnectedMessageStore = new FileSystemStore(base.Configuration.DisconnectedMessagesStoragePath);
+			this.c_disconnectedMessageStore = ServiceLocator.GetNewDisconnectedStore(base.Configuration);
 			this.StoreDisconnectedMessages();
 			new Task(this.TryRestablishingConnection).Start();
 
