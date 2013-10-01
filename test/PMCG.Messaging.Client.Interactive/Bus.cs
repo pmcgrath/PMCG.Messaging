@@ -166,7 +166,7 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name + "v1")
 				.RegisterSubscription<MyEvent>(
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,

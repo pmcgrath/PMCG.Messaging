@@ -13,9 +13,9 @@ namespace PMCG.Messaging.Client.Interactive
 
 			//new Subscribers().Run_Where_We_Instruct_To_Stop_The_Broker();
 
-			//new Bus().Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage();
+			new Bus().Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage();
 			//new Bus().Run_Where_We_Publish_Multiple_Messages_And_Subscribe_For_The_Same_Messsages();
-			new Bus().Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage_On_A_Transient_Queue();
+			//new Bus().Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage_On_A_Transient_Queue();
 		}
 	}
 }
