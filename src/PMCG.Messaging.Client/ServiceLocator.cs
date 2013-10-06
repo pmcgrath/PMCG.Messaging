@@ -13,7 +13,7 @@ namespace PMCG.Messaging.Client
 			() => new Common.Logging.Simple.ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm:ss");
 
 		public static Func<ILog, BusConfiguration, IConnectionManager> GetConnectionManager =
-			(logger, busConfiguration) => new ConnectionManager(logger, busConfiguration.ConnectionUri, busConfiguration.ReconnectionPauseInterval);
+			(logger, busConfiguration) => new ConnectionManager(logger, busConfiguration.ConnectionUris, busConfiguration.ReconnectionPauseInterval);
 
 
 		public static Func<BusConfiguration, IStore> GetNewDisconnectedStore = 

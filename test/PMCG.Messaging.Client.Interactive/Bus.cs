@@ -17,7 +17,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:25672/";	// Wrong port number
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:25672/");	// Wrong port number
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
@@ -37,7 +37,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 			
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
@@ -54,7 +54,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
@@ -72,7 +72,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
@@ -89,7 +89,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
@@ -111,7 +111,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
@@ -147,7 +147,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
@@ -184,7 +184,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _logger = new NoOpLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name + "v1")

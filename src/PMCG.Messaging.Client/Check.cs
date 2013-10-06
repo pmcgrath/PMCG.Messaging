@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace PMCG.Messaging.Client
@@ -19,6 +21,15 @@ namespace PMCG.Messaging.Client
 			string argumentValue)
 		{
 			if (string.IsNullOrWhiteSpace(argumentValue)) { throw new ArgumentException("Cannot be empty", argumentName); }
+		}
+
+
+		public static void RequireArgumentNotEmptyAndNonEmptyItems(
+			string argumentName,
+			IEnumerable<string> argumentValue)
+		{
+			if (!argumentValue.Any()) { throw new ArgumentException("Cannot be empty", argumentName); }
+			if (argumentValue.Any(item => string.IsNullOrWhiteSpace(item))) { throw new ArgumentException("Items cannot be empty", argumentName); }
 		}
 
 

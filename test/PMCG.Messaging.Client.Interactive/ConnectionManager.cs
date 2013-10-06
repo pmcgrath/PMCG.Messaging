@@ -14,7 +14,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
 				_logger,
-				"amqp://guest:guest@localhost:5672/",
+				new [] { "amqp://guest:guest@localhost:5672/" },
 				TimeSpan.FromSeconds(4));
 
 			_SUT.Open();
@@ -27,7 +27,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
 				_logger,
-				"amqp://guest:guest@localhost:5672/",
+				new [] { "amqp://guest:guest@localhost:5672/" },
 				TimeSpan.FromSeconds(4));
 
 			_SUT.Open();

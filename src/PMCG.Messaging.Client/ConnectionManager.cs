@@ -2,6 +2,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -11,7 +12,7 @@ namespace PMCG.Messaging.Client
 	public class ConnectionManager : IConnectionManager
 	{
 		private readonly ILog c_logger;
-		private readonly ConnectionFactory c_connectionFactory;
+		private readonly IEnumerable<string> c_connectionUris;
 		private readonly TimeSpan c_reconnectionPauseInterval;
 
 
@@ -28,17 +29,16 @@ namespace PMCG.Messaging.Client
 
 		public ConnectionManager(
 			ILog logger,
-			string connectionUri,
+			IEnumerable<string> connectionUris,
 			TimeSpan reconnectionPauseInterval)
 		{
 			Check.RequireArgumentNotNull("logger", logger);
-			Check.RequireArgumentNotEmpty("connectionUri", connectionUri);
+			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.Ticks > 0);
 
 			this.c_logger = logger;
+			this.c_connectionUris = connectionUris;
 			this.c_reconnectionPauseInterval = reconnectionPauseInterval;
-
-			this.c_connectionFactory = new ConnectionFactory { Uri = connectionUri };
 
 			this.c_logger.Info("ctor Completed");
 		}
@@ -57,9 +57,18 @@ namespace PMCG.Messaging.Client
 				try
 				{
 					this.c_logger.InfoFormat("Open Trying to connect, sequence {0}", _attemptSequence);
-					this.c_connection = this.c_connectionFactory.CreateConnection();
-					this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
-					break;
+					foreach (var _connectionUri in this.c_connectionUris)
+					{
+						var _connectionFactory = new ConnectionFactory { Uri = _connectionUri };
+						var _connectionInfo = string.Format("Host {0}, port {1}, vhost {2}", _connectionFactory.HostName, _connectionFactory.Port, _connectionFactory.VirtualHost);
+						this.c_logger.InfoFormat("Open Attempting to connect to ({0}}, sequence {1}", _connectionInfo, _attemptSequence);
+						this.c_connection = _connectionFactory.CreateConnection();
+						this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
+						this.c_logger.InfoFormat("Open Connected to ({0}}, sequence {1}", _connectionInfo, _attemptSequence);
+						break;
+					}
+
+					if (this.IsOpen) { break; }
 				}
 				catch (SocketException exception)
 				{

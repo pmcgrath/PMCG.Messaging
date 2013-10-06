@@ -66,7 +66,7 @@ namespace PMCG.Messaging.Client.Interactive
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "......";
+			_busConfigurationBuilder.ConnectionUris.Add(_connectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();

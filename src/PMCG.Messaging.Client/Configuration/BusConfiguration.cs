@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 
 namespace PMCG.Messaging.Client.Configuration
 {
 	public class BusConfiguration
 	{
-		public readonly string ConnectionUri;
+		public readonly IEnumerable<string> ConnectionUris;
 		public readonly string DisconnectedMessagesStoragePath;
 		public readonly TimeSpan ReconnectionPauseInterval;
 		public readonly ushort NumberOfPublishers;
@@ -17,7 +18,7 @@ namespace PMCG.Messaging.Client.Configuration
 
 
 		public BusConfiguration(
-			string connectionUri,
+			IEnumerable<string> connectionUris,
 			string disconnectedMessagesStoragePath,
 			TimeSpan reconnectionPauseInterval,
 			ushort numberOfPublishers,
@@ -27,7 +28,7 @@ namespace PMCG.Messaging.Client.Configuration
 			MessagePublications messagePublications,
 			MessageSubscriptions messageSubscriptions)
 		{
-			Check.RequireArgumentNotEmpty("connectionUri", connectionUri);
+			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
 			Check.RequireArgumentNotEmpty("disconnectedMessagesStoragePath", disconnectedMessagesStoragePath);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.TotalSeconds > 0);
 			Check.RequireArgument("numberOfPublishers", numberOfPublishers, numberOfPublishers > 0);
@@ -37,7 +38,7 @@ namespace PMCG.Messaging.Client.Configuration
 			Check.RequireArgumentNotNull("messagePublications", messagePublications);
 			Check.RequireArgumentNotNull("messageSubscriptions", messageSubscriptions);
 			
-			this.ConnectionUri = connectionUri;
+			this.ConnectionUris = connectionUris;
 			this.DisconnectedMessagesStoragePath = disconnectedMessagesStoragePath;
 			this.ReconnectionPauseInterval = reconnectionPauseInterval;
 			this.NumberOfPublishers = numberOfPublishers;

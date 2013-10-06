@@ -7,7 +7,7 @@ namespace PMCG.Messaging.Client.Configuration
 {
 	public class BusConfigurationBuilder
 	{
-		public string ConnectionUri;
+		public IList<string> ConnectionUris;
 		public string DisconnectedMessagesStoragePath;
 		public TimeSpan ReconnectionPauseInterval;
 		public ushort NumberOfPublishers;
@@ -26,6 +26,7 @@ namespace PMCG.Messaging.Client.Configuration
 			this.SubscriptionMessagePrefetchCount = 1;
 			this.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(100);
 
+			this.ConnectionUris = new List<string>();
 			this.MessagePublications = new Dictionary<Type, List<MessageDelivery>>();
 			this.MessageSubscriptions = new Dictionary<string, MessageSubscription>();
 		}
@@ -138,7 +139,7 @@ namespace PMCG.Messaging.Client.Configuration
 		public BusConfiguration Build()
 		{
 			return new BusConfiguration(
-				this.ConnectionUri,
+				this.ConnectionUris,
 				this.DisconnectedMessagesStoragePath,
 				this.ReconnectionPauseInterval,
 				this.NumberOfPublishers,

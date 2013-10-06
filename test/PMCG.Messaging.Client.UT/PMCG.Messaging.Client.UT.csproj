@@ -54,6 +54,8 @@
     <Compile Include="..\..\src\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\ConnectionStringSettingsParser.cs" />
+    <Compile Include="Configuration\DefaultPasswordParser.cs" />
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="DisconnectedStorage\FileSystemStore.cs" />
     <Compile Include="MyEvent.cs" />

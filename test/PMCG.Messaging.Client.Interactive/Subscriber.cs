@@ -3,6 +3,7 @@ using Common.Logging.Simple;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,7 +45,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _capturedMessageId = string.Empty;
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -73,7 +74,7 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiateSubscriber()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			this.InstantiateSubscriber(_busConfigurationBuilder.Build());
@@ -84,7 +85,7 @@ namespace PMCG.Messaging.Client.Interactive
 			BusConfiguration busConfiguration)
 		{
 			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
-			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUri }.CreateConnection();
+			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUris.First() }.CreateConnection();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
 			this.c_subscriber = new PMCG.Messaging.Client.Subscriber(
