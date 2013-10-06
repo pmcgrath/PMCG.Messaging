@@ -1,6 +1,7 @@
-﻿using PMCG.Messaging;
+﻿using Common.Logging;
+using Common.Logging.Simple;
+using PMCG.Messaging;
 using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace PMCG.Messaging.Client.Interactive
 	{
 		public void Run_Where_We_Instantiate_And_Try_To_Connect_To_Non_Existent_Broker()
 		{
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:25672/";	// Wrong port number
@@ -23,14 +24,17 @@ namespace PMCG.Messaging.Client.Interactive
 			_SUT.Connect();
 
 			Console.WriteLine("Allow time for connection attempt to fail, check bus state which should be disconnected");
+			Console.ReadLine();
 			_SUT.Close();
+
+			Console.WriteLine("Hit enter to exit");
 			Console.ReadLine();
 		}
 
 
 		public void Run_Where_We_Instantiate_And_Instruct_To_Stop_The_Broker()
 		{
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 			
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
@@ -47,7 +51,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Then_Instruct_To_Stop_The_Broker()
 		{
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
@@ -65,7 +69,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Instruct_To_Close_The_Connection_Using_The_DashBoard()
 		{
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
@@ -82,7 +86,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Then_Close()
 		{
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
@@ -104,7 +108,7 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _capturedMessageId = string.Empty;
 
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
@@ -140,7 +144,7 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _capturedMessageId = string.Empty;
 
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
@@ -177,7 +181,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _numberOfMessagesToPublish = 2500;
 			var _receivedMessages = new ConcurrentStack<MyEvent>();
 
-			var _logger = new NullLogger();
+			var _logger = new NoOpLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";

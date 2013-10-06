@@ -1,6 +1,6 @@
-﻿using PMCG.Messaging.Client.Configuration;
+﻿using Common.Logging;
+using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
-using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using System;
 
@@ -10,7 +10,7 @@ namespace PMCG.Messaging.Client
 	public static class ServiceLocator
 	{
 		public static Func<ILog> GetLogger =
-			() => new ConsoleLogger();
+			() => new Common.Logging.Simple.ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm:ss");
 
 		public static Func<ILog, BusConfiguration, IConnectionManager> GetConnectionManager =
 			(logger, busConfiguration) => new ConnectionManager(logger, busConfiguration.ConnectionUri, busConfiguration.ReconnectionPauseInterval);

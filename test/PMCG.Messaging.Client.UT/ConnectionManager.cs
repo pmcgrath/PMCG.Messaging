@@ -1,6 +1,6 @@
-﻿using NSubstitute;
+﻿using Common.Logging;
+using NSubstitute;
 using NUnit.Framework;
-using PMCG.Messaging.Client.Utility;
 using System;
 
 

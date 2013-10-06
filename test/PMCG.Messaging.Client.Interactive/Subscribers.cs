@@ -1,5 +1,6 @@
-﻿using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
+﻿using Common.Logging;
+using Common.Logging.Simple;
+using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
@@ -59,7 +60,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void InstantiateSubscriberTasks()
 		{
-			var _logger = new ConsoleLogger();
+			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
 
 			var _connectionUri = "amqp://guest:guest@localhost:5672/";
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();

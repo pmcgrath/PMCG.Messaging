@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Common.Logging;
+using Newtonsoft.Json;
 using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -21,7 +21,7 @@ namespace PMCG.Messaging.Client
 		{
 			this.c_logger = logger;
 			this.c_configuration = configuration;
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("ctor Completed");
 		}
 
 
@@ -33,11 +33,11 @@ namespace PMCG.Messaging.Client
 				message.BasicProperties.Type,
 				message.BasicProperties.MessageId,
 				message.DeliveryTag);
-			this.c_logger.DebugFormat("About to handle message, {0}", _logMessageContext);
+			this.c_logger.DebugFormat("Process About to handle message, {0}", _logMessageContext);
 
 			if (!this.c_configuration.MessageSubscriptions.HasConfiguration(message.BasicProperties.Type))
 			{
-				this.c_logger.DebugFormat("No match found for message, {0}", _logMessageContext);
+				this.c_logger.DebugFormat("Process No match found for message, {0}", _logMessageContext);
 				//pending - see errored below
 				channel.BasicNack(message.DeliveryTag, false, false);
 				return;
@@ -47,18 +47,18 @@ namespace PMCG.Messaging.Client
 			var _actionResult = SubscriptionHandlerResult.None;
 			try
 			{
-				this.c_logger.DebugFormat("About to deserialze message for message, {0}", _logMessageContext);
+				this.c_logger.DebugFormat("Process About to deserialze message for message, {0}", _logMessageContext);
 				var _messageJson = Encoding.UTF8.GetString(message.Body);
 				var _message = JsonConvert.DeserializeObject(_messageJson, _configuration.Type);
 
-				this.c_logger.DebugFormat("About to invoke action for message, {0}", _logMessageContext);
+				this.c_logger.DebugFormat("Process About to invoke action for message, {0}", _logMessageContext);
 				_actionResult = _configuration.Action(_message as Message);
 			}
 			catch
 			{
 				_actionResult = SubscriptionHandlerResult.Errored;
 			}
-			this.c_logger.DebugFormat("Completed processing for message, {0}, result is {1}", _logMessageContext, _actionResult);
+			this.c_logger.DebugFormat("Process Completed processing for message, {0}, result is {1}", _logMessageContext, _actionResult);
 
 			if (_actionResult == SubscriptionHandlerResult.Errored)
 			{
@@ -76,7 +76,7 @@ namespace PMCG.Messaging.Client
 				channel.BasicReject(message.DeliveryTag, true);
 			}
 
-			this.c_logger.DebugFormat("Completed handling message, {0}, Result is {1}", _logMessageContext, _actionResult);
+			this.c_logger.DebugFormat("Process Completed handling message, {0}, Result is {1}", _logMessageContext, _actionResult);
 		}
 	}
 }

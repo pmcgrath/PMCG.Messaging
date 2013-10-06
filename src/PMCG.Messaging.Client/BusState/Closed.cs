@@ -1,5 +1,5 @@
-﻿using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
+﻿using Common.Logging;
+using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Collections.Concurrent;
 
@@ -16,19 +16,19 @@ namespace PMCG.Messaging.Client.BusState
 			IBusContext context)
 			: base(logger, configuration, connectionManager, queuedMessages, context)
 		{
-			base.Logger.Info();
+			base.Logger.Info("ctor Completed");
 		}
 
 
 		public override void Connect()
 		{
-			base.Logger.Info();
+			base.Logger.Info("Connect Starting");
 
 			base.TransitionToNewState(typeof(Connecting));
 			base.OpenConnection();
 			base.TransitionToNewState(typeof(Connected));
 
-			base.Logger.Info("Completed");
+			base.Logger.Info("Connect Completed");
 		}
 	}
 }

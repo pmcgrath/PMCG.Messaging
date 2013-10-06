@@ -1,6 +1,6 @@
-﻿using PMCG.Messaging.Client.Configuration;
+﻿using Common.Logging;
+using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
-using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -34,19 +34,19 @@ namespace PMCG.Messaging.Client.BusState
 			this.QueuedMessages = queuedMessages;
 			this.Context = context;
 
-			this.Logger.Info("Completed");
+			this.Logger.Info("ctor Completed");
 		}
 
 
 		public virtual void Connect()
 		{
-			this.Logger.Info();
+			this.Logger.Info("Connect Completed - no override");
 		}
 
 
 		public virtual void Close()
 		{
-			this.Logger.Info();
+			this.Logger.Info("Close Completed - no override");
 		}
 
 
@@ -61,7 +61,7 @@ namespace PMCG.Messaging.Client.BusState
 		protected void TransitionToNewState(
 			Type newState)
 		{
-			this.Logger.InfoFormat("Changing from {0} to {1}", this.Context.State.GetType().Name, newState.Name);
+			this.Logger.InfoFormat("TransitionToNewState Changing from {0} to {1}", this.Context.State.GetType().Name, newState.Name);
 			this.Context.State = (State)Activator.CreateInstance(
 				newState,
 				new object[]
@@ -72,7 +72,7 @@ namespace PMCG.Messaging.Client.BusState
 						this.QueuedMessages,
 						this.Context 
 					});
-			this.Logger.Info("Completed");
+			this.Logger.Info("TransitionToNewState Completed");
 		}
 
 
@@ -111,7 +111,7 @@ namespace PMCG.Messaging.Client.BusState
 		protected void RequeueDisconnectedMessages(
 			IStore disconnectedMessageStore)
 		{
-			this.Logger.Info();
+			this.Logger.Info("RequeueDisconnectedMessages Starting");
 
 			var _queuedMessageIds = this.QueuedMessages
 				.Select(queuedMessage => queuedMessage.Data.Id)
@@ -130,7 +130,7 @@ namespace PMCG.Messaging.Client.BusState
 				disconnectedMessageStore.Delete(_messageId);
 			}
 
-			this.Logger.Info("Completed");
+			this.Logger.Info("RequeueDisconnectedMessages Completed");
 		}
 	}
 }

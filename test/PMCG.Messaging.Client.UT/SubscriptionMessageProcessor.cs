@@ -1,7 +1,7 @@
-﻿using NSubstitute;
+﻿using Common.Logging;
+using NSubstitute;
 using NUnit.Framework;
 using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;

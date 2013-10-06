@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using PMCG.Messaging.Client.Utility;
+﻿using Common.Logging;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -36,17 +36,17 @@ namespace PMCG.Messaging.Client
 			this.c_cancellationToken = cancellationToken;
 			this.c_queuedMessages = queuedMessages;
 
-			this.c_logger.Info("About to create channel");
+			this.c_logger.Info("ctor About to create channel");
 			this.c_channel = connection.CreateModel();
 			this.c_channel.ConfirmSelect();
 			this.c_channel.BasicAcks += this.OnChannelAcked;
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("ctor Completed");
 		}
 
 
 		public void Start()
 		{
-			this.c_logger.Info();
+			this.c_logger.Info("Start Starting");
 			Check.Ensure(!this.c_hasBeenStarted, "Publisher has already been started, can only do so once");
 			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation token is already canceled");
 
@@ -69,7 +69,7 @@ namespace PMCG.Messaging.Client
 				}
 
 				this.c_isCompleted = true;
-				this.c_logger.Info("Completed publishing");
+				this.c_logger.Info("Start Completed publishing");
 			}
 		}
 
@@ -80,7 +80,7 @@ namespace PMCG.Messaging.Client
 		{
 			// http://comments.gmane.org/gmane.comp.networking.rabbitmq.general/11009
 			// Should i have a local store that i can remove entries from based on the delivery tag here
-			this.c_logger.DebugFormat("Channel acked, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
+			this.c_logger.DebugFormat("OnChannelAcked Channel acked, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
 
 
@@ -96,7 +96,7 @@ namespace PMCG.Messaging.Client
 					}
 					catch (OperationCanceledException)
 					{
-						this.c_logger.Info("Operation canceled");
+						this.c_logger.Info("RunPublicationLoop Operation canceled");
 						this.c_queuedMessages.Add(_queuedMessage);
 					}
 					catch
@@ -108,7 +108,7 @@ namespace PMCG.Messaging.Client
 			}
 			catch (OperationCanceledException)
 			{
-				this.c_logger.Info("Operation canceled");
+				this.c_logger.Info("RunPublicationLoop Operation canceled");
 			}
 		}
 
@@ -116,7 +116,7 @@ namespace PMCG.Messaging.Client
 		private void Publish(
 			QueuedMessage message)
 		{
-			this.c_logger.DebugFormat("About to publish message with Id {0} to exchange {1}, next channel sequence number {2}", 
+			this.c_logger.DebugFormat("Publish About to publish message with Id {0} to exchange {1}, next channel sequence number {2}", 
 				message.Data.Id, 
 				message.ExchangeName, 
 				this.c_channel.NextPublishSeqNo);
@@ -136,7 +136,7 @@ namespace PMCG.Messaging.Client
 				_properties,
 				_messageBody);
 
-			this.c_logger.DebugFormat("Completed publishing message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
+			this.c_logger.DebugFormat("Publish Completed publishing message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
 		}
 	}
 }

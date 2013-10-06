@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging">
+      <HintPath>..\..\lib\Common.Logging\Common.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\lib\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -75,16 +78,16 @@
     <Compile Include="Publisher.cs" />
     <Compile Include="QueuedMessage.cs" />
     <Compile Include="Subscriber.cs" />
-    <Compile Include="Utility\Check.cs" />
-    <Compile Include="Utility\ConsoleLogger.cs" />
-    <Compile Include="Utility\NullLogger.cs" />
-    <Compile Include="Utility\ILog.cs" />
+    <Compile Include="Check.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PMCG.Messaging\PMCG.Messaging.csproj">
       <Project>{961aba37-a451-4137-a1a5-1a6a7d25af09}</Project>
       <Name>PMCG.Messaging</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utility\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

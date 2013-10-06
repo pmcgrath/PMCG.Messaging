@@ -1,4 +1,4 @@
-﻿using PMCG.Messaging.Client.Utility;
+﻿using Common.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -40,16 +40,15 @@ namespace PMCG.Messaging.Client
 
 			this.c_connectionFactory = new ConnectionFactory { Uri = connectionUri };
 
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("ctor Completed");
 		}
 
 
 		public void Open(
 			uint numberOfTimesToTry = 0)
 		{
+			this.c_logger.Info("Open Starting");
 			Check.Ensure(!this.IsOpen, "Connection is already open");
-
-			this.c_logger.Info();
 
 			var _attemptSequence = 1;
 			this.c_isCloseRequested = false;
@@ -57,18 +56,18 @@ namespace PMCG.Messaging.Client
 			{
 				try
 				{
-					this.c_logger.InfoFormat("Trying to connect, sequence {0}", _attemptSequence);
+					this.c_logger.InfoFormat("Open Trying to connect, sequence {0}", _attemptSequence);
 					this.c_connection = this.c_connectionFactory.CreateConnection();
 					this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
 					break;
 				}
 				catch (SocketException exception)
 				{
-					this.c_logger.WarnFormat("Failed to connect {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
+					this.c_logger.WarnFormat("Open Failed to connect {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
 				}
 				catch (BrokerUnreachableException exception)
 				{
-					this.c_logger.WarnFormat("Failed to connect, sequence {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
+					this.c_logger.WarnFormat("Open Failed to connect, sequence {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
 				}
 
 				if (this.c_isCloseRequested) { return; }
@@ -78,13 +77,13 @@ namespace PMCG.Messaging.Client
 				_attemptSequence++;
 			}
 
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("Open Completed");
 		}
 
 
 		public void Close()
 		{
-			this.c_logger.Info();
+			this.c_logger.Info("Close Starting");
 
 			this.c_isCloseRequested = true;
 			if (this.IsOpen)
@@ -93,7 +92,7 @@ namespace PMCG.Messaging.Client
 				this.c_connection.Close();
 			}
 
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("Close Completed");
 		}
 
 
@@ -101,8 +100,9 @@ namespace PMCG.Messaging.Client
 			IConnection connection,
 			ShutdownEventArgs reason)
 		{
-			this.c_logger.Info();
+			this.c_logger.Info("OnConnectionShutdown Starting");
 			this.Disconnected(null, new ConnectionDisconnectedEventArgs(reason.ReplyCode, reason.ReplyText));
+			this.c_logger.Info("OnConnectionShutdown Completed");
 		}
 	}
 }

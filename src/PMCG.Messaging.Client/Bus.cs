@@ -1,6 +1,6 @@
-﻿using PMCG.Messaging.Client.BusState;
+﻿using Common.Logging;
+using PMCG.Messaging.Client.BusState;
 using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -26,7 +26,7 @@ namespace PMCG.Messaging.Client
 				Directory.Exists(configuration.DisconnectedMessagesStoragePath));
 
 			this.c_logger = logger;
-			this.c_logger.Info();
+			this.c_logger.Info("ctor Starting");
 
 			var _connectionManager = ServiceLocator.GetConnectionManager(this.c_logger, configuration);
 
@@ -37,23 +37,23 @@ namespace PMCG.Messaging.Client
 				new BlockingCollection<QueuedMessage>(),
 				this);
 
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("ctor Completed");
 		}
 
 
 		public void Connect()
 		{
-			this.c_logger.Info();
+			this.c_logger.Info("Connect Starting");
 			this.State.Connect();
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("Connect Completed");
 		}
 
 
 		public void Close()
 		{
-			this.c_logger.Info();
+			this.c_logger.Info("Close Starting");
 			this.State.Close();
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("Close Completed");
 		}
 
 
@@ -61,12 +61,12 @@ namespace PMCG.Messaging.Client
 			TMessage message)
 			where TMessage : Message
 		{
+			this.c_logger.Info("Publish Starting");
 			Check.RequireArgumentNotNull("message", message);
 
-			this.c_logger.Info();
 			this.State.Publish(message);
 
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("Publish Completed");
 		}
 	}
 }

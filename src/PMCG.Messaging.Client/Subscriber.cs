@@ -1,5 +1,5 @@
-﻿using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.Utility;
+﻿using Common.Logging;
+using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
@@ -37,20 +37,20 @@ namespace PMCG.Messaging.Client
 			this.c_configuration = configuration;
 			this.c_cancellationToken = cancellationToken;
 
-			this.c_logger.Info("About to create channel");
+			this.c_logger.Info("ctor About to create channel");
 			this.c_channel = connection.CreateModel();
 			this.c_channel.BasicQos(0, this.c_configuration.SubscriptionMessagePrefetchCount, false);
 
-			this.c_logger.Info("About to create subscription message processor");
+			this.c_logger.Info("ctor About to create subscription message processor");
 			this.c_messageProcessor = new SubscriptionMessageProcessor(this.c_logger, this.c_configuration);
 
-			this.c_logger.Info("Completed");
+			this.c_logger.Info("ctor Completed");
 		}
 
 
 		public void Start()
 		{
-			this.c_logger.Info();
+			this.c_logger.Info("Start Starting");
 			Check.Ensure(!this.c_hasBeenStarted, "Subsriber has already been started, can only do so once");
 			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation token is already canceled");
 
@@ -75,7 +75,7 @@ namespace PMCG.Messaging.Client
 				}
 
 				this.c_isCompleted = true;
-				this.c_logger.Info("Completed consuming");
+				this.c_logger.Info("Start Completed consuming");
 			}
 		}
 
@@ -84,7 +84,7 @@ namespace PMCG.Messaging.Client
 		{
 			foreach (var _configuration in this.c_configuration.MessageSubscriptions.GetTransientQueueConfigurations())
 			{
-				this.c_logger.InfoFormat("Verifying for transient queue {0}", _configuration.QueueName);
+				this.c_logger.InfoFormat("EnsureTransientQueuesExist Verifying for transient queue {0}", _configuration.QueueName);
 				this.c_channel.QueueDeclare(_configuration.QueueName, false, false, true, null);
 				this.c_channel.QueueBind(_configuration.QueueName, _configuration.ExchangeName, string.Empty);
 			}
@@ -96,16 +96,16 @@ namespace PMCG.Messaging.Client
 			this.c_consumer = new QueueingBasicConsumer(this.c_channel);
 			foreach (var _queueName in this.c_configuration.MessageSubscriptions.GetDistinctQueueNames())
 			{
-				this.c_logger.InfoFormat("Consume for queue {0}", _queueName);
+				this.c_logger.InfoFormat("CreateAndConfigureConsumer Consume for queue {0}", _queueName);
 				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, this.c_consumer);
-				this.c_logger.InfoFormat("Consume for queue {0}, consumer tag is {1}", _queueName, _consumerTag);
+				this.c_logger.InfoFormat("CreateAndConfigureConsumer Consume for queue {0}, consumer tag is {1}", _queueName, _consumerTag);
 			}
 		}
 
 
 		private void RunConsumeLoop()
 		{
-			this.c_logger.Info("About to start consuming loop");
+			this.c_logger.Info("RunConsumeLoop Starting");
 			var _timeoutInMilliseconds = (int)this.c_configuration.SubscriptionDequeueTimeout.TotalMilliseconds;
 			while (!this.c_cancellationToken.IsCancellationRequested)
 			{
@@ -119,7 +119,7 @@ namespace PMCG.Messaging.Client
 				}
 				catch (EndOfStreamException)
 				{
-					this.c_logger.Info("End of stream");
+					this.c_logger.Info("RunConsumeLoop End of stream");
 					break;
 				}
 			}
