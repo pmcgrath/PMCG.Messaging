@@ -43,7 +43,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _capturedMessageId = string.Empty;
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
+			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -72,7 +72,7 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiateSubscriber()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/dev";
+			_busConfigurationBuilder.ConnectionUri = "amqp://guest:guest@localhost:5672/";
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
 			this.InstantiateSubscriber(_busConfigurationBuilder.Build());

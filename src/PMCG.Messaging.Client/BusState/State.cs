@@ -76,12 +76,18 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
+		protected void OpenConnectionInitially()
+		{
+			this.ConnectionManager.Open(1);
+		}
+
+
 		protected void OpenConnection()
 		{
 			this.ConnectionManager.Open();
 		}
 
-
+	
 		protected void CloseConnection()
 		{
 			this.ConnectionManager.Close();

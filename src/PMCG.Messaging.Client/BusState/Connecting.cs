@@ -22,7 +22,6 @@ namespace PMCG.Messaging.Client.BusState
 
 		public override void Close()
 		{
-			// Pending - with the blocking open connection will we get here - this is just a transient state
 			base.Logger.Info();
 
 			base.CloseConnection();

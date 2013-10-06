@@ -21,5 +21,9 @@ namespace PMCG.Messaging.Client.Utility
 		void ErrorFormat(
 			string formatMessage,
 			params object[] arguments);
+
+		void WarnFormat(
+			string formatMessage,
+			params object[] arguments);
 	}
 }

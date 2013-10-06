@@ -37,5 +37,12 @@ namespace PMCG.Messaging.Client.Utility
 			params object[] arguments)
 		{
 		}
+
+
+		public void WarnFormat(
+			string formatMessage,
+			params object[] arguments)
+		{
+		}
 	}
 }

@@ -25,9 +25,8 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.Info();
 			
 			base.TransitionToNewState(typeof(Connecting));
-			// Will block until the connection is open
-			base.OpenConnection();
-			base.TransitionToNewState(typeof(Connected));
+			base.OpenConnectionInitially();
+			base.TransitionToNewState(base.ConnectionManager.IsOpen ? typeof(Connected) : typeof(Disconnected));
 
 			base.Logger.Info("Completed");
 		}

@@ -44,6 +44,14 @@ namespace PMCG.Messaging.Client.Utility
 		}
 
 
+		public void WarnFormat(
+			string formatMessage,
+			params object[] arguments)
+		{
+			this.Write("WARN", string.Format(formatMessage, arguments));
+		}
+
+
 		private void Write(
 			string level,
 			string message)

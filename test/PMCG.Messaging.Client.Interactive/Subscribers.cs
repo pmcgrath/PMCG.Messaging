@@ -61,7 +61,7 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _logger = new ConsoleLogger();
 
-			var _connectionUri = "amqp://guest:guest@localhost:5672/dev";
+			var _connectionUri = "amqp://guest:guest@localhost:5672/";
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
