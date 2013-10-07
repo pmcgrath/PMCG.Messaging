@@ -12,9 +12,10 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public MyEvent(
 			Guid id,
+			string correlationId,
 			string detail,
 			int number)
-			: base(id)
+			: base(id, correlationId)
 		{
 			this.Detail = detail;
 			this.Number = number;

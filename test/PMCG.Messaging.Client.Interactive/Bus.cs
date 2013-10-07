@@ -124,7 +124,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
 			_SUT.Publish(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
@@ -160,7 +160,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", 1);
 			_SUT.Publish(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
@@ -201,7 +201,7 @@ namespace PMCG.Messaging.Client.Interactive
 			for (var _sequence = 1; _sequence <= _numberOfMessagesToPublish; _sequence++)
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
-				var _message = new MyEvent(Guid.NewGuid(), "...", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
 				_SUT.Publish(_message);
 				Thread.Sleep(100);
 			}

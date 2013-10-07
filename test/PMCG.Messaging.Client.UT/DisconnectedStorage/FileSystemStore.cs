@@ -33,7 +33,7 @@ namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 		[Test]
 		public void Add_Message_Results_In_A_Single_Key()
 		{
-			this.c_SUT.Add(new MyEvent(Guid.NewGuid(), ".", 12));
+			this.c_SUT.Add(new MyEvent(Guid.NewGuid(), "correlationId", ".", 12));
 
 			Assert.AreEqual(1, Directory.GetFiles(this.c_testDirectoryPath).Length);
 		}
@@ -42,8 +42,8 @@ namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 		[Test]
 		public void Add_Two_Messages_Results_In_Two_Keys()
 		{
-			this.c_SUT.Add(new MyEvent(Guid.NewGuid(), ".", 1));
-			this.c_SUT.Add(new MyEvent(Guid.NewGuid(), ".", 2));
+			this.c_SUT.Add(new MyEvent(Guid.NewGuid(), "correlationId", ".", 1));
+			this.c_SUT.Add(new MyEvent(Guid.NewGuid(), "correlationId", ".", 2));
 
 			Assert.AreEqual(2, Directory.GetFiles(this.c_testDirectoryPath).Length);
 		}
@@ -59,10 +59,10 @@ namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 		[Test]
 		public void GetAllIds_Where_Two_Messages_Exist_Results_In_A_Collection_With_The_Two_Ids()
 		{
-			var _message1 = new MyEvent(Guid.NewGuid(), ".", 1);
+			var _message1 = new MyEvent(Guid.NewGuid(), "correlationId", ".", 1);
 			this.c_SUT.Add(_message1);
 
-			var _message2 = new MyEvent(Guid.NewGuid(), ".", 2);
+			var _message2 = new MyEvent(Guid.NewGuid(), "correlationId", ".", 2);
 			this.c_SUT.Add(_message2);
 
 			var _messageIds = this.c_SUT.GetAllIds().ToArray();
@@ -76,7 +76,7 @@ namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 		[Test]
 		public void RoundTrip_Results_In_Same_Message()
 		{
-			var _originalMessage = new MyEvent(Guid.NewGuid(), ".", 12);
+			var _originalMessage = new MyEvent(Guid.NewGuid(), "correlationId", ".", 12);
 
 			this.c_SUT.Add(_originalMessage);
 			var _roundTrippedMessage = this.c_SUT.Get(_originalMessage.Id) as MyEvent;
@@ -91,7 +91,7 @@ namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 		[Test]
 		public void Delete_Where_We_Write_Message_And_Then_Delete_Results_In_No_Message_Ids()
 		{
-			var _message = new MyEvent(Guid.NewGuid(), ".", 12);
+			var _message = new MyEvent(Guid.NewGuid(), "correlationId", ".", 12);
 			this.c_SUT.Add(_message);
 
 			this.c_SUT.Delete(_message.Id);

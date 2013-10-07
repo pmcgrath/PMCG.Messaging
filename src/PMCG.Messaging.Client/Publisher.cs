@@ -126,6 +126,7 @@ namespace PMCG.Messaging.Client
 			_properties.DeliveryMode = message.DeliveryMode;
 			_properties.Type = message.TypeHeader;
 			_properties.MessageId = message.Data.Id.ToString();
+			_properties.CorrelationId = message.Data.CorrelationId;
 
 			var _messageJson = JsonConvert.SerializeObject(message.Data);
 			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);

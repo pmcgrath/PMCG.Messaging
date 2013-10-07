@@ -29,9 +29,10 @@ namespace PMCG.Messaging.Client
 			IModel channel,
 			BasicDeliverEventArgs message)
 		{
-			var _logMessageContext = string.Format("type header = {0}, message Id = {1} and delivery tag = {2}", 
+			var _logMessageContext = string.Format("type header = {0}, message Id = {1}, correlation Id = {2} and delivery tag = {3}", 
 				message.BasicProperties.Type,
 				message.BasicProperties.MessageId,
+				message.BasicProperties.CorrelationId,
 				message.DeliveryTag);
 			this.c_logger.DebugFormat("Process About to handle message, {0}", _logMessageContext);
 

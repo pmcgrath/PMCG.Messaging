@@ -6,8 +6,9 @@ namespace PMCG.Messaging
 	public abstract class Command : Message
 	{
 		protected Command(
-			Guid id)
-			: base(id)
+			Guid id,
+			string correlationId)
+			: base(id, correlationId)
 		{
 		}
 	}

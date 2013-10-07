@@ -61,7 +61,7 @@ namespace PMCG.Messaging.Client
 					{
 						var _connectionFactory = new ConnectionFactory { Uri = _connectionUri };
 						var _connectionInfo = string.Format("Host {0}, port {1}, vhost {2}", _connectionFactory.HostName, _connectionFactory.Port, _connectionFactory.VirtualHost);
-						this.c_logger.InfoFormat("Open Attempting to connect to ({0}}, sequence {1}", _connectionInfo, _attemptSequence);
+						this.c_logger.InfoFormat("Open Attempting to connect to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						this.c_connection = _connectionFactory.CreateConnection();
 						this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
 						this.c_logger.InfoFormat("Open Connected to ({0}}, sequence {1}", _connectionInfo, _attemptSequence);
