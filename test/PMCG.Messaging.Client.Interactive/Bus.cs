@@ -14,7 +14,7 @@ namespace PMCG.Messaging.Client.Interactive
 	{
 		public void Run_Where_We_Instantiate_And_Try_To_Connect_To_Non_Existent_Broker()
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:25672/");	// Wrong port number
@@ -34,7 +34,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Instantiate_And_Instruct_To_Stop_The_Broker()
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 			
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
@@ -51,7 +51,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Then_Instruct_To_Stop_The_Broker()
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
@@ -69,7 +69,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Instruct_To_Close_The_Connection_Using_The_DashBoard()
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
@@ -86,7 +86,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Then_Close()
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
@@ -108,7 +108,7 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _capturedMessageId = string.Empty;
 
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
@@ -144,7 +144,7 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _capturedMessageId = string.Empty;
 
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");

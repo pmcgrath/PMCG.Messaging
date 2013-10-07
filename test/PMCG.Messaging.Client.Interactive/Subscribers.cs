@@ -60,7 +60,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void InstantiateSubscriberTasks()
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 
 			var _connectionUri = "amqp://guest:guest@localhost:5672/";
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();

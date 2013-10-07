@@ -84,7 +84,7 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiateSubscriber(
 			BusConfiguration busConfiguration)
 		{
-			var _logger = new ConsoleOutLogger("App", LogLevel.All, true, true, false, "hh:mm");
+			var _logger = LogManager.GetCurrentClassLogger();
 			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUris.First() }.CreateConnection();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 

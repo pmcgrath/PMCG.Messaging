@@ -36,6 +36,12 @@
     <Reference Include="Common.Logging">
       <HintPath>..\..\lib\Common.Logging\Common.Logging.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Logging.Log4Net1211">
+      <HintPath>..\..\lib\Common.Logging\Common.Logging.Log4Net1211.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\log4net\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\..\lib\RabbitMQ\RabbitMQ.Client.dll</HintPath>
     </Reference>
@@ -65,6 +71,9 @@
       <Project>{961aba37-a451-4137-a1a5-1a6a7d25af09}</Project>
       <Name>PMCG.Messaging</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
