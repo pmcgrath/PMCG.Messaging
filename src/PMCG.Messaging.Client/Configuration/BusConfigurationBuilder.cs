@@ -11,24 +11,24 @@ namespace PMCG.Messaging.Client.Configuration
 		public string DisconnectedMessagesStoragePath;
 		public TimeSpan ReconnectionPauseInterval;
 		public ushort NumberOfPublishers;
-		public ushort NumberOfSubscribers;
-		public ushort SubscriptionMessagePrefetchCount;
-		public TimeSpan SubscriptionDequeueTimeout;
+		public ushort NumberOfConsumers;
+		public ushort ConsumerMessagePrefetchCount;
+		public TimeSpan ConsumerDequeueTimeout;
 		public IDictionary<Type, List<MessageDelivery>> MessagePublications;
-		public IDictionary<string, MessageSubscription> MessageSubscriptions;
+		public IDictionary<string, MessageConsumer> MessageConsumers;
 
 
 		public BusConfigurationBuilder()
 		{
 			this.ReconnectionPauseInterval = TimeSpan.FromSeconds(4);
 			this.NumberOfPublishers = 1;
-			this.NumberOfSubscribers = 1;
-			this.SubscriptionMessagePrefetchCount = 1;
-			this.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(100);
+			this.NumberOfConsumers = 1;
+			this.ConsumerMessagePrefetchCount = 1;
+			this.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(100);
 
 			this.ConnectionUris = new List<string>();
 			this.MessagePublications = new Dictionary<Type, List<MessageDelivery>>();
-			this.MessageSubscriptions = new Dictionary<string, MessageSubscription>();
+			this.MessageConsumers = new Dictionary<string, MessageConsumer>();
 		}
 
 
@@ -95,17 +95,17 @@ namespace PMCG.Messaging.Client.Configuration
 		}
 
 
-		public BusConfigurationBuilder RegisterSubscription<TMessage>(
+		public BusConfigurationBuilder RegisterConsumer<TMessage>(
 			string queueName,
 			string typeHeader,
-			Func<TMessage, SubscriptionHandlerResult> action)
+			Func<TMessage, ConsumerHandlerResult> action)
 			where TMessage : Message
 		{
 			// Check that no exiting entry for the typeHeader
 
-			Func<Message, SubscriptionHandlerResult> _actionWrapper = message => action(message as TMessage);
+			Func<Message, ConsumerHandlerResult> _actionWrapper = message => action(message as TMessage);
 
-			this.MessageSubscriptions[typeHeader] = new MessageSubscription(
+			this.MessageConsumers[typeHeader] = new MessageConsumer(
 				typeof(TMessage),
 				queueName,
 				typeHeader,
@@ -115,17 +115,17 @@ namespace PMCG.Messaging.Client.Configuration
 		}
 
 
-		public BusConfigurationBuilder RegisterSubscription<TMessage>(
+		public BusConfigurationBuilder RegisterConsumer<TMessage>(
 			string typeHeader,
-			Func<TMessage, SubscriptionHandlerResult> action,
+			Func<TMessage, ConsumerHandlerResult> action,
 			string exchangeName)
 			where TMessage : Message
 		{
 			// Check that no exiting entry for the typeHeader
 
-			Func<Message, SubscriptionHandlerResult> _actionWrapper = message => action(message as TMessage);
+			Func<Message, ConsumerHandlerResult> _actionWrapper = message => action(message as TMessage);
 
-			this.MessageSubscriptions[typeHeader] = new MessageSubscription(
+			this.MessageConsumers[typeHeader] = new MessageConsumer(
 				typeof(TMessage),
 				typeHeader,
 				_actionWrapper,
@@ -143,15 +143,15 @@ namespace PMCG.Messaging.Client.Configuration
 				this.DisconnectedMessagesStoragePath,
 				this.ReconnectionPauseInterval,
 				this.NumberOfPublishers,
-				this.NumberOfSubscribers,
-				this.SubscriptionMessagePrefetchCount,
-				this.SubscriptionDequeueTimeout,
+				this.NumberOfConsumers,
+				this.ConsumerMessagePrefetchCount,
+				this.ConsumerDequeueTimeout,
 				new MessagePublications(
 					this.MessagePublications
 						.Keys
 						.Select(type => new MessagePublication(type, this.MessagePublications[type]))),
-				new MessageSubscriptions(
-					this.MessageSubscriptions.Values));
+				new MessageConsumers(
+					this.MessageConsumers.Values));
 		}
 	}
 }

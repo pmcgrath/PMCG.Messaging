@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace PMCG.Messaging.Client.Interactive
 {
-	public class Subscribers
+	public class Consumers
 	{
-		private int c_numberOfSubscribers = 2;
+		private int c_numberOfConsumers = 2;
 		private IConnection c_connection;
 		private CancellationTokenSource c_cancellationTokenSource;
-		private Task[] c_subscriberTasks;
+		private Task[] c_consumerTasks;
 
 
 		public void Run_Where_We_Instruct_To_Stop_The_Broker()
 		{
-			this.InstantiateSubscriberTasks();
-			Array.ForEach(this.c_subscriberTasks, task => task.Start());
+			this.InstantiateConsumerTasks();
+			Array.ForEach(this.c_consumerTasks, task => task.Start());
 
 			Console.WriteLine("Stop the broker by running the following command as an admin");
 			Console.WriteLine("\t rabbitmqctl.bat stop");
@@ -31,8 +31,8 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Close_The_Connection_Using_The_DashBoard()
 		{
-			this.InstantiateSubscriberTasks();
-			Array.ForEach(this.c_subscriberTasks, task => task.Start());
+			this.InstantiateConsumerTasks();
+			Array.ForEach(this.c_consumerTasks, task => task.Start());
 
 			Console.WriteLine("Close the connection from the dashboard");
 			Console.WriteLine("After closing the connecton hit enter to exit");
@@ -42,10 +42,10 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Start_Then_Cancel_Token_And_Then_Close_Connection()
 		{
-			this.InstantiateSubscriberTasks();
-			Array.ForEach(this.c_subscriberTasks, task => task.Start());
+			this.InstantiateConsumerTasks();
+			Array.ForEach(this.c_consumerTasks, task => task.Start());
 
-			Console.WriteLine("Hit enter to cancel the token, should terminate the subscriber, subject to the dequeue timeout");
+			Console.WriteLine("Hit enter to cancel the token, should terminate the consumer, subject to the dequeue timeout");
 			Console.ReadLine();
 			this.c_cancellationTokenSource.Cancel();
 
@@ -58,7 +58,7 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void InstantiateSubscriberTasks()
+		public void InstantiateConsumerTasks()
 		{
 			var _logger = LogManager.GetCurrentClassLogger();
 
@@ -71,11 +71,11 @@ namespace PMCG.Messaging.Client.Interactive
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
-			this.c_subscriberTasks = new Task[this.c_numberOfSubscribers];
-			for(var _index = 0; _index < this.c_numberOfSubscribers; _index++)
+			this.c_consumerTasks = new Task[this.c_numberOfConsumers];
+			for(var _index = 0; _index < this.c_numberOfConsumers; _index++)
 			{
-				this.c_subscriberTasks[_index] = new Task(() =>
-					new PMCG.Messaging.Client.Subscriber(
+				this.c_consumerTasks[_index] = new Task(() =>
+					new PMCG.Messaging.Client.Consumer(
 						_logger,
 						this.c_connection,
 						_busConfigurationBuilder.Build(),

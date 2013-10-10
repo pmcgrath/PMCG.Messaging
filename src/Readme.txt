@@ -17,7 +17,7 @@ Pending
 	Credentials in connection string
 		Protect ? DPAPI is too much trouble - different machines
 
-	SubscriptionDequeueTimeout
+	ConsumerDequeueTimeout
 		What is a reasonable value ?
 
 	Dicsonnected strategies

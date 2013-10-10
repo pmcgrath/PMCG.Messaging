@@ -10,11 +10,11 @@ namespace PMCG.Messaging.Client.Configuration
 		public readonly string DisconnectedMessagesStoragePath;
 		public readonly TimeSpan ReconnectionPauseInterval;
 		public readonly ushort NumberOfPublishers;
-		public readonly ushort NumberOfSubscribers;
-		public readonly ushort SubscriptionMessagePrefetchCount;
-		public readonly TimeSpan SubscriptionDequeueTimeout;
+		public readonly ushort NumberOfConsumers;
+		public readonly ushort ConsumerMessagePrefetchCount;
+		public readonly TimeSpan ConsumerDequeueTimeout;
 		public readonly MessagePublications MessagePublications;
-		public readonly MessageSubscriptions MessageSubscriptions;
+		public readonly MessageConsumers MessageConsumers;
 
 
 		public BusConfiguration(
@@ -22,31 +22,31 @@ namespace PMCG.Messaging.Client.Configuration
 			string disconnectedMessagesStoragePath,
 			TimeSpan reconnectionPauseInterval,
 			ushort numberOfPublishers,
-			ushort numberOfSubscribers,
-			ushort subscriptionMessagePrefetchCount,
-			TimeSpan subscriptionDequeueTimeout,
+			ushort numberOfConsumers,
+			ushort consumerMessagePrefetchCount,
+			TimeSpan consumerDequeueTimeout,
 			MessagePublications messagePublications,
-			MessageSubscriptions messageSubscriptions)
+			MessageConsumers messageConsumers)
 		{
 			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
 			Check.RequireArgumentNotEmpty("disconnectedMessagesStoragePath", disconnectedMessagesStoragePath);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.TotalSeconds > 0);
 			Check.RequireArgument("numberOfPublishers", numberOfPublishers, numberOfPublishers > 0);
-			Check.RequireArgument("numberOfSubscribers", numberOfSubscribers, numberOfSubscribers > 0);
-			Check.RequireArgument("subscriptionMessagePrefetchCount", subscriptionMessagePrefetchCount, subscriptionMessagePrefetchCount > 0);
-			Check.RequireArgument("subscriptionDequeueTimeout", subscriptionDequeueTimeout, subscriptionDequeueTimeout.TotalSeconds > 0);
+			Check.RequireArgument("numberOfConsumers", numberOfConsumers, numberOfConsumers > 0);
+			Check.RequireArgument("consumerMessagePrefetchCount", consumerMessagePrefetchCount, consumerMessagePrefetchCount > 0);
+			Check.RequireArgument("consumerDequeueTimeout", consumerDequeueTimeout, consumerDequeueTimeout.TotalSeconds > 0);
 			Check.RequireArgumentNotNull("messagePublications", messagePublications);
-			Check.RequireArgumentNotNull("messageSubscriptions", messageSubscriptions);
+			Check.RequireArgumentNotNull("messageConsumers", messageConsumers);
 			
 			this.ConnectionUris = connectionUris;
 			this.DisconnectedMessagesStoragePath = disconnectedMessagesStoragePath;
 			this.ReconnectionPauseInterval = reconnectionPauseInterval;
 			this.NumberOfPublishers = numberOfPublishers;
-			this.NumberOfSubscribers = numberOfSubscribers;
-			this.SubscriptionMessagePrefetchCount = subscriptionMessagePrefetchCount;
-			this.SubscriptionDequeueTimeout = subscriptionDequeueTimeout;
+			this.NumberOfConsumers = numberOfConsumers;
+			this.ConsumerMessagePrefetchCount = consumerMessagePrefetchCount;
+			this.ConsumerDequeueTimeout = consumerDequeueTimeout;
 			this.MessagePublications = messagePublications;
-			this.MessageSubscriptions = messageSubscriptions;
+			this.MessageConsumers = messageConsumers;
 		}
 	}
 }

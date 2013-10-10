@@ -10,17 +10,17 @@ using System.Threading.Tasks;
 
 namespace PMCG.Messaging.Client.Interactive
 {
-	public class Subscriber
+	public class Consumer
 	{
 		private IConnection c_connection;
 		private CancellationTokenSource c_cancellationTokenSource;
-		private PMCG.Messaging.Client.Subscriber c_subscriber;
+		private PMCG.Messaging.Client.Consumer c_consumer;
 
 
 		public void Run_Where_We_Instruct_To_Stop_The_Broker()
 		{
-			this.InstantiateSubscriber();
-			new Task(this.c_subscriber.Start).Start();
+			this.InstantiateConsumer();
+			new Task(this.c_consumer.Start).Start();
 
 			Console.WriteLine("Stop the broker by running the following command as an admin");
 			Console.WriteLine("\t rabbitmqctl.bat stop");
@@ -31,8 +31,8 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Close_The_Connection_Using_The_DashBoard()
 		{
-			this.InstantiateSubscriber();
-			new Task(this.c_subscriber.Start).Start();
+			this.InstantiateConsumer();
+			new Task(this.c_consumer.Start).Start();
 
 			Console.WriteLine("Close the connection from the dashboard");
 			Console.WriteLine("After closing the connecton hit enter to exit");
@@ -51,12 +51,12 @@ namespace PMCG.Messaging.Client.Interactive
 				.RegisterPublication<MyEvent>(
 					"pcs.offerevents",
 					typeof(MyEvent).Name)
-				.RegisterSubscription<MyEvent>(
+				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
-					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; },
+					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
 				"pcs.offerevents");
-			this.InstantiateSubscriber(_busConfigurationBuilder.Build());
-			new Task(this.c_subscriber.Start).Start();
+			this.InstantiateConsumer(_busConfigurationBuilder.Build());
+			new Task(this.c_consumer.Start).Start();
 
 			Console.WriteLine("You should see a new transient queue in the dashboard)");
 			Console.ReadLine();
@@ -71,24 +71,24 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void InstantiateSubscriber()
+		public void InstantiateConsumer()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
-			this.InstantiateSubscriber(_busConfigurationBuilder.Build());
+			this.InstantiateConsumer(_busConfigurationBuilder.Build());
 		}
 
 
-		public void InstantiateSubscriber(
+		public void InstantiateConsumer(
 			BusConfiguration busConfiguration)
 		{
 			var _logger = LogManager.GetCurrentClassLogger();
 			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUris.First() }.CreateConnection();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
-			this.c_subscriber = new PMCG.Messaging.Client.Subscriber(
+			this.c_consumer = new PMCG.Messaging.Client.Consumer(
 				_logger,
 				this.c_connection,
 				busConfiguration,

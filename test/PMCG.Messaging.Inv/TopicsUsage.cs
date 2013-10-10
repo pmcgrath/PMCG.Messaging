@@ -30,14 +30,14 @@ namespace PMCG.Messaging.Inv
 			this.c_writeLog("Ensuring configuration exists");
 			this.EnsureConfigurationExists();
 
-			this.c_writeLog("Running all logs subscriber");
-			this.RunSubscriber(this.c_allLogsQueueName);
+			this.c_writeLog("Running all logs consumer");
+			this.RunConsumer(this.c_allLogsQueueName);
 
-			this.c_writeLog("Running app1 log subscriber");
-			this.RunSubscriber(this.c_app1LogQueueName);
+			this.c_writeLog("Running app1 log consumer");
+			this.RunConsumer(this.c_app1LogQueueName);
 
-			this.c_writeLog("Running error log subscriber");
-			this.RunSubscriber(this.c_errorLogQueueName);
+			this.c_writeLog("Running error log consumer");
+			this.RunConsumer(this.c_errorLogQueueName);
 
 			this.c_writeLog("Running publisher");
 			this.RunPublisher();
@@ -75,18 +75,18 @@ namespace PMCG.Messaging.Inv
 		}
 
 
-		private void RunSubscriber(
+		private void RunConsumer(
 			string queueName)
 		{
 			new Task(() =>
 				{
 					var _channel = this.c_connection.CreateModel();
 
-					var _subscription = new Subscription(_channel, queueName);
-					foreach (BasicDeliverEventArgs _messageDelivery in _subscription)
+					var _consumer = new Subscription(_channel, queueName);
+					foreach (BasicDeliverEventArgs _messageDelivery in _consumer)
 					{
 						this.c_writeLog(string.Format("Received message on q {0}, tag = {1}", queueName, _messageDelivery.DeliveryTag));
-						_subscription.Ack(_messageDelivery);
+						_consumer.Ack(_messageDelivery);
 					}
 				}).Start();
 		}

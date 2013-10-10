@@ -18,7 +18,7 @@ namespace PMCG.Messaging.Client.BusState
 
 
 		protected uint NumberOfPublishers { get { return this.Configuration.NumberOfPublishers; } }
-		protected uint NumberOfSubscribers { get { return this.Configuration.NumberOfSubscribers; } }
+		protected uint NumberOfConsumers { get { return this.Configuration.NumberOfConsumers; } }
 
 
 		protected State(

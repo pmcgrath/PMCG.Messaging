@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class Subscriber
+	public class Consumer
 	{
 		private BusConfiguration c_busConfiguration;
 		private ILog c_logger;
@@ -26,13 +26,13 @@ namespace PMCG.Messaging.Client.UT
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
-			_busConfigurationBuilder.SubscriptionDequeueTimeout = TimeSpan.FromMilliseconds(20);
-			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
+			_busConfigurationBuilder.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(20);
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				"TheQueueName",
 				typeof(MyEvent).Name,
 				message =>
 				{
-					return SubscriptionHandlerResult.Completed;
+					return ConsumerHandlerResult.Completed;
 				});
 			this.c_busConfiguration = _busConfigurationBuilder.Build();
 
@@ -49,7 +49,7 @@ namespace PMCG.Messaging.Client.UT
 		public void Start_Where_Cancellation_Token_Already_Canceled_Results_In_an_Exception()
 		{
 			this.c_cancellationTokenSource.Cancel();
-			var _SUT = new PMCG.Messaging.Client.Subscriber(
+			var _SUT = new PMCG.Messaging.Client.Consumer(
 				this.c_logger,
 				this.c_connection,
 				this.c_busConfiguration,
@@ -59,11 +59,11 @@ namespace PMCG.Messaging.Client.UT
 
 
 		[Test]
-		public void Cancellation_Token_Cancelled_Where_Already_Started_Results_In_Subscriber_Completion()
+		public void Cancellation_Token_Cancelled_Where_Already_Started_Results_In_Consumer_Completion()
 		{
 			this.c_channel.IsOpen.Returns(true);
 
-			var _SUT = new PMCG.Messaging.Client.Subscriber(
+			var _SUT = new PMCG.Messaging.Client.Consumer(
 				this.c_logger,
 				this.c_connection,
 				this.c_busConfiguration,

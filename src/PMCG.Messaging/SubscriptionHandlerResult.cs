@@ -3,7 +3,7 @@
 
 namespace PMCG.Messaging
 {
-	public enum SubscriptionHandlerResult
+	public enum ConsumerHandlerResult
 	{
 		None,
 		Errored,

@@ -11,11 +11,11 @@ using System.Threading;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class SubscriptionMessageProcessor
+	public class ConsumerMessageProcessor
 	{
 		private IModel c_channel;
-		private PMCG.Messaging.Client.SubscriptionMessageProcessor c_SUT;
-		private SubscriptionHandlerResult c_messageProcessrResult;
+		private PMCG.Messaging.Client.ConsumerMessageProcessor c_SUT;
+		private ConsumerHandlerResult c_messageProcessrResult;
 		private CancellationTokenSource c_cancellationTokenSource;
 
 
@@ -25,36 +25,36 @@ namespace PMCG.Messaging.Client.UT
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("....");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
-			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				"TheQueueName",
 				typeof(MyEvent).Name,
 				message =>
 					{
-						this.c_messageProcessrResult = SubscriptionHandlerResult.Completed;
-						return SubscriptionHandlerResult.Completed;
+						this.c_messageProcessrResult = ConsumerHandlerResult.Completed;
+						return ConsumerHandlerResult.Completed;
 					});
-			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				"TheQueueName",
 				typeof(MyEvent).FullName,
 				message =>
 					{
-						this.c_messageProcessrResult = SubscriptionHandlerResult.Completed;
-						return SubscriptionHandlerResult.Completed;
+						this.c_messageProcessrResult = ConsumerHandlerResult.Completed;
+						return ConsumerHandlerResult.Completed;
 					});
-			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				"TheQueueName",
 				"Throw_Error_Type_Header",
 				message =>
 					{
 						throw new ApplicationException("Bang !");
 					});
-			_busConfigurationBuilder.RegisterSubscription<MyEvent>(
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				"TheQueueName",
 				"Returns_Errored_Result",
 				message =>
 					{
-						this.c_messageProcessrResult = SubscriptionHandlerResult.Errored;
-						return SubscriptionHandlerResult.Errored;
+						this.c_messageProcessrResult = ConsumerHandlerResult.Errored;
+						return ConsumerHandlerResult.Errored;
 					});
 			var _busConfiguration = _busConfigurationBuilder.Build();
 
@@ -66,9 +66,9 @@ namespace PMCG.Messaging.Client.UT
 			this.c_channel = Substitute.For<IModel>();
 			_connection.CreateModel().Returns(this.c_channel);
 
-			this.c_SUT = new PMCG.Messaging.Client.SubscriptionMessageProcessor(_logger, _busConfiguration);
+			this.c_SUT = new PMCG.Messaging.Client.ConsumerMessageProcessor(_logger, _busConfiguration);
 
-			this.c_messageProcessrResult = SubscriptionHandlerResult.None;
+			this.c_messageProcessrResult = ConsumerHandlerResult.None;
 		}
 
 
@@ -111,7 +111,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_SUT.Process(this.c_channel, _message);
 
 			this.c_channel.Received().BasicAck(_message.DeliveryTag, false);
-			Assert.AreEqual(SubscriptionHandlerResult.Completed, this.c_messageProcessrResult);
+			Assert.AreEqual(ConsumerHandlerResult.Completed, this.c_messageProcessrResult);
 		}
 
 
@@ -133,7 +133,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_SUT.Process(this.c_channel, _message);
 
 			this.c_channel.Received().BasicNack(_message.DeliveryTag, false, false);
-			Assert.AreEqual(SubscriptionHandlerResult.None, this.c_messageProcessrResult);
+			Assert.AreEqual(ConsumerHandlerResult.None, this.c_messageProcessrResult);
 		}
 
 
@@ -155,7 +155,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_SUT.Process(this.c_channel, _message);
 
 			this.c_channel.Received().BasicNack(_message.DeliveryTag, false, false);
-			Assert.AreEqual(SubscriptionHandlerResult.Errored, this.c_messageProcessrResult);
+			Assert.AreEqual(ConsumerHandlerResult.Errored, this.c_messageProcessrResult);
 		}
 	}
 }

@@ -10,13 +10,13 @@ using System.Threading;
 
 namespace PMCG.Messaging.Client
 {
-	public class Subscriber
+	public class Consumer
 	{
 		private readonly ILog c_logger;
 		private readonly BusConfiguration c_configuration;
 		private readonly IModel c_channel;
 		private readonly CancellationToken c_cancellationToken;
-		private readonly SubscriptionMessageProcessor c_messageProcessor;
+		private readonly ConsumerMessageProcessor c_messageProcessor;
 
 
 		private bool c_hasBeenStarted;
@@ -27,7 +27,7 @@ namespace PMCG.Messaging.Client
 		public bool IsCompleted { get { return this.c_isCompleted; } }
 
 
-		public Subscriber(
+		public Consumer(
 			ILog logger,
 			IConnection connection,
 			BusConfiguration configuration,
@@ -39,10 +39,10 @@ namespace PMCG.Messaging.Client
 
 			this.c_logger.Info("ctor About to create channel");
 			this.c_channel = connection.CreateModel();
-			this.c_channel.BasicQos(0, this.c_configuration.SubscriptionMessagePrefetchCount, false);
+			this.c_channel.BasicQos(0, this.c_configuration.ConsumerMessagePrefetchCount, false);
 
-			this.c_logger.Info("ctor About to create subscription message processor");
-			this.c_messageProcessor = new SubscriptionMessageProcessor(this.c_logger, this.c_configuration);
+			this.c_logger.Info("ctor About to create consumer message processor");
+			this.c_messageProcessor = new ConsumerMessageProcessor(this.c_logger, this.c_configuration);
 
 			this.c_logger.Info("ctor Completed");
 		}
@@ -82,7 +82,7 @@ namespace PMCG.Messaging.Client
 
 		private void EnsureTransientQueuesExist()
 		{
-			foreach (var _configuration in this.c_configuration.MessageSubscriptions.GetTransientQueueConfigurations())
+			foreach (var _configuration in this.c_configuration.MessageConsumers.GetTransientQueueConfigurations())
 			{
 				this.c_logger.InfoFormat("EnsureTransientQueuesExist Verifying for transient queue {0}", _configuration.QueueName);
 				this.c_channel.QueueDeclare(_configuration.QueueName, false, false, true, null);
@@ -94,7 +94,7 @@ namespace PMCG.Messaging.Client
 		private void CreateAndConfigureConsumer()
 		{
 			this.c_consumer = new QueueingBasicConsumer(this.c_channel);
-			foreach (var _queueName in this.c_configuration.MessageSubscriptions.GetDistinctQueueNames())
+			foreach (var _queueName in this.c_configuration.MessageConsumers.GetDistinctQueueNames())
 			{
 				this.c_logger.InfoFormat("CreateAndConfigureConsumer Consume for queue {0}", _queueName);
 				var _consumerTag = this.c_channel.BasicConsume(_queueName, false, this.c_consumer);
@@ -106,7 +106,7 @@ namespace PMCG.Messaging.Client
 		private void RunConsumeLoop()
 		{
 			this.c_logger.Info("RunConsumeLoop Starting");
-			var _timeoutInMilliseconds = (int)this.c_configuration.SubscriptionDequeueTimeout.TotalMilliseconds;
+			var _timeoutInMilliseconds = (int)this.c_configuration.ConsumerDequeueTimeout.TotalMilliseconds;
 			while (!this.c_cancellationToken.IsCancellationRequested)
 			{
 				try

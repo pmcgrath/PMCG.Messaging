@@ -115,10 +115,10 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
-				.RegisterSubscription<MyEvent>(
+				.RegisterConsumer<MyEvent>(
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
-					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; });
+					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
 			_SUT.Connect();
 
@@ -151,9 +151,9 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
-				.RegisterSubscription<MyEvent>(
+				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
-					message => { _capturedMessageId = message.Id.ToString(); return SubscriptionHandlerResult.Completed; },
+					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
 					"pcs.offerevents");
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
 			_SUT.Connect();
@@ -188,10 +188,10 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name + "v1")
-				.RegisterSubscription<MyEvent>(
+				.RegisterConsumer<MyEvent>(
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
-					message => { _receivedMessages.Push(message); return SubscriptionHandlerResult.Completed; });
+					message => { _receivedMessages.Push(message); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
 			_SUT.Connect();
 

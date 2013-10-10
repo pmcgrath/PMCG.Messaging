@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace PMCG.Messaging.Client.Configuration
 {
-	public class MessageSubscriptions
+	public class MessageConsumers
 	{
-		public readonly IEnumerable<MessageSubscription> Configurations;
+		public readonly IEnumerable<MessageConsumer> Configurations;
 
 
-		public MessageSubscription this[
+		public MessageConsumer this[
 			string typeHeader]
 		{
 			get
@@ -20,8 +20,8 @@ namespace PMCG.Messaging.Client.Configuration
 		}
 
 
-		public MessageSubscriptions(
-			IEnumerable<MessageSubscription> configurations)
+		public MessageConsumers(
+			IEnumerable<MessageConsumer> configurations)
 		{
 			Check.RequireArgumentNotNull("configurations", configurations);
 			Check.RequireArgument("configurations", configurations, configurations.Count() == 
@@ -44,7 +44,7 @@ namespace PMCG.Messaging.Client.Configuration
 		}
 
 
-		public IEnumerable<MessageSubscription> GetTransientQueueConfigurations()
+		public IEnumerable<MessageConsumer> GetTransientQueueConfigurations()
 		{
 			return this.Configurations.Where(configuration => configuration.UseTransientQueue);
 		}

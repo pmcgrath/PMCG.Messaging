@@ -5,19 +5,19 @@ using System;
 namespace PMCG.Messaging.Client.UT.Configuration
 {
 	[TestFixture]
-	public class MessageSubscription
+	public class MessageConsumer
 	{
-		private PMCG.Messaging.Client.Configuration.MessageSubscription c_SUT;
+		private PMCG.Messaging.Client.Configuration.MessageConsumer c_SUT;
 
 
 		[Test]
 		public void Ctor_Where_Good_Params_Results_In_Object_Creation()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageSubscription(
+			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumer(
 				typeof(MyEvent),
 				"TheQueueName",
 				typeof(MyEvent).Name,
-				message => SubscriptionHandlerResult.Completed);
+				message => ConsumerHandlerResult.Completed);
 
 			Assert.IsNotNull(this.c_SUT);
 			Assert.AreEqual(typeof(MyEvent), this.c_SUT.Type);
@@ -29,11 +29,11 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		[Test, ExpectedException(typeof(ArgumentException))]
 		public void Ctor_Where_Type_Is_Not_A_Message_Results_In_An_Exception()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageSubscription(
+			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumer(
 				this.GetType(),
 				"TheQueueName",
 				typeof(MyEvent).Name,
-				message => SubscriptionHandlerResult.Completed);
+				message => ConsumerHandlerResult.Completed);
 		}
 	}
 }

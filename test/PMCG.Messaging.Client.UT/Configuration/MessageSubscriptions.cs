@@ -6,16 +6,16 @@ using System.Linq;
 namespace PMCG.Messaging.Client.UT.Configuration
 {
 	[TestFixture]
-	public class MessageSubscriptions
+	public class MessageConsumers
 	{
-		private PMCG.Messaging.Client.Configuration.MessageSubscriptions c_SUT;
+		private PMCG.Messaging.Client.Configuration.MessageConsumers c_SUT;
 
 
 		[Test]
 		public void Ctor_Where_Empty_Seed_Results_In_Empty_Collection()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageSubscriptions(
-				new PMCG.Messaging.Client.Configuration.MessageSubscription[0]);
+			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumers(
+				new PMCG.Messaging.Client.Configuration.MessageConsumer[0]);
 
 			Assert.IsNotNull(this.c_SUT);
 			Assert.AreEqual(0, this.c_SUT.Configurations.Count());
@@ -25,14 +25,14 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		[Test]
 		public void Ctor_Where_Single_Item_Seed_Results_In_Single_Item_Collection()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageSubscriptions(
+			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumers(
 				new []
 					{
-						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
+						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
 							"TheQueueName",
 							typeof(MyEvent).Name,
-							message => SubscriptionHandlerResult.Completed)
+							message => ConsumerHandlerResult.Completed)
 					});
 
 			Assert.IsNotNull(this.c_SUT);
@@ -46,19 +46,19 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		[Test, ExpectedException(typeof(ArgumentException))]
 		public void Ctor_Where_Duplicate_Seed_Item_Type_Headers_Results_In_An_Exception()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageSubscriptions(
+			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumers(
 				new[]
 					{
-						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
+						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
 							"TheQueueName",
 							"** DUPLICATE_TYPE_HEADER ***",
-							message => SubscriptionHandlerResult.Completed),
-						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
+							message => ConsumerHandlerResult.Completed),
+						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
 							"TheQueueName",
 							"** DUPLICATE_TYPE_HEADER ***",
-							message => SubscriptionHandlerResult.Completed)
+							message => ConsumerHandlerResult.Completed)
 					});
 		}
 
@@ -66,19 +66,19 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		[Test]
 		public void Ctor_Where_Seed_Has_Same_Message_Types_But_Using_Different_Type_Headers_Results_In_An_Collection_With_Two_Items()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageSubscriptions(
+			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumers(
 				new[]
 					{
-						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
+						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
 							"Q_1",
 							"TYPE_HEADER_1",
-							message => SubscriptionHandlerResult.Completed),
-						new  PMCG.Messaging.Client.Configuration.MessageSubscription(
+							message => ConsumerHandlerResult.Completed),
+						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
 							"Q_2",
 							"TYPE_HEADER_2",
-							message => SubscriptionHandlerResult.Completed)
+							message => ConsumerHandlerResult.Completed)
 					});
 
 			Assert.IsNotNull(this.c_SUT);

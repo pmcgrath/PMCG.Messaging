@@ -9,13 +9,13 @@ using System.Text;
 
 namespace PMCG.Messaging.Client
 {
-	public class SubscriptionMessageProcessor
+	public class ConsumerMessageProcessor
 	{
 		private readonly ILog c_logger;
 		private readonly BusConfiguration c_configuration;
 
 
-		public SubscriptionMessageProcessor(
+		public ConsumerMessageProcessor(
 			ILog logger,
 			BusConfiguration configuration)
 		{
@@ -36,7 +36,7 @@ namespace PMCG.Messaging.Client
 				message.DeliveryTag);
 			this.c_logger.DebugFormat("Process About to handle message, {0}", _logMessageContext);
 
-			if (!this.c_configuration.MessageSubscriptions.HasConfiguration(message.BasicProperties.Type))
+			if (!this.c_configuration.MessageConsumers.HasConfiguration(message.BasicProperties.Type))
 			{
 				this.c_logger.DebugFormat("Process No match found for message, {0}", _logMessageContext);
 				//pending - see errored below
@@ -44,8 +44,8 @@ namespace PMCG.Messaging.Client
 				return;
 			}
 
-			var _configuration = this.c_configuration.MessageSubscriptions[message.BasicProperties.Type];
-			var _actionResult = SubscriptionHandlerResult.None;
+			var _configuration = this.c_configuration.MessageConsumers[message.BasicProperties.Type];
+			var _actionResult = ConsumerHandlerResult.None;
 			try
 			{
 				this.c_logger.DebugFormat("Process About to deserialze message for message, {0}", _logMessageContext);
@@ -57,21 +57,21 @@ namespace PMCG.Messaging.Client
 			}
 			catch
 			{
-				_actionResult = SubscriptionHandlerResult.Errored;
+				_actionResult = ConsumerHandlerResult.Errored;
 			}
 			this.c_logger.DebugFormat("Process Completed processing for message, {0}, result is {1}", _logMessageContext, _actionResult);
 
-			if (_actionResult == SubscriptionHandlerResult.Errored)
+			if (_actionResult == ConsumerHandlerResult.Errored)
 			{
 				//pending - should i use configuration properties
 				// Nack, do not requeue, dead letter the message if dead letter exchange configured for the queue
 				channel.BasicNack(message.DeliveryTag, false, false);
 			}
-			else if (_actionResult == SubscriptionHandlerResult.Completed)
+			else if (_actionResult == ConsumerHandlerResult.Completed)
 			{
 				channel.BasicAck(message.DeliveryTag, false);
 			}
-			else if (_actionResult == SubscriptionHandlerResult.Requeue)
+			else if (_actionResult == ConsumerHandlerResult.Requeue)
 			{
 				//pending does this make sense ?
 				channel.BasicReject(message.DeliveryTag, true);

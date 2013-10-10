@@ -13,7 +13,7 @@ namespace PMCG.Messaging.Client.BusState
 	{
 		private readonly CancellationTokenSource c_cancellationTokenSource;
 		private readonly Task[] c_publisherTasks;
-		private readonly Task[] c_subscriberTasks;
+		private readonly Task[] c_consumerTasks;
 
 
 		public Connected(
@@ -51,13 +51,13 @@ namespace PMCG.Messaging.Client.BusState
 			base.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
 
 			base.Logger.Info("ctor About to create subcriber tasks");
-			this.c_subscriberTasks = new Task[base.NumberOfSubscribers];
-			for (var _index = 0; _index < this.c_subscriberTasks.Length; _index++)
+			this.c_consumerTasks = new Task[base.NumberOfConsumers];
+			for (var _index = 0; _index < this.c_consumerTasks.Length; _index++)
 			{
-				this.c_subscriberTasks[_index] = new Task(
+				this.c_consumerTasks[_index] = new Task(
 					() =>
 					{
-						new Subscriber(
+						new Consumer(
 							base.Logger,
 							base.ConnectionManager.Connection,
 							base.Configuration,
@@ -65,7 +65,7 @@ namespace PMCG.Messaging.Client.BusState
 							.Start();
 					},
 					TaskCreationOptions.LongRunning);
-				this.c_subscriberTasks[_index].Start();
+				this.c_consumerTasks[_index].Start();
 			}
 
 			base.Logger.Info("ctor Completed");

@@ -4,23 +4,23 @@ using System.Diagnostics;
 
 namespace PMCG.Messaging.Client.Configuration
 {
-	public class MessageSubscription
+	public class MessageConsumer
 	{
 		public readonly Type Type;
 		public readonly string QueueName;
 		public readonly string TypeHeader;
-		public readonly Func<Message, SubscriptionHandlerResult> Action;
+		public readonly Func<Message, ConsumerHandlerResult> Action;
 		public readonly string ExchangeName;
 
 
 		public bool UseTransientQueue { get { return this.ExchangeName != null; } }
 
 
-		public MessageSubscription(
+		public MessageConsumer(
 			Type type,
 			string queueName,
 			string typeHeader,
-			Func<Message, SubscriptionHandlerResult> action)
+			Func<Message, ConsumerHandlerResult> action)
 		{
 			Check.RequireArgumentNotNull("type", type);
 			Check.RequireArgument("type", type, type.IsSubclassOf(typeof(Message)));
@@ -36,10 +36,10 @@ namespace PMCG.Messaging.Client.Configuration
 		}
 
 
-		public MessageSubscription(
+		public MessageConsumer(
 			Type type,
 			string typeHeader,
-			Func<Message, SubscriptionHandlerResult> action,
+			Func<Message, ConsumerHandlerResult> action,
 			string exchangeName)
 		{
 			Check.RequireArgumentNotNull("type", type);
