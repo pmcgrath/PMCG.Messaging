@@ -104,7 +104,7 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage()
+		public void Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage()
 		{
 			var _capturedMessageId = string.Empty;
 
@@ -140,7 +140,7 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void Run_Where_We_Publish_A_Message_And_Subscribe_For_The_Same_Messsage_On_A_Transient_Queue()
+		public void Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage_On_A_Transient_Queue()
 		{
 			var _capturedMessageId = string.Empty;
 
@@ -176,7 +176,7 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void Run_Where_We_Publish_Multiple_Messages_And_Subscribe_For_The_Same_Messsages()
+		public void Run_Where_We_Publish_Multiple_Messages_And_Consume_For_The_Same_Messsages()
 		{
 			var _numberOfMessagesToPublish = 2500;
 			var _receivedMessages = new ConcurrentStack<MyEvent>();
