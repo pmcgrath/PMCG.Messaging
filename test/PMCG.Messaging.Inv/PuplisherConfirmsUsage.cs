@@ -102,7 +102,7 @@ namespace PMCG.Messaging.Inv
 			BasicAckEventArgs args)
 		{
 			this.c_writeLog(string.Format("On channel ack : Is multiple {0}, delivery tag {1}", args.Multiple, args.DeliveryTag));
-			var _confirmedDeliveryTags = this.c_unconfirmedMessages.Keys.Where(deliveryTag => deliveryTag <= args.DeliveryTag);
+			var _confirmedDeliveryTags = this.c_unconfirmedMessages.Keys.Where(deliveryTag => deliveryTag <= args.DeliveryTag);  // Linq perf here ?
 			var _removedMessage = string.Empty;
 			foreach (var _confirmedDeliveryTag in _confirmedDeliveryTags)
 			{
