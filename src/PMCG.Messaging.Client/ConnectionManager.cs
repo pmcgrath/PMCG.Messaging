@@ -64,7 +64,7 @@ namespace PMCG.Messaging.Client
 						this.c_logger.InfoFormat("Open Attempting to connect to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						this.c_connection = _connectionFactory.CreateConnection();
 						this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
-						this.c_logger.InfoFormat("Open Connected to ({0}}, sequence {1}", _connectionInfo, _attemptSequence);
+						this.c_logger.InfoFormat("Open Connected to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						break;
 					}
 
