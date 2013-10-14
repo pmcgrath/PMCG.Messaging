@@ -1,5 +1,4 @@
-﻿using Common.Logging;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Collections.Concurrent;
@@ -17,12 +16,11 @@ namespace PMCG.Messaging.Client.BusState
 
 
 		public Connected(
-			ILog logger,
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
 			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
-			: base(logger, configuration, connectionManager, queuedMessages, context)
+			: base(configuration, connectionManager, queuedMessages, context)
 		{
 			base.Logger.Info("ctor Starting");
 
@@ -37,7 +35,6 @@ namespace PMCG.Messaging.Client.BusState
 					() =>
 					{
 						new Publisher(
-							base.Logger,
 							base.ConnectionManager.Connection,
 							this.c_cancellationTokenSource.Token,
 							base.QueuedMessages)
@@ -58,7 +55,6 @@ namespace PMCG.Messaging.Client.BusState
 					() =>
 					{
 						new Consumer(
-							base.Logger,
 							base.ConnectionManager.Connection,
 							base.Configuration,
 							this.c_cancellationTokenSource.Token)

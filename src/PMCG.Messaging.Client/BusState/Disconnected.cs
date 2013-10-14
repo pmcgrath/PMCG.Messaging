@@ -1,5 +1,4 @@
-﻿using Common.Logging;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Collections.Concurrent;
@@ -15,12 +14,11 @@ namespace PMCG.Messaging.Client.BusState
 
 
 		public Disconnected(
-			ILog logger,
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
 			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
-			: base(logger, configuration, connectionManager, queuedMessages, context)
+			: base(configuration, connectionManager, queuedMessages, context)
 		{
 			base.Logger.Info("ctor Starting");
 			

@@ -27,12 +27,13 @@ namespace PMCG.Messaging.Client
 
 
 		public Publisher(
-			ILog logger,
 			IConnection connection,
 			CancellationToken cancellationToken,
 			BlockingCollection<QueuedMessage> queuedMessages)
 		{
-			this.c_logger = logger;
+			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger.Info("ctor Starting");
+
 			this.c_cancellationToken = cancellationToken;
 			this.c_queuedMessages = queuedMessages;
 

@@ -16,10 +16,11 @@ namespace PMCG.Messaging.Client
 
 
 		public ConsumerMessageProcessor(
-			ILog logger,
 			BusConfiguration configuration)
 		{
-			this.c_logger = logger;
+			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger.Info("ctor Starting");
+			
 			this.c_configuration = configuration;
 			this.c_logger.Info("ctor Completed");
 		}

@@ -1,5 +1,4 @@
-﻿using Common.Logging;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
@@ -14,7 +13,6 @@ namespace PMCG.Messaging.Client.UT
 	public class Consumer
 	{
 		private BusConfiguration c_busConfiguration;
-		private ILog c_logger;
 		private IConnection c_connection;
 		private IModel c_channel;
 		private CancellationTokenSource c_cancellationTokenSource;
@@ -36,7 +34,6 @@ namespace PMCG.Messaging.Client.UT
 				});
 			this.c_busConfiguration = _busConfigurationBuilder.Build();
 
-			this.c_logger = Substitute.For<ILog>();
 			this.c_connection = Substitute.For<IConnection>();
 			this.c_channel = Substitute.For<IModel>();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
@@ -50,7 +47,6 @@ namespace PMCG.Messaging.Client.UT
 		{
 			this.c_cancellationTokenSource.Cancel();
 			var _SUT = new PMCG.Messaging.Client.Consumer(
-				this.c_logger,
 				this.c_connection,
 				this.c_busConfiguration,
 				this.c_cancellationTokenSource.Token);
@@ -64,7 +60,6 @@ namespace PMCG.Messaging.Client.UT
 			this.c_channel.IsOpen.Returns(true);
 
 			var _SUT = new PMCG.Messaging.Client.Consumer(
-				this.c_logger,
 				this.c_connection,
 				this.c_busConfiguration,
 				this.c_cancellationTokenSource.Token);

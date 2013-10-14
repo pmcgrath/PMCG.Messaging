@@ -1,5 +1,4 @@
-﻿using Common.Logging;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
@@ -58,7 +57,6 @@ namespace PMCG.Messaging.Client.UT
 					});
 			var _busConfiguration = _busConfigurationBuilder.Build();
 
-			var _logger = Substitute.For<ILog>();
 			var _connection = Substitute.For<IConnection>();
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();
@@ -66,7 +64,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_channel = Substitute.For<IModel>();
 			_connection.CreateModel().Returns(this.c_channel);
 
-			this.c_SUT = new PMCG.Messaging.Client.ConsumerMessageProcessor(_logger, _busConfiguration);
+			this.c_SUT = new PMCG.Messaging.Client.ConsumerMessageProcessor(_busConfiguration);
 
 			this.c_messageProcessrResult = ConsumerHandlerResult.None;
 		}

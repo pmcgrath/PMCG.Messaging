@@ -28,15 +28,15 @@ namespace PMCG.Messaging.Client
 
 
 		public ConnectionManager(
-			ILog logger,
 			IEnumerable<string> connectionUris,
 			TimeSpan reconnectionPauseInterval)
 		{
-			Check.RequireArgumentNotNull("logger", logger);
+			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger.Info("ctor Starting");
+			
 			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.Ticks > 0);
 
-			this.c_logger = logger;
 			this.c_connectionUris = connectionUris;
 			this.c_reconnectionPauseInterval = reconnectionPauseInterval;
 

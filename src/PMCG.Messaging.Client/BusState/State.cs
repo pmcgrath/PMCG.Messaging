@@ -22,13 +22,14 @@ namespace PMCG.Messaging.Client.BusState
 
 
 		protected State(
-			ILog logger,
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
 			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
 		{
-			this.Logger = logger;
+			this.Logger = LogManager.GetLogger(this.GetType().FullName);
+			this.Logger.Info("ctor Starting");
+
 			this.Configuration = configuration;
 			this.ConnectionManager = connectionManager;
 			this.QueuedMessages = queuedMessages;
@@ -66,7 +67,6 @@ namespace PMCG.Messaging.Client.BusState
 				newState,
 				new object[]
 					{
-						this.Logger,
 						this.Configuration,
 						this.ConnectionManager,
 						this.QueuedMessages,

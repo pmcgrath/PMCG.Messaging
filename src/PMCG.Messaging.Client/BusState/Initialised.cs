@@ -1,5 +1,4 @@
-﻿using Common.Logging;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Collections.Concurrent;
 
@@ -9,12 +8,11 @@ namespace PMCG.Messaging.Client.BusState
 	public class Initialised : State
 	{
 		public Initialised(
-			ILog logger,
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
 			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
-			: base(logger, configuration, connectionManager, queuedMessages, context)
+			: base(configuration, connectionManager, queuedMessages, context)
 		{
 			base.Logger.Info("ctor Completed");
 		}

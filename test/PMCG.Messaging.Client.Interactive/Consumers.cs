@@ -1,6 +1,4 @@
-﻿using Common.Logging;
-using Common.Logging.Simple;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using System;
 using System.Threading;
@@ -60,8 +58,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void InstantiateConsumerTasks()
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _connectionUri = "amqp://guest:guest@localhost:5672/";
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();
 
@@ -76,7 +72,6 @@ namespace PMCG.Messaging.Client.Interactive
 			{
 				this.c_consumerTasks[_index] = new Task(() =>
 					new PMCG.Messaging.Client.Consumer(
-						_logger,
 						this.c_connection,
 						_busConfigurationBuilder.Build(),
 						this.c_cancellationTokenSource.Token)

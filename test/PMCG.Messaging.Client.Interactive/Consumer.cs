@@ -1,6 +1,4 @@
-﻿using Common.Logging;
-using Common.Logging.Simple;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using System;
 using System.Linq;
@@ -84,12 +82,10 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiateConsumer(
 			BusConfiguration busConfiguration)
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
 			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUris.First() }.CreateConnection();
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
 			this.c_consumer = new PMCG.Messaging.Client.Consumer(
-				_logger,
 				this.c_connection,
 				busConfiguration,
 				this.c_cancellationTokenSource.Token);

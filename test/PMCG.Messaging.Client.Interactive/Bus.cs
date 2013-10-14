@@ -1,6 +1,4 @@
-﻿using Common.Logging;
-using Common.Logging.Simple;
-using PMCG.Messaging;
+﻿using PMCG.Messaging;
 using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Collections.Concurrent;
@@ -14,13 +12,11 @@ namespace PMCG.Messaging.Client.Interactive
 	{
 		public void Run_Where_We_Instantiate_And_Try_To_Connect_To_Non_Existent_Broker()
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:25672/");	// Wrong port number
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Allow time for connection attempt to fail, check bus state which should be disconnected");
@@ -34,13 +30,11 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Instantiate_And_Instruct_To_Stop_The_Broker()
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
-			
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 
 			Console.WriteLine("Stop the broker by running the following command as an admin");
 			Console.WriteLine("\t rabbitmqctl.bat stop");
@@ -51,13 +45,11 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Then_Instruct_To_Stop_The_Broker()
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Stop the broker by running the following command as an admin");
@@ -69,13 +61,11 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Instruct_To_Close_The_Connection_Using_The_DashBoard()
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Close the connection from the dashboard");
@@ -86,13 +76,11 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Connect_And_Then_Close()
 		{
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Hit enter to close");
@@ -108,8 +96,6 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _capturedMessageId = string.Empty;
 
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
@@ -119,7 +105,7 @@ namespace PMCG.Messaging.Client.Interactive
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; });
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Hit enter to publish message");
@@ -144,8 +130,6 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _capturedMessageId = string.Empty;
 
-			var _logger = LogManager.GetCurrentClassLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
@@ -155,7 +139,7 @@ namespace PMCG.Messaging.Client.Interactive
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
 					"pcs.offerevents");
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Hit enter to publish message");
@@ -181,8 +165,6 @@ namespace PMCG.Messaging.Client.Interactive
 			var _numberOfMessagesToPublish = 2500;
 			var _receivedMessages = new ConcurrentStack<MyEvent>();
 
-			var _logger = new NoOpLogger();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
@@ -192,7 +174,7 @@ namespace PMCG.Messaging.Client.Interactive
 					"pcs.offerevents.fxs",
 					typeof(MyEvent).Name,
 					message => { _receivedMessages.Push(message); return ConsumerHandlerResult.Completed; });
-			var _SUT = new PMCG.Messaging.Client.Bus(_logger, _busConfigurationBuilder.Build());
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
 			Console.WriteLine("Hit enter to publish messages {0}", DateTime.Now);

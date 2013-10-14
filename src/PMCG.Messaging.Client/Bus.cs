@@ -17,21 +17,18 @@ namespace PMCG.Messaging.Client
 
 
 		public Bus(
-			ILog logger,
 			BusConfiguration configuration)
 		{
-			Check.RequireArgumentNotNull("logger", logger);
+			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger.Info("ctor Starting");
+
 			Check.RequireArgumentNotNull("configuration", configuration);
 			Check.RequireArgument("configuration.DisconnectedMessagesStoragePath", configuration.DisconnectedMessagesStoragePath,
 				Directory.Exists(configuration.DisconnectedMessagesStoragePath));
 
-			this.c_logger = logger;
-			this.c_logger.Info("ctor Starting");
-
-			var _connectionManager = ServiceLocator.GetConnectionManager(this.c_logger, configuration);
+			var _connectionManager = ServiceLocator.GetConnectionManager(configuration);
 
 			this.State = new Initialised(
-				this.c_logger,
 				configuration,
 				_connectionManager,
 				new BlockingCollection<QueuedMessage>(),

@@ -28,12 +28,13 @@ namespace PMCG.Messaging.Client
 
 
 		public Consumer(
-			ILog logger,
 			IConnection connection,
 			BusConfiguration configuration,
 			CancellationToken cancellationToken)
 		{
-			this.c_logger = logger;
+			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger.Info("ctor Starting");
+
 			this.c_configuration = configuration;
 			this.c_cancellationToken = cancellationToken;
 
@@ -42,7 +43,7 @@ namespace PMCG.Messaging.Client
 			this.c_channel.BasicQos(0, this.c_configuration.ConsumerMessagePrefetchCount, false);
 
 			this.c_logger.Info("ctor About to create consumer message processor");
-			this.c_messageProcessor = new ConsumerMessageProcessor(this.c_logger, this.c_configuration);
+			this.c_messageProcessor = new ConsumerMessageProcessor(this.c_configuration);
 
 			this.c_logger.Info("ctor Completed");
 		}

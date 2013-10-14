@@ -33,9 +33,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\lib\Common.Logging\Common.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="Common.Logging.Log4Net1212">
       <HintPath>..\..\lib\Common.Logging\Common.Logging.Log4Net1212.dll</HintPath>
     </Reference>
