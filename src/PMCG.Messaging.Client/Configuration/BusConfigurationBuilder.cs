@@ -77,12 +77,13 @@ namespace PMCG.Messaging.Client.Configuration
 		{
 			var _messageType = typeof(TMessage);
 
-			// Pending - check if exchange entry already exists
-
 			if (!this.MessagePublications.ContainsKey(_messageType))
 			{
 				this.MessagePublications.Add(_messageType, new List<MessageDelivery>());
 			}
+
+			var _isCommandAndCommandEntryAlreadyExists = (typeof(Command).IsAssignableFrom(_messageType) && this.MessagePublications[_messageType].Count > 0);
+			Check.Ensure(!_isCommandAndCommandEntryAlreadyExists, "Commands can only have one publication entry");
 
 			this.MessagePublications[_messageType].Add(
 				new MessageDelivery(
