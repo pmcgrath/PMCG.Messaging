@@ -47,12 +47,12 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
-					"pcs.offerevents",
+					"test.exchange.1",
 					typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
-				"pcs.offerevents");
+				"test.queue.1");
 			this.InstantiateConsumer(_busConfigurationBuilder.Build());
 			new Task(this.c_consumer.Start).Start();
 

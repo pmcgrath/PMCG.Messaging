@@ -3,7 +3,7 @@
 
 # Works in bash
 data='{ "routing_key": "", "properties": { "type": "RateSetActivated" }, "payload": "{ \"Id\": \"ad842b45-e42a-4ef6-882b-36f5dccadf58\" }", "payload_encoding": "string" }'
-curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d "$data" -X POST http://127.0.0.1:15672/api/exchanges/dev/pcs.offerevents/publish
+curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d "$data" -X POST http://127.0.0.1:15672/api/exchanges/%2f/test.exchange.1/publish
 
 
 
@@ -18,7 +18,7 @@ $requestData = $requestTemplate.Replace('[[payload]]', $payloadData);
 $requestData = $requestData.Replace('"', '\"');		# Powershell issue passing to curl - need to escape the quotes again
 
 # Can use fiddler with --proxy 127.0.0.1:8888 param
-curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X POST http://127.0.0.1:15672/api/exchanges/dev/pcs.offerevents/publish
+curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X POST http://127.0.0.1:15672/api/exchanges/%2f/test.exchange.1/publish
 
 
 
@@ -36,7 +36,7 @@ do
 	$requestData = $requestData.Replace('"', '\"');		# Powershell issue passing to curl - need to escape the quotes again
 
 	write-host "About to publish for message with id " + $id;
-	curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X POST http://127.0.0.1:15672/api/exchanges/dev/pcs.offerevents/publish | out-null;
+	curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X POST http://127.0.0.1:15672/api/exchanges/%2f/test.exchange.1/publish | out-null;
 	write-host;
 } while((read-host 'X to exit') -ne 'X')
 
@@ -59,7 +59,7 @@ do
 	$requestData = $requestData.Replace('"', '\"');		# Powershell issue passing to curl - need to escape the quotes again
 
 	write-host "About to publish for message with id " + $id;
-	curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X POST http://127.0.0.1:15672/api/exchanges/dev/pcs.offerevents/publish | out-null;
+	curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X POST http://127.0.0.1:15672/api/exchanges/%2f/test.exchange.1/publish | out-null;
 	write-host;
 } while((read-host 'X to exit') -ne 'X')
 
@@ -69,7 +69,7 @@ do
 
 
 # Purge queue
-curl -i -u 'guest:guest' -H 'Content-Type:application/json' -X DELETE http://127.0.0.1:15672/api/queues/dev/pcs.offerevents.fxs/contents
+curl -i -u 'guest:guest' -H 'Content-Type:application/json' -X DELETE http://127.0.0.1:15672/api/queues/%2f/test.queue.1/contents
 
 
 

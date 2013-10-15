@@ -99,9 +99,9 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
-					"pcs.offerevents.fxs",
+					"test.queue.1",
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
@@ -133,11 +133,11 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
-					"pcs.offerevents");
+					"test.queue.1");
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
@@ -168,9 +168,9 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>("pcs.offerevents", typeof(MyEvent).Name + "v1")
+				.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name + "v1")
 				.RegisterConsumer<MyEvent>(
-					"pcs.offerevents.fxs",
+					"test.queue.1",
 					typeof(MyEvent).Name,
 					message => { _receivedMessages.Push(message); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());

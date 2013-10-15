@@ -13,8 +13,8 @@ namespace PMCG.Messaging.Client.Interactive
 
 			//new Consumers().Run_Where_We_Instruct_To_Stop_The_Broker();
 
-			new Bus().Run_Where_We_Instantiate_And_Try_To_Connect_To_Non_Existent_Broker();
-			//new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage();
+			//new Bus().Run_Where_We_Instantiate_And_Try_To_Connect_To_Non_Existent_Broker();
+			new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage();
 			//new Bus().Run_Where_We_Publish_Multiple_Messages_And_Consume_For_The_Same_Messsages();
 			//new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage_On_A_Transient_Queue();
 		}
