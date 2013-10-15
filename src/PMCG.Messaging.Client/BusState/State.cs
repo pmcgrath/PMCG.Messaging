@@ -105,6 +105,11 @@ namespace PMCG.Messaging.Client.BusState
 					this.QueuedMessages.Add(_queuedMessage);
 				}
 			}
+			else
+			{
+				// Log that this has happened
+				// Commands? - Should this actually throw an exception?
+			}
 		}
 
 

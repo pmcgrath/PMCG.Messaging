@@ -1,18 +1,16 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.MessagePatterns;
 using System;
-using System.Diagnostics;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Text;
 
 
 namespace PMCG.Messaging.Inv
 {
-	public class PuplisherConfirmsUsage
+	public class PublisherConfirmsUsage
 	{
 		private readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
 		private readonly string c_exchangeName = "test_publisher_confirms";

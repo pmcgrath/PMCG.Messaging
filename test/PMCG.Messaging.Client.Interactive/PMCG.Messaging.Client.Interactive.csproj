@@ -7,8 +7,8 @@
     <ProjectGuid>{7B81E458-F56D-418E-A51F-210B94B73175}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PMCGMessaging.Client.Interactive</RootNamespace>
-    <AssemblyName>PMCGMessaging.Client.Interactive</AssemblyName>
+    <RootNamespace>PMCG.Messaging.Client.Interactive</RootNamespace>
+    <AssemblyName>PMCG.Messaging.Client.Interactive</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

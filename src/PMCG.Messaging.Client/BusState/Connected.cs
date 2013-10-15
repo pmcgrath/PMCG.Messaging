@@ -1,5 +1,4 @@
 ﻿using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;

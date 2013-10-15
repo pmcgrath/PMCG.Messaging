@@ -44,8 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SyncPuplisherConfirms.cs" />
-    <Compile Include="PuplisherConfirmsUsage.cs" />
+    <Compile Include="SyncPublisherConfirms.cs" />
+    <Compile Include="PublisherConfirmsUsage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TopicsUsage.cs" />

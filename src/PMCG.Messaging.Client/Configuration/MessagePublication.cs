@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-
 namespace PMCG.Messaging.Client.Configuration
 {
 	public class MessagePublication

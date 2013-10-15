@@ -8,7 +8,7 @@ namespace PMCG.Messaging.Inv
 		static void Main(
 			string[] args)
 		{
-			new PuplisherConfirmsUsage().Run(50000);
+			new PublisherConfirmsUsage().Run(50000);
 			//new SyncPuplisherConfirms().Run(500);
 			//new TopicsUsage().Run();
 		}

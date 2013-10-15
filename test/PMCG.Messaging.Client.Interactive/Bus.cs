@@ -1,5 +1,4 @@
-﻿using PMCG.Messaging;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;

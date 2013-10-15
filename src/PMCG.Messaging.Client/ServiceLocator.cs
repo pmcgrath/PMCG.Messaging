@@ -1,6 +1,5 @@
 ﻿using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
-using RabbitMQ.Client;
 using System;
 
 
