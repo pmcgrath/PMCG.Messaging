@@ -27,6 +27,7 @@ namespace PMCG.Messaging.Inv
 		public void ProcessRequest(
 			HttpContext context)
 		{
+			// Toggle to do nothing\to sync publish - this way we have a base line - use the query string
 			var _messageBodyContent = string.Empty;
 			var _stopwatch = Stopwatch.StartNew();
 			using (var _channel = PublisherHttpHandler.c_connection.CreateModel())
