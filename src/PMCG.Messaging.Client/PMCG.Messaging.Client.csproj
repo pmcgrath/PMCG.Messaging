@@ -77,6 +77,7 @@
     <Compile Include="ConsumerMessageProcessor.cs" />
     <Compile Include="DisconnectedStorage\FileSystemStore.cs" />
     <Compile Include="DisconnectedStorage\IStore.cs" />
+    <Compile Include="ExceptionExt.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="IConnectionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

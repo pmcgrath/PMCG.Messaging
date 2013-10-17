@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,9 +30,9 @@ namespace PMCG.Messaging.Client.UT
 				"TheQueueName",
 				typeof(MyEvent).Name,
 				message =>
-				{
-					return ConsumerHandlerResult.Completed;
-				});
+					{
+						return ConsumerHandlerResult.Completed;
+					});
 			this.c_busConfiguration = _busConfigurationBuilder.Build();
 
 			this.c_connection = Substitute.For<IConnection>();

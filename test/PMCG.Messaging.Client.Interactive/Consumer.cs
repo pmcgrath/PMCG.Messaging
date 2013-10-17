@@ -52,7 +52,7 @@ namespace PMCG.Messaging.Client.Interactive
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
-				"test.queue.1");
+				"test.queue.1888888888888888888888888888888888888");
 			this.InstantiateConsumer(_busConfigurationBuilder.Build());
 			new Task(this.c_consumer.Start).Start();
 

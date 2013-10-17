@@ -57,7 +57,7 @@ namespace PMCG.Messaging.Client
 			}
 			catch (Exception exception)
 			{
-				this.c_logger.ErrorFormat("Exception : {0}", exception);
+				this.c_logger.ErrorFormat("Start Exception : {0}", exception.InstrumentationString());
 				throw;
 			}
 			finally
