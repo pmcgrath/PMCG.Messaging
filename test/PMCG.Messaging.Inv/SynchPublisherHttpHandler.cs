@@ -7,6 +7,15 @@ using System.Web;
 
 namespace PMCG.Messaging.Inv
 {
+	/* Configure ass follows in a web.config
+		<configuration>
+			<system.web>
+				<httpHandlers>
+					<add verb="*" path="publisher"  type="PublisherHttpHandler, PMCG.Messaging.Inv" />
+				</httpHandlers>
+			<system.web>
+		</configuration>
+	*/
 	public class PublisherHttpHandler : IHttpHandler
 	{
 		private static readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
@@ -27,27 +36,31 @@ namespace PMCG.Messaging.Inv
 		public void ProcessRequest(
 			HttpContext context)
 		{
-			// Toggle to do nothing\to sync publish - this way we have a base line - use the query string
+			// Toggle to send message
+			var _doSendAMessage = context.Request.QueryString["sendamessage"] == "true";
 			var _messageBodyContent = string.Empty;
 			var _stopwatch = Stopwatch.StartNew();
-			using (var _channel = PublisherHttpHandler.c_connection.CreateModel())
+			if (_doSendAMessage)
 			{
-				_channel.ConfirmSelect();
+				using (var _channel = PublisherHttpHandler.c_connection.CreateModel())
+				{
+					_channel.ConfirmSelect();
 
-				var _properties = _channel.CreateBasicProperties();
-				_properties.ContentType = "text/plain";
-				_properties.DeliveryMode = 2;
-				_properties.MessageId = Guid.NewGuid().ToString();
+					var _properties = _channel.CreateBasicProperties();
+					_properties.ContentType = "text/plain";
+					_properties.DeliveryMode = 2;
+					_properties.MessageId = Guid.NewGuid().ToString();
 
-				_messageBodyContent = string.Format("Message published @ {0} with Id {1}", DateTime.Now, _properties.MessageId);
-				var _messageBody = Encoding.UTF8.GetBytes(_messageBodyContent);
+					_messageBodyContent = string.Format("Message published @ {0} with Id {1}", DateTime.Now, _properties.MessageId);
+					var _messageBody = Encoding.UTF8.GetBytes(_messageBodyContent);
 
-				_channel.BasicPublish(PublisherHttpHandler.c_exchangeName, string.Empty, _properties, _messageBody);
-				_channel.WaitForConfirms();
-				_stopwatch.Stop();
+					_channel.BasicPublish(PublisherHttpHandler.c_exchangeName, string.Empty, _properties, _messageBody);
+					_channel.WaitForConfirms();
+					
+				}
 			}
-
-			context.Response.Write(string.Format("<html><body>Published message <i>{0}</i> in {1} milliseconds</body></html>", _messageBodyContent, _stopwatch.ElapsedMilliseconds));
+			_stopwatch.Stop();
+			context.Response.Write(string.Format("<html><body>Completed in <i>{0}</i> milliseconds, send message = {1}, content = [{2}]</body></html>", _doSendAMessage, _messageBodyContent, _stopwatch.ElapsedMilliseconds));
 		}
 	}
 }

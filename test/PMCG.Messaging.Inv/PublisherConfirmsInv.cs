@@ -42,39 +42,45 @@ namespace PMCG.Messaging.Inv
 		public static void Run(
 			string[] args)
 		{
-			// Do not persist messages async
+			var _connectionUri = "amqp://guest:guest@trdevmq01a.ccs.local:5672/";
+			//_connectionUri = "amqp://guest:guest@localhost:5672/";
+			var _exchangeName = "test_publisher_confirms";
+			var _queueName = "test_publisher_confirms";
+			var _numberOfMessages = 1500;
+
+			//Console.WriteLine("\r\n\r\nDo not persist messages async, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
-				"amqp://guest:guest@localhost:5672/",
-				"test_publisher_confirms",
-				"test_publisher_confirms",
-				500,
+				_connectionUri,
+				_exchangeName,
+				_queueName,
+				_numberOfMessages,
 				false,
 				false).Run();
 
-			// Do not persist messages sync
+			//Console.WriteLine("\r\n\r\nDo not persist messages sync, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
-				"amqp://guest:guest@localhost:5672/",
-				"test_publisher_confirms",
-				"test_publisher_confirms",
-				500,
+				_connectionUri,
+				_exchangeName,
+				_queueName,
+				_numberOfMessages,
 				false,
 				true).Run();
 
-			//  Do persist messages async
+			//Console.WriteLine("\r\n\r\nDo persist messages async, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
-				"amqp://guest:guest@localhost:5672/",
-				"test_publisher_confirms",
-				"test_publisher_confirms",
-				500,
+				_connectionUri,
+				_exchangeName,
+				_queueName,
+				_numberOfMessages,
 				true,
 				false).Run();
 
-			//  Do persist messages sync
+			//Console.WriteLine("\r\n\r\nDo persist messages sync, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
-				"amqp://guest:guest@localhost:5672/",
-				"test_publisher_confirms",
-				"test_publisher_confirms",
-				500,
+				_connectionUri,
+				_exchangeName,
+				_queueName,
+				_numberOfMessages,
 				true,
 				true).Run();
 
