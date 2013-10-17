@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PublisherConfirmsInv.cs" />
     <Compile Include="SynchPublisherHttpHandler.cs" />
     <Compile Include="SyncPublisherConfirms.cs" />
     <Compile Include="PublisherConfirmsUsage.cs" />

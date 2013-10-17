@@ -1,0 +1,184 @@
+﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+
+
+namespace PMCG.Messaging.Inv
+{
+	public class PublisherConfirmsInv
+	{
+		private readonly string c_connectionUri;
+		private readonly string c_exchangeName;
+		private readonly string c_queueName;
+		private readonly int c_numberOfMessages;
+		private readonly bool c_persistMessages;
+		private readonly bool c_waitForConfirms;
+		private readonly ConcurrentDictionary<ulong, string> c_unconfirmedMessages;
+
+
+		public PublisherConfirmsInv(
+			string connectionUri,
+			string exchangeName,
+			string queueName,
+			int numberOfMessages,
+			bool persistMessages,
+			bool waitForConfirms)
+		{
+			this.c_connectionUri = connectionUri;
+			this.c_exchangeName = exchangeName;
+			this.c_queueName = queueName;
+			this.c_numberOfMessages = numberOfMessages;
+			this.c_persistMessages = persistMessages;
+			this.c_waitForConfirms = waitForConfirms;
+
+			this.c_unconfirmedMessages = new ConcurrentDictionary<ulong, string>();
+		}
+
+
+		public static void Run(
+			string[] args)
+		{
+			// Do not persist messages async
+			new PublisherConfirmsInv(
+				"amqp://guest:guest@localhost:5672/",
+				"test_publisher_confirms",
+				"test_publisher_confirms",
+				500,
+				false,
+				false).Run();
+
+			// Do not persist messages sync
+			new PublisherConfirmsInv(
+				"amqp://guest:guest@localhost:5672/",
+				"test_publisher_confirms",
+				"test_publisher_confirms",
+				500,
+				false,
+				true).Run();
+
+			//  Do persist messages async
+			new PublisherConfirmsInv(
+				"amqp://guest:guest@localhost:5672/",
+				"test_publisher_confirms",
+				"test_publisher_confirms",
+				500,
+				true,
+				false).Run();
+
+			//  Do persist messages sync
+			new PublisherConfirmsInv(
+				"amqp://guest:guest@localhost:5672/",
+				"test_publisher_confirms",
+				"test_publisher_confirms",
+				500,
+				true,
+				true).Run();
+
+			Console.ReadLine();
+		}
+
+
+		private void Run()
+		{
+			var _connectionFactory = new ConnectionFactory { Uri = this.c_connectionUri };
+			var _connection = _connectionFactory.CreateConnection();
+			var _channel = _connection.CreateModel();
+			_channel.ConfirmSelect();
+			if (this.c_waitForConfirms)
+			{
+				// Wait for confirm - we do not use the callback in this case
+			}
+			else
+			{
+				// Callback for case where waitForConfirms is false
+				_channel.BasicAcks += this.OnChannelAck;
+			}
+
+			_channel.ExchangeDeclare(this.c_exchangeName, ExchangeType.Fanout, false, false, null);
+			_channel.QueueDeclare(this.c_queueName, true, false, false, null);
+			_channel.QueueBind(this.c_queueName, this.c_exchangeName, string.Empty, null);
+
+			var _stopwatch = Stopwatch.StartNew();
+
+			for (int _sequence = 1; _sequence <= this.c_numberOfMessages; _sequence++)
+			{
+				var _properties = _channel.CreateBasicProperties();
+				_properties.ContentType = "text/plain";
+				_properties.MessageId = Guid.NewGuid().ToString();
+				if (this.c_persistMessages)
+				{
+					// Persist
+					_properties.DeliveryMode = 2;
+				}
+				else
+				{
+					// Do NOT Persist
+					_properties.DeliveryMode = 1;
+				}
+
+				var _messageBodyContent = string.Format("Message published @ {0} with Id {1}", DateTime.Now, _properties.MessageId);
+				var _messageBody = Encoding.UTF8.GetBytes(_messageBodyContent);
+
+				if (this.c_waitForConfirms)
+				{
+					// Wait for confirm - lets wait until broker acks before continuing
+					_channel.BasicPublish(this.c_exchangeName, string.Empty, _properties, _messageBody);
+					_channel.WaitForConfirms();
+				}
+				else
+				{
+					// Do not wait for callback - add unconfirmed message to collection before publishing
+					this.c_unconfirmedMessages.TryAdd(_channel.NextPublishSeqNo, _messageBodyContent);
+					_channel.BasicPublish(this.c_exchangeName, string.Empty, _properties, _messageBody);
+				}
+			};
+
+			if (this.c_waitForConfirms)
+			{
+				// Wait for confirm - have gotten a confirm on each publication already so nothing left to do at this stage
+			}
+			else
+			{
+				// Do not wait for callback - must wait until all messages have been confirmed
+				while (this.c_unconfirmedMessages.Count > 0)
+				{
+					// Noop
+				}
+			}
+			_stopwatch.Stop();
+
+			_connection.Close();
+			Console.WriteLine("Persist messages = {0}, wait for confirm = {1}, elapsed time is {2}", this.c_persistMessages, this.c_waitForConfirms, _stopwatch.ElapsedMilliseconds);
+		}
+
+
+		private void OnChannelAck(
+			IModel channel,
+			BasicAckEventArgs args)
+		{
+			var _removedMessage = string.Empty;
+			if (!args.Multiple)
+			{
+				if (!this.c_unconfirmedMessages.TryRemove(args.DeliveryTag, out _removedMessage))
+				{
+					throw new ApplicationException("Could not remove delivery tag entry");
+				}
+			}
+			else
+			{
+				var _confirmedDeliveryTags = this.c_unconfirmedMessages.Keys.Where(deliveryTag => deliveryTag <= args.DeliveryTag);
+				foreach (var _confirmedDeliveryTag in _confirmedDeliveryTags)
+				{
+					if (!this.c_unconfirmedMessages.TryRemove(_confirmedDeliveryTag, out _removedMessage))
+					{
+						throw new ApplicationException("Could not remove delivery tag entry");
+					}
+				}
+			}
+		}
+	}
+}
