@@ -12,6 +12,7 @@ namespace PMCG.Messaging.Inv
 		private readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
 		private readonly string c_exchangeName = "test_publisher_confirms";
 		private readonly string c_queueName = "test_publisher_confirms";
+		private readonly TimeSpan c_waitTimeOut = TimeSpan.FromMilliseconds(5);
 		private readonly Action<string> c_writeLog = message => Console.WriteLine("{0:hh:mm:ss.ffff} {1,3} {2}", DateTime.Now, Thread.CurrentThread.ManagedThreadId, message);
 
 
@@ -65,6 +66,7 @@ namespace PMCG.Messaging.Inv
 		{
 			var _channel = this.c_connection.CreateModel();
 			_channel.ConfirmSelect();
+			_channel.BasicAcks += (c, e) => Console.WriteLine("Acked {0} {1}", e.DeliveryTag, e.Multiple);
 
 			for(int _sequence = 1; _sequence <= numberOfMessages; _sequence++)
 			{
@@ -78,8 +80,13 @@ namespace PMCG.Messaging.Inv
 
 				this.c_writeLog(string.Format("About to publish message ({0})", _messageBodyContent));
 				_channel.BasicPublish(this.c_exchangeName, string.Empty, _properties, _messageBody);
-				_channel.WaitForConfirms();
-			};
+				var _timedOut = false;
+				var _confirmed = _channel.WaitForConfirms(this.c_waitTimeOut, out _timedOut);
+				if (_timedOut)
+				{
+					this.c_writeLog(string.Format("Timed out on publish message ({0})", _messageBodyContent));
+				}
+			}
 
 			this.c_writeLog("Completed publishing");
 		}

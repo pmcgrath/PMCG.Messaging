@@ -102,6 +102,7 @@ namespace PMCG.Messaging.Inv
 			{
 				// Callback for case where waitForConfirms is false
 				_channel.BasicAcks += this.OnChannelAck;
+				_channel.BasicNacks += this.OnChannelNack;
 			}
 
 			_channel.ExchangeDeclare(this.c_exchangeName, ExchangeType.Fanout, false, false, null);
@@ -141,7 +142,7 @@ namespace PMCG.Messaging.Inv
 					this.c_unconfirmedMessages.TryAdd(_channel.NextPublishSeqNo, _messageBodyContent);
 					_channel.BasicPublish(this.c_exchangeName, string.Empty, _properties, _messageBody);
 				}
-			};
+			}
 
 			if (this.c_waitForConfirms)
 			{
@@ -167,24 +168,22 @@ namespace PMCG.Messaging.Inv
 			BasicAckEventArgs args)
 		{
 			var _removedMessage = string.Empty;
-			if (!args.Multiple)
+			var _confirmedDeliveryTags = this.c_unconfirmedMessages.Keys.Where(deliveryTag => deliveryTag <= args.DeliveryTag);
+			foreach (var _confirmedDeliveryTag in _confirmedDeliveryTags)
 			{
-				if (!this.c_unconfirmedMessages.TryRemove(args.DeliveryTag, out _removedMessage))
+				if (!this.c_unconfirmedMessages.TryRemove(_confirmedDeliveryTag, out _removedMessage))
 				{
 					throw new ApplicationException("Could not remove delivery tag entry");
 				}
 			}
-			else
-			{
-				var _confirmedDeliveryTags = this.c_unconfirmedMessages.Keys.Where(deliveryTag => deliveryTag <= args.DeliveryTag);
-				foreach (var _confirmedDeliveryTag in _confirmedDeliveryTags)
-				{
-					if (!this.c_unconfirmedMessages.TryRemove(_confirmedDeliveryTag, out _removedMessage))
-					{
-						throw new ApplicationException("Could not remove delivery tag entry");
-					}
-				}
-			}
+		}
+
+
+		private void OnChannelNack(
+			IModel channel,
+			BasicNackEventArgs args)
+		{
+			// Todo
 		}
 	}
 }

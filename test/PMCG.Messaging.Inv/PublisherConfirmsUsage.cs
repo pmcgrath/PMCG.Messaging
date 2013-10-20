@@ -89,7 +89,7 @@ namespace PMCG.Messaging.Inv
 				this.c_writeLog(string.Format("About to publish message ({0})", _messageBodyContent));
 				this.c_unconfirmedMessages.TryAdd(_channel.NextPublishSeqNo, _messageBodyContent);
 				_channel.BasicPublish(this.c_exchangeName, string.Empty, _properties, _messageBody);
-			};
+			}
 
 			this.c_writeLog("Completed publishing");
 		}
