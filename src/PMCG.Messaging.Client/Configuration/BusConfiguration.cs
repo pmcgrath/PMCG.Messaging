@@ -9,7 +9,7 @@ namespace PMCG.Messaging.Client.Configuration
 		public readonly IEnumerable<string> ConnectionUris;
 		public readonly string DisconnectedMessagesStoragePath;
 		public readonly TimeSpan ReconnectionPauseInterval;
-		public readonly ushort NumberOfPublishers;
+		public readonly TimeSpan PublicationTimeout;
 		public readonly ushort NumberOfConsumers;
 		public readonly ushort ConsumerMessagePrefetchCount;
 		public readonly TimeSpan ConsumerDequeueTimeout;
@@ -21,7 +21,7 @@ namespace PMCG.Messaging.Client.Configuration
 			IEnumerable<string> connectionUris,
 			string disconnectedMessagesStoragePath,
 			TimeSpan reconnectionPauseInterval,
-			ushort numberOfPublishers,
+			TimeSpan publicationTimeout,
 			ushort numberOfConsumers,
 			ushort consumerMessagePrefetchCount,
 			TimeSpan consumerDequeueTimeout,
@@ -31,7 +31,7 @@ namespace PMCG.Messaging.Client.Configuration
 			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
 			Check.RequireArgumentNotEmpty("disconnectedMessagesStoragePath", disconnectedMessagesStoragePath);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.TotalSeconds > 0);
-			Check.RequireArgument("numberOfPublishers", numberOfPublishers, numberOfPublishers > 0);
+			Check.RequireArgument("publicationTimeout", publicationTimeout, publicationTimeout.TotalMilliseconds > 0);
 			Check.RequireArgument("numberOfConsumers", numberOfConsumers, numberOfConsumers > 0);
 			Check.RequireArgument("consumerMessagePrefetchCount", consumerMessagePrefetchCount, consumerMessagePrefetchCount > 0);
 			Check.RequireArgument("consumerDequeueTimeout", consumerDequeueTimeout, consumerDequeueTimeout.TotalSeconds > 0);
@@ -41,7 +41,7 @@ namespace PMCG.Messaging.Client.Configuration
 			this.ConnectionUris = connectionUris;
 			this.DisconnectedMessagesStoragePath = disconnectedMessagesStoragePath;
 			this.ReconnectionPauseInterval = reconnectionPauseInterval;
-			this.NumberOfPublishers = numberOfPublishers;
+			this.PublicationTimeout = publicationTimeout;
 			this.NumberOfConsumers = numberOfConsumers;
 			this.ConsumerMessagePrefetchCount = consumerMessagePrefetchCount;
 			this.ConsumerDequeueTimeout = consumerDequeueTimeout;

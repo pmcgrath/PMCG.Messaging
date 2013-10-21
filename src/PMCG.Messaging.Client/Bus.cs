@@ -2,7 +2,6 @@
 using PMCG.Messaging.Client.BusState;
 using PMCG.Messaging.Client.Configuration;
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 
 
@@ -31,7 +30,6 @@ namespace PMCG.Messaging.Client
 			this.State = new Initialised(
 				configuration,
 				_connectionManager,
-				new BlockingCollection<QueuedMessage>(),
 				this);
 
 			this.c_logger.Info("ctor Completed");

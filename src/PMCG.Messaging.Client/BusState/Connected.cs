@@ -1,6 +1,7 @@
 ﻿using PMCG.Messaging.Client.Configuration;
+using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,41 +11,26 @@ namespace PMCG.Messaging.Client.BusState
 	public class Connected : State
 	{
 		private readonly CancellationTokenSource c_cancellationTokenSource;
-		private readonly Task[] c_publisherTasks;
+		private readonly Publisher c_publisher;
 		private readonly Task[] c_consumerTasks;
 
 
 		public Connected(
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
-			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
-			: base(configuration, connectionManager, queuedMessages, context)
+			: base(configuration, connectionManager, context)
 		{
 			base.Logger.Info("ctor Starting");
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 			base.ConnectionManager.Disconnected += this.OnConnectionDisconnected;
 
-			base.Logger.Info("ctor About to create publisher tasks");
-			this.c_publisherTasks = new Task[base.NumberOfPublishers];
-			for (var _index = 0; _index < this.c_publisherTasks.Length; _index++)
-			{
-				this.c_publisherTasks[_index] = new Task(
-					() =>
-					{
-						new Publisher(
-							base.ConnectionManager.Connection,
-							this.c_cancellationTokenSource.Token,
-							base.QueuedMessages)
-							.Start();
-					},
-					TaskCreationOptions.LongRunning);
-				this.c_publisherTasks[_index].Start();
-			}
+			base.Logger.Info("ctor About to create publisher");
+			this.c_publisher = new Publisher(base.ConnectionManager.Connection, base.Configuration.PublicationTimeout, this.c_cancellationTokenSource.Token);
 
 			base.Logger.Info("ctor About to reqeue disconnected messages");
-			base.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
+			this.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
 
 			base.Logger.Info("ctor About to create subcriber tasks");
 			this.c_consumerTasks = new Task[base.NumberOfConsumers];
@@ -84,8 +70,64 @@ namespace PMCG.Messaging.Client.BusState
 			TMessage message)
 		{
 			base.Logger.InfoFormat("Publish Publishing message ({0}) with Id {1}", message, message.Id);
-			base.QueueMessageForDelivery(message);
+			
+			if (base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
+			{
+				foreach (var _deliveryConfiguration in this.Configuration.MessagePublications[message.GetType()].Configurations)
+				{
+					var _queuedMessage = new QueuedMessage(_deliveryConfiguration, message);
+					this.c_publisher.Publish(_queuedMessage);
+				}
+			}
+			else
+			{
+				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
+				Check.Ensure(typeof(TMessage).IsAssignableFrom(typeof(Command)), "Commands must have a publication configuration");
+			}
+			
 			base.Logger.Info("Publish Completed");
+		}
+
+
+		public override IEnumerable<Task<bool>> PublishAsync<TMessage>(
+			TMessage message)
+		{
+			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
+			
+			var _result = new List<Task<bool>>();
+			if (base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
+			{
+				foreach (var _deliveryConfiguration in this.Configuration.MessagePublications[message.GetType()].Configurations)
+				{
+					var _queuedMessage = new QueuedMessage(_deliveryConfiguration, message);
+					var _publictionResult = this.c_publisher.PublishAsync(_queuedMessage);
+					_result.Add(_publictionResult);
+				}
+			}
+			else
+			{
+				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
+				Check.Ensure(typeof(TMessage).IsAssignableFrom(typeof(Command)), "Commands must have a publication configuration");
+			}
+
+			base.Logger.Info("PublishAsync Completed");
+			return _result;
+		}
+
+
+		private void RequeueDisconnectedMessages(
+			IStore disconnectedMessageStore)
+		{
+			this.Logger.Info("RequeueDisconnectedMessages Starting");
+
+			foreach (var _messageId in disconnectedMessageStore.GetAllIds())
+			{
+				var _message = disconnectedMessageStore.Get(_messageId);
+				this.Publish(_message);
+				disconnectedMessageStore.Delete(_messageId);
+			}
+
+			this.Logger.Info("RequeueDisconnectedMessages Completed");
 		}
 
 

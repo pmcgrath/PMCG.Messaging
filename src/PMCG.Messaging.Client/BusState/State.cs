@@ -1,9 +1,8 @@
 ﻿using Common.Logging;
 using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client.BusState
@@ -13,18 +12,15 @@ namespace PMCG.Messaging.Client.BusState
 		protected readonly ILog Logger;
 		protected readonly BusConfiguration Configuration;
 		protected readonly IConnectionManager ConnectionManager;
-		protected readonly BlockingCollection<QueuedMessage> QueuedMessages;
 		protected readonly IBusContext Context;
 
 
-		protected uint NumberOfPublishers { get { return this.Configuration.NumberOfPublishers; } }
 		protected uint NumberOfConsumers { get { return this.Configuration.NumberOfConsumers; } }
 
 
 		protected State(
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
-			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
 		{
 			this.Logger = LogManager.GetLogger(this.GetType().FullName);
@@ -32,7 +28,6 @@ namespace PMCG.Messaging.Client.BusState
 
 			this.Configuration = configuration;
 			this.ConnectionManager = connectionManager;
-			this.QueuedMessages = queuedMessages;
 			this.Context = context;
 
 			this.Logger.Info("ctor Completed");
@@ -59,6 +54,14 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
+		public virtual IEnumerable<Task<bool>> PublishAsync<TMessage>(
+			TMessage message)
+			where TMessage : Message
+		{
+			throw new InvalidOperationException(string.Format("PublishAsync is invalid for current state ({0})", this.GetType().Name));
+		}
+
+
 		protected void TransitionToNewState(
 			Type newState)
 		{
@@ -69,7 +72,6 @@ namespace PMCG.Messaging.Client.BusState
 					{
 						this.Configuration,
 						this.ConnectionManager,
-						this.QueuedMessages,
 						this.Context 
 					});
 			this.Logger.Info("TransitionToNewState Completed");
@@ -91,51 +93,6 @@ namespace PMCG.Messaging.Client.BusState
 		protected void CloseConnection()
 		{
 			this.ConnectionManager.Close();
-		}
-
-
-		protected void QueueMessageForDelivery(
-			Message message)
-		{
-			if (this.Configuration.MessagePublications.HasConfiguration(message.GetType()))
-			{
-				foreach (var _deliveryConfiguration in this.Configuration.MessagePublications[message.GetType()].Configurations)
-				{
-					var _queuedMessage = new QueuedMessage(_deliveryConfiguration, message);
-					this.QueuedMessages.Add(_queuedMessage);
-				}
-			}
-			else
-			{
-				// Log that this has happened
-				// Commands? - Should this actually throw an exception?
-			}
-		}
-
-
-		protected void RequeueDisconnectedMessages(
-			IStore disconnectedMessageStore)
-		{
-			this.Logger.Info("RequeueDisconnectedMessages Starting");
-
-			var _queuedMessageIds = this.QueuedMessages
-				.Select(queuedMessage => queuedMessage.Data.Id)
-				.Distinct()
-				.ToArray();
-
-			foreach (var _messageId in disconnectedMessageStore.GetAllIds())
-			{
-				var _isDisconnectedMessageInQueue = _queuedMessageIds.Any(id => id == _messageId);
-				if (!_isDisconnectedMessageInQueue)
-				{
-					var _message = disconnectedMessageStore.Get(_messageId);
-					this.QueueMessageForDelivery(_message);
-				}
-
-				disconnectedMessageStore.Delete(_messageId);
-			}
-
-			this.Logger.Info("RequeueDisconnectedMessages Completed");
 		}
 	}
 }

@@ -1,8 +1,6 @@
 ﻿using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -16,14 +14,12 @@ namespace PMCG.Messaging.Client.BusState
 		public Disconnected(
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
-			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
-			: base(configuration, connectionManager, queuedMessages, context)
+			: base(configuration, connectionManager, context)
 		{
 			base.Logger.Info("ctor Starting");
 			
 			this.c_disconnectedMessageStore = ServiceLocator.GetNewDisconnectedStore(base.Configuration);
-			this.StoreDisconnectedMessages();
 			new Task(this.TryRestablishingConnection).Start();
 
 			base.Logger.Info("ctor Completed");
@@ -50,13 +46,11 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		private void StoreDisconnectedMessages()
+		public override IEnumerable<Task<bool>> PublishAsync<TMessage>(
+			TMessage message)
 		{
-			var _distinctMessages = base.QueuedMessages.Select(queuedMessage => queuedMessage.Data).Distinct();
-			foreach (var _message in _distinctMessages)
-			{
-				this.c_disconnectedMessageStore.Add(_message);
-			}
+			// TODO: Should we support this - if so how do we know the difference between sync and async when we re-connect
+			base.PublishAsync(message);
 		}
 
 
@@ -67,7 +61,6 @@ namespace PMCG.Messaging.Client.BusState
 			base.OpenConnection();
 			if (base.ConnectionManager.IsOpen)
 			{
-				base.RequeueDisconnectedMessages(this.c_disconnectedMessageStore);
 				base.TransitionToNewState(typeof(Connected));
 			}
 

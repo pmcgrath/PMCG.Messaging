@@ -7,9 +7,13 @@ namespace PMCG.Messaging.Client.Interactive
 	{
 		static void Main()
 		{
+			//new Publisher().Run_Where_We_Instruct_To_Stop_The_Broker();
+			//new Publisher().Run_Where_We_Publish_Messages();
+			new Publisher().Run_Where_We_Publish_Async_Messages();
+
 			//new ConnectionManager().Run_Open_Where_Server_Is_Already_Stopped_And_Instruct_To_Start_Server();
 
-			new Consumer().Run_Where_We_Create_A_Transient_Queue_And_Then_Close_Connection();
+			//new Consumer().Run_Where_We_Create_A_Transient_Queue_And_Then_Close_Connection();
 
 			//new Consumers().Run_Where_We_Instruct_To_Stop_The_Broker();
 

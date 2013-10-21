@@ -1,6 +1,5 @@
 ﻿using PMCG.Messaging.Client.Configuration;
 using System;
-using System.Collections.Concurrent;
 
 
 namespace PMCG.Messaging.Client.BusState
@@ -10,9 +9,8 @@ namespace PMCG.Messaging.Client.BusState
 		public Connecting(
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
-			BlockingCollection<QueuedMessage> queuedMessages,
 			IBusContext context)
-			: base(configuration, connectionManager, queuedMessages, context)
+			: base(configuration, connectionManager, context)
 		{
 			base.Logger.Info("ctor Completed");
 		}
