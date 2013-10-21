@@ -94,7 +94,6 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiatePublisher()
 		{
 			this.c_connection = new ConnectionFactory { Uri = "amqp://guest:guest@localhost:5672/" }.CreateConnection();
-			this.c_connection = new ConnectionFactory { Uri = "amqp://guest:guest@trdevmq01a.ccs.local:5672/" }.CreateConnection();
 			this.c_publicationTimeout = TimeSpan.FromMilliseconds(50);
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 

@@ -1,6 +1,7 @@
 ﻿using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
@@ -50,7 +51,7 @@ namespace PMCG.Messaging.Client.BusState
 			TMessage message)
 		{
 			// TODO: Should we support this - if so how do we know the difference between sync and async when we re-connect
-			base.PublishAsync(message);
+			return base.PublishAsync(message);
 		}
 
 

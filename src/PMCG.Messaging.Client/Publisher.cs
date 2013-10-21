@@ -123,7 +123,21 @@ namespace PMCG.Messaging.Client
 			IModel channel,
 			ShutdownEventArgs reason)
 		{
-			this.c_logger.WarnFormat("OnChannelShuutdown code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
+			this.c_logger.WarnFormat("OnChannelShuutdown Starting, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
+
+			var _channelIdentifier = channel.ToString();
+			var _highestDeliveryTag = this.c_unconfirmedPublicationResults.Keys
+				.Where(key => key.StartsWith(_channelIdentifier))
+				.Select(key => ulong.Parse(key.Substring(key.IndexOf("::") + "::".Length)))
+				.OrderByDescending(deliveryTag => deliveryTag)
+				.FirstOrDefault();
+			if (_highestDeliveryTag > 0)
+			{
+				var _exception = new ApplicationException("Channel was closed");
+				this.ProcessDeliveryTags(_channelIdentifier, true, _highestDeliveryTag, publicationResult => publicationResult.SetException(_exception));
+			}
+
+			this.c_logger.WarnFormat("OnChannelShuutdown Completed, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 		}
 
 
