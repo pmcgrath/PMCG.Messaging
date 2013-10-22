@@ -263,5 +263,37 @@ namespace PMCG.Messaging.Client.UT
 			Assert.IsTrue(_task.IsFaulted);
 			Assert.AreEqual("Publish was nacked by the broker", _task.Exception.InnerException.Message);
 		}
+
+
+		[Test]
+		public void PublishAsync_Where_Two_Messages_Being_Published_But_Channel_Is_Closed_Before_Acks_Received_Results_In_Two_Tasks_With_Errors()
+		{
+			var _waitTimeout = TimeSpan.FromMilliseconds(2);
+
+			var _connection = Substitute.For<IConnection>();
+			var _channel = Substitute.For<IModel>();
+
+			_connection.CreateModel().Returns(_channel);
+			_channel.IsOpen.Returns(true);
+
+			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 1);
+			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
+			var _queuedMessage = new QueuedMessage(_messageDelivery, _myEvent);
+
+			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _waitTimeout, CancellationToken.None);
+
+			_channel.NextPublishSeqNo.Returns(1UL);
+			var _task1 = _SUT.PublishAsync(_queuedMessage);
+			_channel.NextPublishSeqNo.Returns(2UL);
+			var _task2 = _SUT.PublishAsync(_queuedMessage);
+
+			_channel.ModelShutdown += Raise.Event<ModelShutdownEventHandler>(_channel, new ShutdownEventArgs(ShutdownInitiator.Peer, 1, "Bang!"));
+
+			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
+			Assert.IsTrue(_task1.IsCompleted);
+			Assert.IsTrue(_task1.IsFaulted);
+			Assert.IsTrue(_task2.IsCompleted);
+			Assert.IsTrue(_task2.IsFaulted);
+		}
 	}
 }

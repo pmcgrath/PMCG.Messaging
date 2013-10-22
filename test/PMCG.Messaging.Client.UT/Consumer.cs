@@ -135,7 +135,7 @@ namespace PMCG.Messaging.Client.UT
 					});
 
 			// Time for other thread to start
-			Thread.Sleep(1000);
+			Thread.Sleep(100);
 
 			Assert.AreEqual(_myEvent.Id, _capturedMessageId);
 		}
