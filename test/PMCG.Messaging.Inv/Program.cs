@@ -10,8 +10,9 @@ namespace PMCG.Messaging.Inv
 		{
 			//PublisherConfirmsInv.Run(null);
 			//new PublisherConfirmsUsage().Run(50000);
-			new SyncPublisherConfirms().Run(500);
+			//new SyncPublisherConfirms().Run(500);
 			//new TopicsUsage().Run();
+			new TaskInv().RunCase1();
 		}
 	}
 }

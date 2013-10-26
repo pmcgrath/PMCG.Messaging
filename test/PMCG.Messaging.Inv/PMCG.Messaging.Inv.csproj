@@ -51,6 +51,7 @@
     <Compile Include="PublisherConfirmsUsage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskInv.cs" />
     <Compile Include="TopicsUsage.cs" />
   </ItemGroup>
   <ItemGroup>

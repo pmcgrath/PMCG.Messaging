@@ -2,6 +2,7 @@
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -73,11 +74,10 @@ namespace PMCG.Messaging.Client.BusState
 			
 			if (base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
-				foreach (var _deliveryConfiguration in this.Configuration.MessagePublications[message.GetType()].Configurations)
-				{
-					var _queuedMessage = new QueuedMessage(_deliveryConfiguration, message);
-					this.c_publisher.Publish(_queuedMessage);
-				}
+				var _queuedMessages = this.Configuration.MessagePublications[message.GetType()].Configurations
+					.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
+
+				Parallel.ForEach(_queuedMessages, queuedMessage => this.c_publisher.Publish(queuedMessage));
 			}
 			else
 			{
@@ -97,12 +97,11 @@ namespace PMCG.Messaging.Client.BusState
 			var _result = new List<Task<bool>>();
 			if (base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
-				foreach (var _deliveryConfiguration in this.Configuration.MessagePublications[message.GetType()].Configurations)
-				{
-					var _queuedMessage = new QueuedMessage(_deliveryConfiguration, message);
-					var _publictionResult = this.c_publisher.PublishAsync(_queuedMessage);
-					_result.Add(_publictionResult);
-				}
+				var _queuedMessages = this.Configuration.MessagePublications[message.GetType()].Configurations
+					.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
+
+				Parallel.ForEach(_queuedMessages, queuedMessage => _result.Add(this.c_publisher.PublishAsync(queuedMessage)));
+				//Task.WaitAll(_result.ToArray());
 			}
 			else
 			{

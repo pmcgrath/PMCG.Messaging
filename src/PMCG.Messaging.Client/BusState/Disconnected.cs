@@ -50,7 +50,10 @@ namespace PMCG.Messaging.Client.BusState
 		public override IEnumerable<Task<bool>> PublishAsync<TMessage>(
 			TMessage message)
 		{
-			// TODO: Should we support this - if so how do we know the difference between sync and async when we re-connect
+			// TODO: 
+			//		Should we support this 
+			//			If so what is our result going to be
+			//			If so how do we know the difference between sync and async when we re-connect
 			return base.PublishAsync(message);
 		}
 
