@@ -18,7 +18,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 				new PMCG.Messaging.Client.Configuration.MessageConsumer[0]);
 
 			Assert.IsNotNull(this.c_SUT);
-			Assert.AreEqual(0, this.c_SUT.Configurations.Count());
+			Assert.AreEqual(0, this.c_SUT.Count());
 		}
 
 
@@ -36,7 +36,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 					});
 
 			Assert.IsNotNull(this.c_SUT);
-			Assert.AreEqual(1, this.c_SUT.Configurations.Count());
+			Assert.AreEqual(1, this.c_SUT.Count());
 			Assert.IsTrue(this.c_SUT.HasConfiguration(typeof(MyEvent).Name));
 			Assert.IsNotNull(this.c_SUT[typeof(MyEvent).Name]);
 			Assert.AreEqual(new[] { "TheQueueName" }, this.c_SUT.GetDistinctQueueNames().ToArray());
@@ -82,7 +82,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 					});
 
 			Assert.IsNotNull(this.c_SUT);
-			Assert.AreEqual(2, this.c_SUT.Configurations.Count());
+			Assert.AreEqual(2, this.c_SUT.Count());
 			Assert.IsTrue(this.c_SUT.HasConfiguration("TYPE_HEADER_1"));
 			Assert.IsNotNull(this.c_SUT["TYPE_HEADER_1"]);
 			Assert.IsTrue(this.c_SUT.HasConfiguration("TYPE_HEADER_2"));
