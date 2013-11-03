@@ -36,17 +36,17 @@ namespace PMCG.Messaging.Client
 			this.c_cancellationToken = cancellationToken;
 
 			this.c_threadLocalChannel = new ThreadLocal<IModel>(() =>
-			{
-				this.c_logger.Info("ThreadLocalChannel About to create channel");
-				var _channel = connection.CreateModel();
-				_channel.ConfirmSelect();
-				_channel.ModelShutdown += this.OnChannelShutdown;
-				_channel.BasicAcks += this.OnChannelAcked;
-				_channel.BasicNacks += this.OnChannelNacked;
-				this.c_logger.Info("ThreadLocalChannel Channel created");
+				{
+					this.c_logger.Info("ThreadLocalChannel About to create channel");
+					var _channel = connection.CreateModel();
+					_channel.ConfirmSelect();
+					_channel.ModelShutdown += this.OnChannelShutdown;
+					_channel.BasicAcks += this.OnChannelAcked;
+					_channel.BasicNacks += this.OnChannelNacked;
+					this.c_logger.Info("ThreadLocalChannel Channel created");
 
-				return _channel;
-			});
+					return _channel;
+				});
 
 			this.c_unconfirmedPublicationResults = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
@@ -126,7 +126,8 @@ namespace PMCG.Messaging.Client
 			this.c_logger.WarnFormat("OnChannelShuutdown Starting, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 
 			var _channelIdentifier = channel.ToString();
-			var _highestDeliveryTag = this.c_unconfirmedPublicationResults.Keys
+			var _highestDeliveryTag = this.c_unconfirmedPublicationResults
+				.Select(item => item.Key)
 				.Where(key => key.StartsWith(_channelIdentifier))
 				.Select(key => ulong.Parse(key.Substring(key.IndexOf("::") + "::".Length)))
 				.OrderByDescending(deliveryTag => deliveryTag)
@@ -146,7 +147,9 @@ namespace PMCG.Messaging.Client
 			BasicAckEventArgs args)
 		{
 			this.c_logger.DebugFormat("OnChannelAcked Starting, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
+
 			this.ProcessDeliveryTags(channel.ToString(), args.Multiple, args.DeliveryTag, publicationResult => publicationResult.SetResult(true));
+
 			this.c_logger.DebugFormat("OnChannelAcked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
 
@@ -156,8 +159,10 @@ namespace PMCG.Messaging.Client
 			BasicNackEventArgs args)
 		{
 			this.c_logger.DebugFormat("OnChannelNacked Starting, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
+
 			var _exception = new ApplicationException("Publish was nacked by the broker");
 			this.ProcessDeliveryTags(channel.ToString(), args.Multiple, args.DeliveryTag, publicationResult => publicationResult.SetException(_exception));
+
 			this.c_logger.DebugFormat("OnChannelNacked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
 
@@ -171,7 +176,8 @@ namespace PMCG.Messaging.Client
 			var _deliveryTags = new[] { highestDeliveryTag };
 			if (isMultiple)
 			{
-				_deliveryTags = this.c_unconfirmedPublicationResults.Keys
+				_deliveryTags = this.c_unconfirmedPublicationResults
+					.Select(item => item.Key)
 					.Where(key => key.StartsWith(channelIdentifier))
 					.Select(key => ulong.Parse(key.Substring(key.IndexOf("::") + "::".Length)))
 					.Where(deliveryTag => deliveryTag <= highestDeliveryTag)

@@ -65,6 +65,7 @@ namespace PMCG.Messaging.Client.BusState
 		protected void TransitionToNewState(
 			Type newState)
 		{
+			// Critical section - Lock should be okay as we do not expect contention here
 			this.Logger.InfoFormat("TransitionToNewState Changing from {0} to {1}", this.Context.State.GetType().Name, newState.Name);
 			this.Context.State = (State)Activator.CreateInstance(
 				newState,

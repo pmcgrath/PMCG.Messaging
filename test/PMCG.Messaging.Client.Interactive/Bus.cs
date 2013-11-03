@@ -132,12 +132,13 @@ namespace PMCG.Messaging.Client.Interactive
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder.PublicationTimeout = TimeSpan.FromMilliseconds(1000);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
-					"test.queue.1");
+					"test.exchange.1");
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
