@@ -45,7 +45,7 @@ namespace PMCG.Messaging.Client.Interactive
 				var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", 1);
 				this.c_publisher.Publish(
 					new QueuedMessage(
-						new MessageDelivery("test_publisher_confirms", "H", MessageDeliveryMode.Persistent, m => "Ted"), _myEvent));
+						new MessageDelivery("test.exchange.1", "H", MessageDeliveryMode.Persistent, m => "ted"), _myEvent));
 				Console.WriteLine("Hit enter to publish another message, x to exit");
 			} while (Console.ReadLine() != "x");
 
@@ -73,7 +73,7 @@ namespace PMCG.Messaging.Client.Interactive
 					var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
 					this.c_publisher.PublishAsync(
 						new QueuedMessage(
-							new MessageDelivery("test_publisher_confirms", "H", MessageDeliveryMode.Persistent, m => "Ted"), _myEvent));
+							new MessageDelivery("test.exchange.1", "H", MessageDeliveryMode.Persistent, m => "Ted"), _myEvent));
 				}
 				Console.WriteLine("Hit enter to publish more messages, x to exit");
 			} while (Console.ReadLine() != "x");
@@ -94,7 +94,7 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiatePublisher()
 		{
 			this.c_connection = new ConnectionFactory { Uri = "amqp://guest:guest@localhost:5672/" }.CreateConnection();
-			this.c_publicationTimeout = TimeSpan.FromMilliseconds(50);
+			this.c_publicationTimeout = TimeSpan.FromMilliseconds(500);
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
 			this.c_publisher = new PMCG.Messaging.Client.Publisher(

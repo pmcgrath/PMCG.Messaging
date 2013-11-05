@@ -21,7 +21,7 @@ namespace PMCG.Messaging.Client.Configuration
 		public BusConfigurationBuilder()
 		{
 			this.ReconnectionPauseInterval = TimeSpan.FromSeconds(4);
-			this.PublicationTimeout = TimeSpan.FromMilliseconds(50);
+			this.PublicationTimeout = TimeSpan.FromMilliseconds(250);
 			this.NumberOfConsumers = 1;
 			this.ConsumerMessagePrefetchCount = 1;
 			this.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(100);

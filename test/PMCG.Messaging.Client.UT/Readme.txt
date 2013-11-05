@@ -12,7 +12,7 @@ $requestTemplate = '{ "routing_key": "", "properties": { "type": "RateSetActivat
 $payloadTemplate = '{ "Id": "[[Id]]" }';
 
 $payloadData = $payloadTemplate.Replace('[[Id]]', [Guid]::NewGuid().ToString());
-$payloadData = $payloadData.Replace('"', '\\"');		# Json witin json escaping
+$payloadData = $payloadData.Replace('"', '\\"');		# Json within json escaping
 
 $requestData = $requestTemplate.Replace('[[payload]]', $payloadData);
 $requestData = $requestData.Replace('"', '\"');		# Powershell issue passing to curl - need to escape the quotes again
@@ -30,7 +30,7 @@ do
 {
 	$id = [Guid]::NewGuid().ToString();
 	$payloadData = $payloadTemplate.Replace('[[Id]]', $id);
-	$payloadData = $payloadData.Replace('"', '\\"');		# Json witin json escaping
+	$payloadData = $payloadData.Replace('"', '\\"');		# Json within json escaping
 
 	$requestData = $requestTemplate.Replace('[[payload]]', $payloadData);
 	$requestData = $requestData.Replace('"', '\"');		# Powershell issue passing to curl - need to escape the quotes again
@@ -52,7 +52,7 @@ do
 	$payload.Id =[Guid]::NewGuid().ToString();
 
 	$payloadData = convertto-json $payload;
-	$payloadData = $payloadData.Replace('"', '\\"');		# Json witin json escaping
+	$payloadData = $payloadData.Replace('"', '\\"');		# Json within json escaping
 
 	$requestData = $requestTemplate.Replace('[[messageid]]', $payload.Id);
 	$requestData = $requestData.Replace('[[payload]]', $payloadData);
