@@ -204,7 +204,8 @@ namespace PMCG.Messaging.Client
 			_result.DeliveryMode = message.DeliveryMode;
 			_result.Type = message.TypeHeader;
 			_result.MessageId = message.Data.Id.ToString();
-			_result.CorrelationId = message.Data.CorrelationId + "";	// Cater for null, otherwise library will blow  up
+			// Only set if null, otherwise library will blow up, default is string.Empty, if set to null will blow up in library
+			if (message.Data.CorrelationId != null) { _result.CorrelationId = message.Data.CorrelationId; }
 
 			return _result;
 		}
