@@ -30,7 +30,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.Info("ctor About to create publisher");
 			this.c_publisher = new Publisher(base.ConnectionManager.Connection, base.Configuration.PublicationTimeout, this.c_cancellationTokenSource.Token);
 
-			base.Logger.Info("ctor About to reqeue disconnected messages");
+			base.Logger.Info("ctor About to requeue disconnected messages");
 			// Wrap in try cacth - so we do not prevent starting - how long will this take ?
 			this.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
 
