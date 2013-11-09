@@ -39,6 +39,7 @@ namespace PMCG.Messaging.Client
 
 			this.c_logger.Info("ctor About to create channel");
 			this.c_channel = connection.CreateModel();
+			this.c_channel.ModelShutdown += this.OnChannelShutdown;
 			this.c_channel.BasicQos(0, this.c_configuration.ConsumerMessagePrefetchCount, false);
 
 			this.c_logger.Info("ctor About to create consumer message processor");
@@ -77,6 +78,14 @@ namespace PMCG.Messaging.Client
 				this.c_isCompleted = true;
 				this.c_logger.Info("Start Completed consuming");
 			}
+		}
+
+
+		private void OnChannelShutdown(
+			IModel channel,
+			ShutdownEventArgs reason)
+		{
+			this.c_logger.WarnFormat("OnChannelShuutdown Code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 		}
 
 

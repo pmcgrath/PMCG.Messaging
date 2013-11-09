@@ -134,7 +134,7 @@ namespace PMCG.Messaging.Client
 				.FirstOrDefault();
 			if (_highestDeliveryTag > 0)
 			{
-				var _exception = new ApplicationException("Channel was closed");
+				var _exception = new ApplicationException(string.Format("Channel was closed, code is {0} and text is {1}", reason.ReplyCode, reason.ReplyText));
 				this.ProcessDeliveryTags(_channelIdentifier, true, _highestDeliveryTag, publicationResult => publicationResult.SetException(_exception));
 			}
 

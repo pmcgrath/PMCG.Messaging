@@ -91,6 +91,35 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
+		public void Run_Where_We_Publish_Async_A_Message_To_A_Non_Existent_Exchange_Will_Close_The_Internal_Channel()
+		{
+			this.InstantiatePublisher();
+
+			Console.WriteLine("Hit enter to publish async");
+			Console.ReadLine();
+			var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", 1);
+
+			var _task = this.c_publisher.PublishAsync(
+				new QueuedMessage(
+					new MessageDelivery("NON_EXISTENT_EXCHANGE", "H", MessageDeliveryMode.Persistent, m => "Ted"), _myEvent));
+			try
+			{
+				_task.Wait();
+			}
+			catch (AggregateException exception)
+			{
+				Console.WriteLine("Exception - should be 404 channel sutdown - {0}", exception.InnerExceptions[0].Message);
+			}
+
+			Console.WriteLine("Hit enter to close connection (Channel should already be closed - check the dashboard)");
+			Console.ReadLine();
+			this.c_connection.Close();
+
+			Console.WriteLine("Hit enter to exit");
+			Console.ReadLine();
+		}
+
+
 		public void InstantiatePublisher()
 		{
 			this.c_connection = new ConnectionFactory { Uri = "amqp://guest:guest@localhost:5672/" }.CreateConnection();
