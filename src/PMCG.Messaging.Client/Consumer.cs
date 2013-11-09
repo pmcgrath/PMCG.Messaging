@@ -111,10 +111,10 @@ namespace PMCG.Messaging.Client
 			{
 				try
 				{
-					object _result = null;
-					if (this.c_consumer.Queue.Dequeue(_timeoutInMilliseconds, out _result))
+					BasicDeliverEventArgs _dequeueResult = null;
+					if (this.c_consumer.Queue.Dequeue(_timeoutInMilliseconds, out _dequeueResult))
 					{
-						this.c_messageProcessor.Process(this.c_channel, (BasicDeliverEventArgs)_result);
+						this.c_messageProcessor.Process(this.c_channel, _dequeueResult);
 					}
 				}
 				catch (EndOfStreamException)
