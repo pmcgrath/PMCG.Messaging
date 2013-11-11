@@ -205,5 +205,41 @@ namespace PMCG.Messaging.Client.Interactive
 			Console.WriteLine("Hit enter to exit");
 			Console.ReadLine();
 		}
+
+
+		public void Run_Where_We_Continuously_Publish_Until_Program_Killed()
+		{
+			var _numberOfMessagesToPublish = 2500;
+			var _receivedMessages = new ConcurrentStack<MyEvent>();
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@trdevmq01a.ccs.local:5672/");
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name + "v1");
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to start publishing messages {0}", DateTime.Now);
+			Console.ReadLine();
+
+			var _sequence = 1;
+			while(true)
+			{
+				Console.WriteLine("About to publish {0}", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+
+				try
+				{
+					_SUT.Publish(_message);
+				}
+				catch (Exception theException)
+				{
+					Console.WriteLine("Exception encountered {0}", theException);
+				}
+
+				Thread.Sleep(500);
+				_sequence++;
+			}
+		}
 	}
 }
