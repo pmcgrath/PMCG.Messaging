@@ -215,6 +215,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@trdevmq01a.ccs.local:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder.PublicationTimeout = TimeSpan.FromSeconds(5);
 			_busConfigurationBuilder.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name + "v1");
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
