@@ -30,5 +30,3 @@ What if confirmed is false?
 Application exception message should contain message info.
 
 
-
-
