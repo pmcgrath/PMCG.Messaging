@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging
 {
 	public interface IBus
 	{
-		void Publish<TMessage>(
+		Task PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message;
 	}

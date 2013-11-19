@@ -10,7 +10,6 @@ namespace PMCG.Messaging.Client.Configuration
 		public IList<string> ConnectionUris;
 		public string DisconnectedMessagesStoragePath;
 		public TimeSpan ReconnectionPauseInterval;
-		public TimeSpan PublicationTimeout;
 		public ushort NumberOfConsumers;
 		public ushort ConsumerMessagePrefetchCount;
 		public TimeSpan ConsumerDequeueTimeout;
@@ -21,7 +20,6 @@ namespace PMCG.Messaging.Client.Configuration
 		public BusConfigurationBuilder()
 		{
 			this.ReconnectionPauseInterval = TimeSpan.FromSeconds(4);
-			this.PublicationTimeout = TimeSpan.FromMilliseconds(250);
 			this.NumberOfConsumers = 1;
 			this.ConsumerMessagePrefetchCount = 1;
 			this.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(100);
@@ -142,7 +140,6 @@ namespace PMCG.Messaging.Client.Configuration
 				this.ConnectionUris,
 				this.DisconnectedMessagesStoragePath,
 				this.ReconnectionPauseInterval,
-				this.PublicationTimeout,
 				this.NumberOfConsumers,
 				this.ConsumerMessagePrefetchCount,
 				this.ConsumerDequeueTimeout,

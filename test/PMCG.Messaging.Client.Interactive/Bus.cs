@@ -108,12 +108,12 @@ namespace PMCG.Messaging.Client.Interactive
 			_SUT.Connect();
 
 			Console.WriteLine("Hit enter to publish message");
-			Console.ReadLine();
+			//Console.ReadLine();
 			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
-			_SUT.Publish(_message);
+			_SUT.PublishAsync(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
-			Console.ReadLine();
+			//Console.ReadLine();
 			Console.WriteLine("Captured message Id [{0}]", _capturedMessageId);
 
 			Console.WriteLine("Hit enter to close");
@@ -144,7 +144,7 @@ namespace PMCG.Messaging.Client.Interactive
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
 			var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", 1);
-			_SUT.Publish(_message);
+			_SUT.PublishAsync(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
 			Console.ReadLine();
@@ -183,7 +183,7 @@ namespace PMCG.Messaging.Client.Interactive
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
 				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
-				_SUT.Publish(_message);
+				_SUT.PublishAsync(_message);
 				Thread.Sleep(100);
 			}
 			Console.WriteLine("Completed publishing messages {0}", DateTime.Now);
@@ -209,13 +209,11 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Continuously_Publish_Until_Program_Killed()
 		{
-			var _numberOfMessagesToPublish = 2500;
 			var _receivedMessages = new ConcurrentStack<MyEvent>();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@trdevmq01a.ccs.local:5672/");
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://appuser:appuser@trdevmq01a.ccs.local:5672/");
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
-			_busConfigurationBuilder.PublicationTimeout = TimeSpan.FromSeconds(5);
 			_busConfigurationBuilder.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name + "v1");
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
@@ -231,7 +229,40 @@ namespace PMCG.Messaging.Client.Interactive
 
 				try
 				{
-					_SUT.Publish(_message);
+					_SUT.PublishAsync(_message);
+				}
+				catch (Exception theException)
+				{
+					Console.WriteLine("Exception encountered {0}", theException);
+				}
+
+				Thread.Sleep(500);
+				_sequence++;
+			}
+		}
+
+
+		public void Run_Where_Publication_Timeout_Encountered()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://appuser:appuser@trdevmq01a.ccs.local:5672/");
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name + "v1");
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to try publishing message");
+			Console.ReadLine();
+
+			var _sequence = 1;
+			while (true)
+			{
+				Console.WriteLine("About to publish {0}", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+
+				try
+				{
+					_SUT.PublishAsync(_message);
 				}
 				catch (Exception theException)
 				{

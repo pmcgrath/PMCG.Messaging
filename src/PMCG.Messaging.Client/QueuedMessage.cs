@@ -10,6 +10,7 @@ namespace PMCG.Messaging.Client
 		public readonly Message Data;
 
 
+		public Guid Id { get { return this.Data.Id; } }
 		public string ExchangeName { get { return this.Configuration.ExchangeName; } }
 		public Byte DeliveryMode { get { return (byte)this.Configuration.DeliveryMode; } }
 		public string RoutingKey { get { return this.Configuration.RoutingKeyFunc(this.Data); } }

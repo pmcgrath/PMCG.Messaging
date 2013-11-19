@@ -3,6 +3,7 @@ using RabbitMQ.Client;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client.Interactive
@@ -10,7 +11,6 @@ namespace PMCG.Messaging.Client.Interactive
 	public class Publisher
 	{
 		private IConnection c_connection;
-		private TimeSpan c_publicationTimeout;
 		private CancellationTokenSource c_cancellationTokenSource;
 		private PMCG.Messaging.Client.Publisher c_publisher;
 
@@ -36,33 +36,7 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void Run_Where_We_Publish_Messages()
-		{
-			this.InstantiatePublisher();
-
-			do
-			{
-				var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", 1);
-				this.c_publisher.Publish(
-					new QueuedMessage(
-						new MessageDelivery("test.exchange.1", "H", MessageDeliveryMode.Persistent, m => "ted"), _myEvent));
-				Console.WriteLine("Hit enter to publish another message, x to exit");
-			} while (Console.ReadLine() != "x");
-
-			Console.WriteLine("Hit enter to cancel");
-			Console.ReadLine();
-			this.c_cancellationTokenSource.Cancel();
-
-			Console.WriteLine("Hit enter to close connection (Channel should already be closed - check the dashboard)");
-			Console.ReadLine();
-			this.c_connection.Close();
-
-			Console.WriteLine("Hit enter to exit");
-			Console.ReadLine();
-		}
-
-
-		public void Run_Where_We_Publish_Async_Messages()
+		public void Run_Where_We_Publish_Messages_Waiting_For_Completion_Each_Time()
 		{
 			this.InstantiatePublisher();
 
@@ -71,9 +45,10 @@ namespace PMCG.Messaging.Client.Interactive
 				for (var _index = 1; _index <= 100; _index++)
 				{
 					var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
-					this.c_publisher.PublishAsync(
+					var _task = this.c_publisher.PublishAsync(
 						new QueuedMessage(
 							new MessageDelivery("test.exchange.1", "H", MessageDeliveryMode.Persistent, m => "Ted"), _myEvent));
+					_task.Wait();
 				}
 				Console.WriteLine("Hit enter to publish more messages, x to exit");
 			} while (Console.ReadLine() != "x");
@@ -91,7 +66,38 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void Run_Where_We_Publish_Async_A_Message_To_A_Non_Existent_Exchange_Will_Close_The_Internal_Channel()
+		public void Run_Where_We_Batch_Publish_Messages_Waiting_For_Batch_Completion_Each_Time()
+		{
+			this.InstantiatePublisher();
+
+			do
+			{
+				var _tasks = new Task[100];
+				for (var _index = 1; _index <= 100; _index++)
+				{
+					var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
+					_tasks[_index - 1] = this.c_publisher.PublishAsync(
+						new QueuedMessage(
+							new MessageDelivery("test.exchange.1", "H", MessageDeliveryMode.Persistent, m => "Ted"), _myEvent));
+				}
+				Task.WaitAll(_tasks);
+				Console.WriteLine("Hit enter to publish more messages, x to exit");
+			} while (Console.ReadLine() != "x");
+
+			Console.WriteLine("Hit enter to cancel");
+			Console.ReadLine();
+			this.c_cancellationTokenSource.Cancel();
+
+			Console.WriteLine("Hit enter to close connection (Channel should already be closed - check the dashboard)");
+			Console.ReadLine();
+			this.c_connection.Close();
+
+			Console.WriteLine("Hit enter to exit");
+			Console.ReadLine();
+		}
+
+
+		public void Run_Where_We_Publish_A_Message_To_A_Non_Existent_Exchange_Will_Close_The_Internal_Channel()
 		{
 			this.InstantiatePublisher();
 
@@ -123,12 +129,10 @@ namespace PMCG.Messaging.Client.Interactive
 		public void InstantiatePublisher()
 		{
 			this.c_connection = new ConnectionFactory { Uri = "amqp://guest:guest@localhost:5672/" }.CreateConnection();
-			this.c_publicationTimeout = TimeSpan.FromMilliseconds(500);
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 
 			this.c_publisher = new PMCG.Messaging.Client.Publisher(
 				this.c_connection,
-				this.c_publicationTimeout,
 				this.c_cancellationTokenSource.Token);
 		}
 	}

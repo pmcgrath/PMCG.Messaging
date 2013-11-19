@@ -46,19 +46,11 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public virtual void Publish<TMessage>(
+		public virtual Task PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message
 		{
 			throw new InvalidOperationException(string.Format("Publish is invalid for current state ({0})", this.GetType().Name));
-		}
-
-
-		public virtual IEnumerable<Task<bool>> PublishAsync<TMessage>(
-			TMessage message)
-			where TMessage : Message
-		{
-			throw new InvalidOperationException(string.Format("PublishAsync is invalid for current state ({0})", this.GetType().Name));
 		}
 
 

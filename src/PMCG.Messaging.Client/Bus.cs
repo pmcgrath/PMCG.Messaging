@@ -3,6 +3,7 @@ using PMCG.Messaging.Client.BusState;
 using PMCG.Messaging.Client.Configuration;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client
@@ -52,16 +53,17 @@ namespace PMCG.Messaging.Client
 		}
 
 
-		public void Publish<TMessage>(
+		public Task PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message
 		{
-			this.c_logger.Info("Publish Starting");
+			this.c_logger.Info("PublishAsync Starting");
 			Check.RequireArgumentNotNull("message", message);
 
-			this.State.Publish(message);
+			var _result = this.State.PublishAsync(message);
 
-			this.c_logger.Info("Publish Completed");
+			this.c_logger.Info("PublishAsync Completed");
+			return _result;
 		}
 	}
 }

@@ -28,7 +28,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.ConnectionManager.Disconnected += this.OnConnectionDisconnected;
 
 			base.Logger.Info("ctor About to create publisher");
-			this.c_publisher = new Publisher(base.ConnectionManager.Connection, base.Configuration.PublicationTimeout, this.c_cancellationTokenSource.Token);
+			this.c_publisher = new Publisher(base.ConnectionManager.Connection, this.c_cancellationTokenSource.Token);
 
 			base.Logger.Info("ctor About to requeue disconnected messages");
 			// Wrap in try catch - so we do not prevent starting - how long will this take ?
@@ -68,10 +68,10 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override void Publish<TMessage>(
+		public override Task PublishAsync<TMessage>(
 			TMessage message)
 		{
-			base.Logger.InfoFormat("Publish Publishing message ({0}) with Id {1}", message, message.Id);
+			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
 			
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
@@ -82,30 +82,11 @@ namespace PMCG.Messaging.Client.BusState
 			var _queuedMessages = this.Configuration.MessagePublications[message.GetType()]
 				.Configurations
 				.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
-			Parallel.ForEach(_queuedMessages, queuedMessage => this.c_publisher.Publish(queuedMessage));
-			
-			base.Logger.Info("Publish Completed");
-		}
 
+			var _tasks = new List<Task>();
+			Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
+			var _result = Task.WhenAll(_tasks.ToArray());
 
-		public override IEnumerable<Task<bool>> PublishAsync<TMessage>(
-			TMessage message)
-		{
-			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
-			
-			var _result = new List<Task<bool>>();
-			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
-			{
-				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
-				Check.Ensure(typeof(TMessage).IsAssignableFrom(typeof(Command)), "Commands must have a publication configuration");
-			}
-
-			var _queuedMessages = this.Configuration.MessagePublications[message.GetType()].Configurations
-				.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
-
-			Parallel.ForEach(_queuedMessages, queuedMessage => _result.Add(this.c_publisher.PublishAsync(queuedMessage)));
-			Task.WaitAll(_result.ToArray());
-			
 			base.Logger.Info("PublishAsync Completed");
 			return _result;
 		}
@@ -119,7 +100,7 @@ namespace PMCG.Messaging.Client.BusState
 			foreach (var _messageId in disconnectedMessageStore.GetAllIds())
 			{
 				var _message = disconnectedMessageStore.Get(_messageId);
-				this.Publish(_message);
+				this.PublishAsync(_message);
 				disconnectedMessageStore.Delete(_messageId);
 			}
 

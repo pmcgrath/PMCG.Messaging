@@ -15,7 +15,6 @@ namespace PMCG.Messaging.Client
 	public class Publisher
 	{
 		private readonly ILog c_logger;
-		private readonly TimeSpan c_timeout;
 		private readonly CancellationToken c_cancellationToken;
 		private readonly ThreadLocal<IModel> c_threadLocalChannel;
 		private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> c_unconfirmedPublicationResults;
@@ -26,13 +25,11 @@ namespace PMCG.Messaging.Client
 
 		public Publisher(
 			IConnection connection,
-			TimeSpan timeout,
 			CancellationToken cancellationToken)
 		{
 			this.c_logger = LogManager.GetCurrentClassLogger();
 			this.c_logger.Info("ctor Starting");
 
-			this.c_timeout = timeout;
 			this.c_cancellationToken = cancellationToken;
 
 			this.c_threadLocalChannel = new ThreadLocal<IModel>(() =>
@@ -54,51 +51,28 @@ namespace PMCG.Messaging.Client
 		}
 
 
-		public void Publish(
-			QueuedMessage message)
-		{
-			this.c_logger.DebugFormat("Publish About to publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
-			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation already requested");
-			Check.Ensure(this.Channel.IsOpen, "Channel is not open");
-
-			var _properties = this.CreateMessageProperties(message);
-			var _messageBody = this.CreateMessageBody(message);
-
-			this.Channel.BasicPublish(
-				message.ExchangeName,
-				message.RoutingKey,
-				_properties,
-				_messageBody);
-
-			var _timedOut = false;
-			var _confirmed = this.Channel.WaitForConfirms(this.c_timeout, out _timedOut);
-			if (_timedOut)
-			{
-				throw new ApplicationException("Timed out waiting for publication confirmation");
-			}
-			if (!_confirmed)
-			{
-				throw new ApplicationException("Not confirmed for publication confirmation");
-			}
-
-			this.c_logger.DebugFormat("Publish Completed publishing message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
-		}
-
-
-		public Task<bool> PublishAsync(
+		public Task PublishAsync(
 			QueuedMessage message)
 		{
 			this.c_logger.DebugFormat("PublishAsync About to publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
 			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation already requested");
 			Check.Ensure(this.Channel.IsOpen, "Channel is not open");
 
-			var _properties = this.CreateMessageProperties(message);
-			var _messageBody = this.CreateMessageBody(message);
+			var _properties = this.Channel.CreateBasicProperties();
+			_properties.ContentType = "application/json";
+			_properties.DeliveryMode = message.DeliveryMode;
+			_properties.Type = message.TypeHeader;
+			_properties.MessageId = message.Id.ToString();
+			// Only set if null, otherwise library will blow up, default is string.Empty, if set to null will blow up in library
+			if (message.Data.CorrelationId != null) { _properties.CorrelationId = message.Data.CorrelationId; }
+
+			var _messageJson = JsonConvert.SerializeObject(message.Data);
+			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);
 
 			var _channelIdentifier = this.Channel.ToString();
 			var _deliveryTag = this.Channel.NextPublishSeqNo;
 			var _unconfirmedPublicationResultKey = string.Format("{0}::{1}", _channelIdentifier, _deliveryTag);
-			var _result = new TaskCompletionSource<bool>();
+			var _result = new TaskCompletionSource<bool>(message);
 			try
 			{
 				this.c_unconfirmedPublicationResults.TryAdd(_unconfirmedPublicationResultKey, _result);
@@ -134,8 +108,13 @@ namespace PMCG.Messaging.Client
 				.FirstOrDefault();
 			if (_highestDeliveryTag > 0)
 			{
-				var _exception = new ApplicationException(string.Format("Channel was closed, code is {0} and text is {1}", reason.ReplyCode, reason.ReplyText));
-				this.ProcessDeliveryTags(_channelIdentifier, true, _highestDeliveryTag, publicationResult => publicationResult.SetException(_exception));
+				this.ProcessDeliveryTags(_channelIdentifier, true, _highestDeliveryTag, publicationResult =>
+					{
+						var _queuedMessage = (QueuedMessage)publicationResult.Task.AsyncState;
+						var _exceptionMessage = string.Format("Channel was closed, code is {0} and text is {1}, message with Id {0} is not acked by the broker", reason.ReplyCode, reason.ReplyText, _queuedMessage.Id);
+						var _exception = new ApplicationException(_exceptionMessage);
+						publicationResult.SetException(_exception);
+					});
 			}
 
 			this.c_logger.WarnFormat("OnChannelShuutdown Completed, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
@@ -160,8 +139,13 @@ namespace PMCG.Messaging.Client
 		{
 			this.c_logger.DebugFormat("OnChannelNacked Starting, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 
-			var _exception = new ApplicationException("Publish was nacked by the broker");
-			this.ProcessDeliveryTags(channel.ToString(), args.Multiple, args.DeliveryTag, publicationResult => publicationResult.SetException(_exception));
+			this.ProcessDeliveryTags(channel.ToString(), args.Multiple, args.DeliveryTag, publicationResult =>
+				{
+					var _queuedMessage = (QueuedMessage)publicationResult.Task.AsyncState;
+					var _exceptionMessage = string.Format("Publish for message with Id {0} was nacked by the broker", _queuedMessage.Id);
+					var _exception = new ApplicationException(_exceptionMessage);
+					publicationResult.SetException(_exception);
+				});
 
 			this.c_logger.DebugFormat("OnChannelNacked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
@@ -193,31 +177,6 @@ namespace PMCG.Messaging.Client
 				this.c_unconfirmedPublicationResults.TryRemove(_unconfirmedPublicationResultKey, out _publicationResult);
 				action(_publicationResult);
 			}
-		}
-
-
-		private IBasicProperties CreateMessageProperties(
-			QueuedMessage message)
-		{
-			var _result = this.Channel.CreateBasicProperties();
-			_result.ContentType = "application/json";
-			_result.DeliveryMode = message.DeliveryMode;
-			_result.Type = message.TypeHeader;
-			_result.MessageId = message.Data.Id.ToString();
-			// Only set if null, otherwise library will blow up, default is string.Empty, if set to null will blow up in library
-			if (message.Data.CorrelationId != null) { _result.CorrelationId = message.Data.CorrelationId; }
-
-			return _result;
-		}
-
-
-		private byte[] CreateMessageBody(
-			QueuedMessage message)
-		{
-			var _messageJson = JsonConvert.SerializeObject(message.Data);
-			var _result = Encoding.UTF8.GetBytes(_messageJson);
-
-			return _result;
 		}
 	}
 }

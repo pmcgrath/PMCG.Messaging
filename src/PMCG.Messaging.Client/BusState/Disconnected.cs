@@ -38,23 +38,17 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override void Publish<TMessage>(
+		public override Task PublishAsync<TMessage>(
 			TMessage message)
 		{
-			base.Logger.InfoFormat("Publish Storing message ({0}) with Id {1}", message, message.Id);
+			base.Logger.InfoFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
+
 			this.c_disconnectedMessageStore.Add(message);
-			base.Logger.Info("Publish Completed");
-		}
+			var _result = new TaskCompletionSource<bool>();
+			_result.SetResult(true);
 
-
-		public override IEnumerable<Task<bool>> PublishAsync<TMessage>(
-			TMessage message)
-		{
-			// TODO: 
-			//		Should we support this 
-			//			If so what is our result going to be
-			//			If so how do we know the difference between sync and async when we re-connect
-			return base.PublishAsync(message);
+			base.Logger.Info("PublishAsync Completed");
+			return _result.Task;
 		}
 
 

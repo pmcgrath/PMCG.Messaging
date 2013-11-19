@@ -34,11 +34,58 @@ namespace PMCG.Messaging.Inv
 			}
 			catch (Exception exception)
 			{
-				Console.WriteLine("{0:mm:ss.ffffff} [{1}] Error : {2}", DateTime.Now, Thread.CurrentThread.ManagedThreadId, exception);
+				Console.WriteLine("{0:mm:ss.ffffff} [{1}] Error : {2} {3}", DateTime.Now, Thread.CurrentThread.ManagedThreadId, exception.GetType(), exception.Message);
 			}
 
 			Console.WriteLine("{0:mm:ss.ffffff} [{1}] Hit enter to exit", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
 			Console.ReadLine();
+		}
+
+
+		public void RunCase2()
+		{
+			try
+			{
+				Console.WriteLine("{0:mm:ss.ffffff} [{1}] About to invoke", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
+				var _invokeResult = this.RunMultipleTasks();
+
+				Console.WriteLine("{0:mm:ss.ffffff} [{1}] About to wait", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
+				if (!_invokeResult.Wait(TimeSpan.FromSeconds(20)))
+				{
+					Console.WriteLine("{0:mm:ss.ffffff} [{1}] Timed out !", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
+				}
+				Console.WriteLine("{0:mm:ss.ffffff} [{1}] Done waiting", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
+				if (_invokeResult.IsCompleted)
+				{
+					foreach (var _result in _invokeResult.Result)
+					{
+						Console.WriteLine("{0:mm:ss.ffffff} [{1}]        Result is {2}", DateTime.Now, Thread.CurrentThread.ManagedThreadId, _result.Result);
+					}
+				}
+			}
+			catch (Exception exception)
+			{
+				Console.WriteLine("{0:mm:ss.ffffff} [{1}] Error : {2} {3}", DateTime.Now, Thread.CurrentThread.ManagedThreadId, exception.GetType(), exception.Message);
+			}
+
+			Console.WriteLine("{0:mm:ss.ffffff} [{1}] Hit enter to exit", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
+			Console.ReadLine();
+		}
+
+
+		public Task<Task<bool>[]> RunMultipleTasks()
+		{
+			var _tasks = new[]
+				{
+					new Task<Task<bool>>(() => this.DoWork(1, TimeSpan.FromMilliseconds(5000), true)),
+					new Task<Task<bool>>(() => this.DoWork(2, TimeSpan.FromMilliseconds(25), false)),
+					new Task<Task<bool>>(() => this.DoWork(3, TimeSpan.FromMilliseconds(50), false))
+				};
+
+			Parallel.ForEach(_tasks, task => task.Start());
+			var _result = Task.WhenAll(_tasks);
+
+			return _result;
 		}
 
 
