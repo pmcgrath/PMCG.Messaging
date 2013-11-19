@@ -32,6 +32,7 @@ namespace PMCG.Messaging.Client.BusState
 
 			base.Logger.Info("ctor About to requeue disconnected messages");
 			// Wrap in try catch - so we do not prevent starting - how long will this take ?
+			// Also this is a problem if a lot of disconnected messages - will slow the the ctor completion, so any calls to publish will fail while this is running
 			this.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
 
 			base.Logger.Info("ctor About to create subcriber tasks");
