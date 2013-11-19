@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client.Interactive
@@ -108,12 +109,65 @@ namespace PMCG.Messaging.Client.Interactive
 			_SUT.Connect();
 
 			Console.WriteLine("Hit enter to publish message");
-			//Console.ReadLine();
+			Console.ReadLine();
 			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
 			_SUT.PublishAsync(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
-			//Console.ReadLine();
+			Console.ReadLine();
+			Console.WriteLine("Captured message Id [{0}]", _capturedMessageId);
+
+			Console.WriteLine("Hit enter to close");
+			Console.ReadLine();
+			_SUT.Close();
+
+			Console.WriteLine("Hit enter to exit");
+			Console.ReadLine();
+		}
+
+
+		public void Run_Where_We_Publish_A_Message_Subject_To_A_Timeout_And_Consume_The_Same_Messsage()
+		{
+			var _capturedMessageId = string.Empty;
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add("amqp://appuser:appuser@trdevmq01a.ccs.local:5672/");
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder
+				.RegisterPublication<MyEvent>("test.exchange.1", typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>("______________________test.exchange.1", typeof(MyEvent).Name)
+				.RegisterConsumer<MyEvent>(
+					"test.queue.1",
+					typeof(MyEvent).Name,
+					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; });
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to publish message");
+			Console.ReadLine();
+			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+
+			try
+			{
+				var _task = _SUT.PublishAsync(_message);
+				if (!_task.Wait(TimeSpan.FromMilliseconds(100)))
+				{
+					Console.WriteLine("Timed out !");
+				}
+			}
+			catch (AggregateException aggregateException)
+			{
+				Console.WriteLine(aggregateException);
+				foreach (var _internalException in aggregateException.InnerExceptions)
+				{
+					Console.WriteLine(_internalException);
+				}
+			}
+			catch (Exception genericException)
+			{
+				Console.WriteLine(genericException);
+			}
+
 			Console.WriteLine("Captured message Id [{0}]", _capturedMessageId);
 
 			Console.WriteLine("Hit enter to close");
