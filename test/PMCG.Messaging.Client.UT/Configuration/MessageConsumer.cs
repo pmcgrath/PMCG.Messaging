@@ -15,13 +15,13 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		{
 			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumer(
 				typeof(MyEvent),
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,
 				message => ConsumerHandlerResult.Completed);
 
 			Assert.IsNotNull(this.c_SUT);
 			Assert.AreEqual(typeof(MyEvent), this.c_SUT.Type);
-			Assert.AreEqual("TheQueueName", this.c_SUT.QueueName);
+			Assert.AreEqual(TestingConfiguration.QueueName, this.c_SUT.QueueName);
 			Assert.AreEqual(typeof (MyEvent).Name, this.c_SUT.TypeHeader);
 		}
 
@@ -31,7 +31,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		{
 			this.c_SUT = new PMCG.Messaging.Client.Configuration.MessageConsumer(
 				this.GetType(),
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,
 				message => ConsumerHandlerResult.Completed);
 		}

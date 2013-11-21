@@ -58,12 +58,12 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void InstantiateConsumerTasks()
 		{
-			var _connectionUri = "amqp://guest:guest@localhost:5672/";
+			var _connectionUri = Configuration.LocalConnectionUri;
 			this.c_connection = new ConnectionFactory { Uri = _connectionUri }.CreateConnection();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(_connectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"D:\temp\rabbitdisconnectedmessages";
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 

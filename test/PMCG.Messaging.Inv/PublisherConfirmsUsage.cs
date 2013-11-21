@@ -12,7 +12,7 @@ namespace PMCG.Messaging.Inv
 {
 	public class PublisherConfirmsUsage
 	{
-		private readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
+		private readonly string c_connectionUri = Configuration.LocalConnectionUri;
 		private readonly string c_exchangeName = "test_publisher_confirms";
 		private readonly string c_queueName = "test_publisher_confirms";
 		private readonly Action<string> c_writeLog = message => Console.WriteLine("{0:hh:mm:ss.ffff} {1,3} {2}", DateTime.Now, Thread.CurrentThread.ManagedThreadId, message);

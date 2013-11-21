@@ -68,8 +68,8 @@ namespace PMCG.Messaging.Client.UT.DisconnectedStorage
 			var _messageIds = this.c_SUT.GetAllIds().ToArray();
 
 			Assert.AreEqual(2, _messageIds.Length);
-			Assert.AreEqual(_message1.Id, _messageIds[0]);
-			Assert.AreEqual(_message2.Id, _messageIds[1]);
+			Assert.IsTrue(_messageIds.Any(id => id ==_message1.Id));
+			Assert.IsTrue(_messageIds.Any(id => id ==_message2.Id));
 		}
 
 

@@ -23,9 +23,9 @@ namespace PMCG.Messaging.Client.UT
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("....");
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,
 				message =>
 					{
@@ -33,7 +33,7 @@ namespace PMCG.Messaging.Client.UT
 						return ConsumerHandlerResult.Completed;
 					});
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				typeof(MyEvent).FullName,
 				message =>
 					{
@@ -41,14 +41,14 @@ namespace PMCG.Messaging.Client.UT
 						return ConsumerHandlerResult.Completed;
 					});
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				"Throw_Error_Type_Header",
 				message =>
 					{
 						throw new ApplicationException("Bang !");
 					});
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				"Returns_Errored_Result",
 				message =>
 					{

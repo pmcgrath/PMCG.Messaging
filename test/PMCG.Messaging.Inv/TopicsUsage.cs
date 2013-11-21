@@ -11,7 +11,7 @@ namespace PMCG.Messaging.Inv
 {
 	public class TopicsUsage
 	{
-		private readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
+		private readonly string c_connectionUri = Configuration.LocalConnectionUri;
 		private readonly string c_logExchangeName = "test_topic_logs";
 		private readonly string c_allLogsQueueName = "test_topic_logs";
 		private readonly string c_app1LogQueueName = "test_topic_logs_app1";

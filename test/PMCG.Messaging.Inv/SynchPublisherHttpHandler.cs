@@ -18,7 +18,7 @@ namespace PMCG.Messaging.Inv
 	*/
 	public class PublisherHttpHandler : IHttpHandler
 	{
-		private static readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
+		private static readonly string c_connectionUri = Configuration.LocalConnectionUri;
 		private static readonly string c_exchangeName = "test_publisher_confirms";
 		private static readonly IConnection c_connection;
 

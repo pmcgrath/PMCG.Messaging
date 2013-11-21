@@ -26,11 +26,11 @@ namespace PMCG.Messaging.Client.UT
 		public void SetUp()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
-			_busConfigurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp";
+			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(20);
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,
 				message =>
 					{
@@ -84,10 +84,10 @@ namespace PMCG.Messaging.Client.UT
 			var _capturedMessageId = Guid.Empty;
 
 			var _configurationBuilder = new BusConfigurationBuilder();
-			_configurationBuilder.ConnectionUris.Add("amqp://guest:guest@localhost:5672/");
-			_configurationBuilder.DisconnectedMessagesStoragePath = @"d:\temp\rabbitdisconnectedmessages";
+			_configurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
+			_configurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_configurationBuilder.RegisterConsumer<MyEvent>(
-				"TheQueueName",
+				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,
 				message =>
 					{
@@ -113,7 +113,7 @@ namespace PMCG.Messaging.Client.UT
 
 			QueueingBasicConsumer _capturedConsumer = null;
 			_channel
-				.When(channel => channel.BasicConsume("TheQueueName", false, Arg.Any<IBasicConsumer>()))
+				.When(channel => channel.BasicConsume(TestingConfiguration.QueueName, false, Arg.Any<IBasicConsumer>()))
 				.Do(callInfo => _capturedConsumer = callInfo[2] as QueueingBasicConsumer);
 
 			var _SUT = new PMCG.Messaging.Client.Consumer(_connection, _configuration, CancellationToken.None);

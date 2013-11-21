@@ -30,7 +30,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 					{
 						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
-							"TheQueueName",
+							TestingConfiguration.QueueName,
 							typeof(MyEvent).Name,
 							message => ConsumerHandlerResult.Completed)
 					});
@@ -39,7 +39,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 			Assert.AreEqual(1, this.c_SUT.Count());
 			Assert.IsTrue(this.c_SUT.HasConfiguration(typeof(MyEvent).Name));
 			Assert.IsNotNull(this.c_SUT[typeof(MyEvent).Name]);
-			Assert.AreEqual(new[] { "TheQueueName" }, this.c_SUT.GetDistinctQueueNames().ToArray());
+			Assert.AreEqual(new[] { TestingConfiguration.QueueName }, this.c_SUT.GetDistinctQueueNames().ToArray());
 		}
 
 
@@ -51,12 +51,12 @@ namespace PMCG.Messaging.Client.UT.Configuration
 					{
 						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
-							"TheQueueName",
+							TestingConfiguration.QueueName,
 							"** DUPLICATE_TYPE_HEADER ***",
 							message => ConsumerHandlerResult.Completed),
 						new  PMCG.Messaging.Client.Configuration.MessageConsumer(
 							typeof(MyEvent),
-							"TheQueueName",
+							TestingConfiguration.QueueName,
 							"** DUPLICATE_TYPE_HEADER ***",
 							message => ConsumerHandlerResult.Completed)
 					});

@@ -39,12 +39,12 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		[Test]
 		public void Parse_Where_Multiple_Hosts_Results_In_A_Multiple_Connection_Strings()
 		{
-			var _result = this.c_SUT.Parse("hosts=host1,host2;port=5672;virtualhost=/;username=guest;password=guest");
+			var _result = this.c_SUT.Parse("hosts=host1,host2;port=5672;virtualhost=/;username=guest;password=thepass");
 
 			Assert.IsNotNull(_result);
 			Assert.AreEqual(2, _result.Count());
-			Assert.AreEqual("amqp://guest:guest@host1:5672/", _result.First());
-			Assert.AreEqual("amqp://guest:guest@host2:5672/", _result.Skip(1).First());
+			Assert.AreEqual("amqp://guest:thepass@host1:5672/", _result.First());
+			Assert.AreEqual("amqp://guest:thepass@host2:5672/", _result.Skip(1).First());
 		}
 
 

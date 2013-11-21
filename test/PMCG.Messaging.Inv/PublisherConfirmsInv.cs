@@ -42,8 +42,7 @@ namespace PMCG.Messaging.Inv
 		public static void Run(
 			string[] args)
 		{
-			var _connectionUri = "amqp://appuser:appuser@trdevmq01a.ccs.local:5672/";
-			//_connectionUri = "amqp://guest:guest@localhost:5672/";
+			var _connectionUri = Configuration.LocalConnectionUri;
 			var _exchangeName = "test_publisher_confirms";
 			var _queueName = "test_publisher_confirms";
 			var _numberOfMessages = 1500;

@@ -41,6 +41,7 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="PublisherConfirmsInv.cs" />
     <Compile Include="SynchPublisherHttpHandler.cs" />
     <Compile Include="SyncPublisherConfirms.cs" />

@@ -9,7 +9,7 @@ namespace PMCG.Messaging.Inv
 {
 	public class SyncPublisherConfirms
 	{
-		private readonly string c_connectionUri = "amqp://guest:guest@localhost:5672/";
+		private readonly string c_connectionUri = Configuration.LocalConnectionUri;
 		private readonly string c_exchangeName = "test_publisher_confirms";
 		private readonly string c_queueName = "test_publisher_confirms";
 		private readonly TimeSpan c_waitTimeOut = TimeSpan.FromMilliseconds(5);

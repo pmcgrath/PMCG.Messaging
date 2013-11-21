@@ -8,7 +8,7 @@ namespace PMCG.Messaging.Client.Interactive
 		public void Run_Open()
 		{
 			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
-				new [] { "amqp://guest:guest@localhost:5672/" },
+				new[] { Configuration.LocalConnectionUri },
 				TimeSpan.FromSeconds(4));
 
 			_SUT.Open();
@@ -18,7 +18,7 @@ namespace PMCG.Messaging.Client.Interactive
 		public void Run_Open_Where_Server_Is_Already_Stopped_And_Instruct_To_Start_Server()
 		{
 			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
-				new [] { "amqp://guest:guest@localhost:5672/" },
+				new[] { Configuration.LocalConnectionUri },
 				TimeSpan.FromSeconds(4));
 
 			_SUT.Open();

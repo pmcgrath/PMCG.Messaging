@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bus.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="Consumer.cs" />
     <Compile Include="Consumers.cs" />
