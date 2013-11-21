@@ -17,7 +17,7 @@ namespace PMCG.Messaging.Client
 		private readonly ILog c_logger;
 		private readonly CancellationToken c_cancellationToken;
 		private readonly ThreadLocal<IModel> c_threadLocalChannel;
-		private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> c_unconfirmedPublicationResults;
+		private readonly ConcurrentDictionary<string, TaskCompletionSource<PublicationResult>> c_unconfirmedPublicationResults;
 
 
 		private IModel Channel { get { return this.c_threadLocalChannel.Value; } }
@@ -45,13 +45,13 @@ namespace PMCG.Messaging.Client
 					return _channel;
 				});
 
-			this.c_unconfirmedPublicationResults = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
+			this.c_unconfirmedPublicationResults = new ConcurrentDictionary<string, TaskCompletionSource<PublicationResult>>();
 
 			this.c_logger.Info("ctor Completed");
 		}
 
 
-		public Task PublishAsync(
+		public Task<PublicationResult> PublishAsync(
 			QueuedMessage message)
 		{
 			this.c_logger.DebugFormat("PublishAsync About to publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
@@ -72,7 +72,7 @@ namespace PMCG.Messaging.Client
 			var _channelIdentifier = this.Channel.ToString();
 			var _deliveryTag = this.Channel.NextPublishSeqNo;
 			var _unconfirmedPublicationResultKey = string.Format("{0}::{1}", _channelIdentifier, _deliveryTag);
-			var _result = new TaskCompletionSource<bool>(message);
+			var _result = new TaskCompletionSource<PublicationResult>(message);
 			try
 			{
 				this.c_unconfirmedPublicationResults.TryAdd(_unconfirmedPublicationResultKey, _result);
@@ -108,13 +108,16 @@ namespace PMCG.Messaging.Client
 				.FirstOrDefault();
 			if (_highestDeliveryTag > 0)
 			{
-				this.ProcessDeliveryTags(_channelIdentifier, true, _highestDeliveryTag, publicationResult =>
-					{
-						var _queuedMessage = (QueuedMessage)publicationResult.Task.AsyncState;
-						var _exceptionMessage = string.Format("Channel was closed, code is {0} and text is {1}, message with Id {0} is not acked by the broker", reason.ReplyCode, reason.ReplyText, _queuedMessage.Id);
-						var _exception = new ApplicationException(_exceptionMessage);
-						publicationResult.SetException(_exception);
-					});
+				var _context = string.Format("Code: {0} and Text: {1}", reason.ReplyCode, reason.ReplyText);
+				this.ProcessDeliveryTags(
+					_channelIdentifier,
+					true,
+					_highestDeliveryTag,
+					publicationResult => publicationResult.SetResult(
+					new PublicationResult(
+						(QueuedMessage)publicationResult.Task.AsyncState,
+						PublicationResultStatus.ChannelShutdown,
+						_context)));
 			}
 
 			this.c_logger.WarnFormat("OnChannelShuutdown Completed, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
@@ -127,7 +130,14 @@ namespace PMCG.Messaging.Client
 		{
 			this.c_logger.DebugFormat("OnChannelAcked Starting, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 
-			this.ProcessDeliveryTags(channel.ToString(), args.Multiple, args.DeliveryTag, publicationResult => publicationResult.SetResult(true));
+			this.ProcessDeliveryTags(
+				channel.ToString(),
+				args.Multiple,
+				args.DeliveryTag,
+				publicationResult => publicationResult.SetResult(
+					new PublicationResult(
+						(QueuedMessage)publicationResult.Task.AsyncState,
+						PublicationResultStatus.Acked)));
 
 			this.c_logger.DebugFormat("OnChannelAcked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
@@ -139,13 +149,14 @@ namespace PMCG.Messaging.Client
 		{
 			this.c_logger.DebugFormat("OnChannelNacked Starting, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 
-			this.ProcessDeliveryTags(channel.ToString(), args.Multiple, args.DeliveryTag, publicationResult =>
-				{
-					var _queuedMessage = (QueuedMessage)publicationResult.Task.AsyncState;
-					var _exceptionMessage = string.Format("Publish for message with Id {0} was nacked by the broker", _queuedMessage.Id);
-					var _exception = new ApplicationException(_exceptionMessage);
-					publicationResult.SetException(_exception);
-				});
+			this.ProcessDeliveryTags(
+				channel.ToString(),
+				args.Multiple,
+				args.DeliveryTag,
+				publicationResult => publicationResult.SetResult(
+					new PublicationResult(
+						(QueuedMessage)publicationResult.Task.AsyncState,
+						PublicationResultStatus.Nacked)));
 
 			this.c_logger.DebugFormat("OnChannelNacked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
@@ -155,7 +166,7 @@ namespace PMCG.Messaging.Client
 			string channelIdentifier,
 			bool isMultiple,
 			ulong highestDeliveryTag,
-			Action<TaskCompletionSource<bool>> action)
+			Action<TaskCompletionSource<PublicationResult>> action)
 		{
 			// Critical section - What if an ack followed by a nack and the two trying to do work at the same time
 			var _deliveryTags = new[] { highestDeliveryTag };
@@ -174,7 +185,7 @@ namespace PMCG.Messaging.Client
 				var _unconfirmedPublicationResultKey = string.Format("{0}::{1}", channelIdentifier, _deliveryTag);
 				if (!this.c_unconfirmedPublicationResults.ContainsKey(_unconfirmedPublicationResultKey)) { continue; }
 
-				TaskCompletionSource<bool> _publicationResult = null;
+				TaskCompletionSource<PublicationResult> _publicationResult = null;
 				this.c_unconfirmedPublicationResults.TryRemove(_unconfirmedPublicationResultKey, out _publicationResult);
 				action(_publicationResult);
 			}

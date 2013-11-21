@@ -113,7 +113,7 @@ namespace PMCG.Messaging.Client.UT
 			_connection.CreateModel().Returns(_channel);
 			_channel.IsOpen.Returns(true);
 
-			var _tasks = new List<Task>();
+			var _tasks = new List<Task<PublicationResult>>();
 			var _numberOfMessagesToPublish = 10;
 			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, CancellationToken.None);
 			for (var _index = 1; _index <= 10; _index++)
@@ -129,12 +129,56 @@ namespace PMCG.Messaging.Client.UT
 
 			foreach(var _task in _tasks) { Assert.IsFalse(_task.IsCompleted); }
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = (ulong)_numberOfMessagesToPublish });
-			foreach(var _task in _tasks) { Assert.IsTrue(_task.IsCompleted); }
+			foreach(var _task in _tasks)
+			{
+				Assert.IsTrue(_task.IsCompleted);
+				Assert.AreEqual(PublicationResultStatus.Acked, _task.Result.Status);
+			}
 		}
 
 
 		[Test]
-		public void PublishAsync_Where_Single_Message_Published_And_Nacked_Results_In_Task_Error()
+		public void PublishAsync_Where_100_Messages_Published_And_A_Single_Multi_Ack_For_Some_Messages_Results_In_Some_Completed_Tasks_And_Some_Still_Pending()
+		{
+			var _connection = Substitute.For<IConnection>();
+			var _channel = Substitute.For<IModel>();
+
+			_connection.CreateModel().Returns(_channel);
+			_channel.IsOpen.Returns(true);
+
+			var _numberOfMessagesToPublish = 100;
+			var _tasks = new Task<PublicationResult>[_numberOfMessagesToPublish];
+			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, CancellationToken.None);
+			for (var _index = 0; _index < _numberOfMessagesToPublish; _index++)
+			{
+				var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", _index);
+				var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
+				var _queuedMessage = new QueuedMessage(_messageDelivery, _myEvent);
+
+				_channel.NextPublishSeqNo.Returns((ulong)(_index + 1));
+				var _task = _SUT.PublishAsync(_queuedMessage);
+				_tasks[_index] = _task;
+			}
+
+			foreach (var _task in _tasks) { Assert.IsFalse(_task.IsCompleted); }
+			
+			var _deliveryTagToAcknowledge = 73;
+			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = (ulong)_deliveryTagToAcknowledge });
+			
+			for (var _index = 0; _index < _deliveryTagToAcknowledge; _index++)
+			{
+				Assert.IsTrue(_tasks[_index].IsCompleted);
+				Assert.AreEqual(PublicationResultStatus.Acked, _tasks[_index].Result.Status);
+			}
+			for (var _index = _deliveryTagToAcknowledge; _index < _numberOfMessagesToPublish; _index++)
+			{
+				Assert.IsFalse(_tasks[_index].IsCompleted);
+			}
+		}
+
+
+		[Test]
+		public void PublishAsync_Where_Single_Message_Published_And_Nacked_Results_In_Nacked_Task_Result()
 		{
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
@@ -154,13 +198,13 @@ namespace PMCG.Messaging.Client.UT
 			Assert.IsFalse(_task.IsCompleted);
 			_channel.BasicNacks += Raise.Event<BasicNackEventHandler>(_channel, new BasicNackEventArgs { Multiple = false, DeliveryTag = 1 });
 			Assert.IsTrue(_task.IsCompleted);
-			Assert.IsTrue(_task.IsFaulted);
-			Assert.AreEqual(string.Format("Publish for message with Id {0} was nacked by the broker", _myEvent.Id), _task.Exception.InnerException.Message);
+			Assert.AreEqual(PublicationResultStatus.Nacked, _task.Result.Status);
+			Assert.IsNull(_task.Result.StatusContext);
 		}
 
 
 		[Test]
-		public void PublishAsync_Where_Two_Messages_Being_Published_But_Channel_Is_Closed_Before_Acks_Received_Results_In_Two_Tasks_With_Errors()
+		public void PublishAsync_Where_Two_Messages_Being_Published_But_Channel_Is_Closed_Before_Acks_Received_Results_In_Two_Channel_Shutdown_Tasks()
 		{
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
@@ -183,14 +227,16 @@ namespace PMCG.Messaging.Client.UT
 
 			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
 			Assert.IsTrue(_task1.IsCompleted);
-			Assert.IsTrue(_task1.IsFaulted);
+			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _task1.Result.Status);
+			Assert.IsTrue(_task1.Result.StatusContext.Contains("Bang!"));
 			Assert.IsTrue(_task2.IsCompleted);
-			Assert.IsTrue(_task2.IsFaulted);
+			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _task2.Result.Status);
+			Assert.IsTrue(_task2.Result.StatusContext.Contains("Bang!"));
 		}
 
 
 		[Test]
-		public void PublishAsync_Where_Exchange_Does_Not_Exist_Results_In_Channel_Shutdown_Which_We_Do_Not_Cater_For()
+		public void PublishAsync_Where_Exchange_Does_Not_Exist_Results_In_Channel_Shutdown_And_A_Channel_Shutdown_Task_Result()
 		{
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
@@ -208,10 +254,11 @@ namespace PMCG.Messaging.Client.UT
 			var _task = _SUT.PublishAsync(_queuedMessage);
 
 			_channel.ModelShutdown += Raise.Event<ModelShutdownEventHandler>(_channel, new ShutdownEventArgs(ShutdownInitiator.Peer, 1, "404 Exchange does not exist !"));
-
+			 
 			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
 			Assert.IsTrue(_task.IsCompleted);
-			Assert.IsTrue(_task.IsFaulted);
+			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _task.Result.Status);
+			Assert.IsTrue(_task.Result.StatusContext.Contains("404 Exchange does not exist !"));
 		}
 	}
 }

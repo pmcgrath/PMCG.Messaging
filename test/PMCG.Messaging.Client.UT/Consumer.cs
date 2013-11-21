@@ -118,10 +118,11 @@ namespace PMCG.Messaging.Client.UT
 
 			var _SUT = new PMCG.Messaging.Client.Consumer(_connection, _configuration, CancellationToken.None);
 			new Thread(_SUT.Start).Start();
+			// Time for other consumer to start on other thread, we need to wait for start to complete before we publish
+			Thread.Sleep(50);		// To get to work on first run, needs to be much higher (5000), but this value will work for subsequent calls
 
 			var _messageJson = JsonConvert.SerializeObject(_myEvent);
 			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);
-
 			_capturedConsumer.Queue.Enqueue(
 				new BasicDeliverEventArgs
 					{
@@ -133,9 +134,8 @@ namespace PMCG.Messaging.Client.UT
 						BasicProperties = _messageProperties,
 						Body = _messageBody
 					});
-
-			// Time for other thread to start
-			Thread.Sleep(250);
+			// Time for delivery on the other thread
+			Thread.Sleep(10);
 
 			Assert.AreEqual(_myEvent.Id, _capturedMessageId);
 		}

@@ -47,12 +47,12 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
-					Configuration.ExchangeName,
+					Configuration.ExchangeName1,
 					typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
-				Configuration.ExchangeName);
+				Configuration.ExchangeName1);
 			this.InstantiateConsumer(_busConfigurationBuilder.Build());
 			new Task(this.c_consumer.Start).Start();
 

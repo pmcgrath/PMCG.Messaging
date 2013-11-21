@@ -71,6 +71,8 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="Consumer.cs" />
     <Compile Include="ConsumerMessageProcessor.cs" />
+    <Compile Include="PublicationResultStatus.cs" />
+    <Compile Include="PublicationResult.cs" />
     <Compile Include="DisconnectedStorage\FileSystemStore.cs" />
     <Compile Include="DisconnectedStorage\IStore.cs" />
     <Compile Include="ExceptionExt.cs" />

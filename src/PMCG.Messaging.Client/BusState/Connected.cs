@@ -84,9 +84,10 @@ namespace PMCG.Messaging.Client.BusState
 				.Configurations
 				.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
 
-			var _tasks = new List<Task>();
+			var _tasks = new List<Task<PublicationResult>>();
 			Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
-			var _result = Task.WhenAll(_tasks.ToArray());
+
+			var _result = Task.WhenAll(_tasks);
 
 			base.Logger.Info("PublishAsync Completed");
 			return _result;

@@ -92,6 +92,34 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
+		public void Run_Where_We_Publish_A_Message_To_Two_Exchanges_No_Consumption_For_The_Same_Messsage()
+		{
+			var _capturedMessageId = string.Empty;
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
+			_busConfigurationBuilder
+				.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>(Configuration.ExchangeName2, typeof(MyEvent).Name);
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to publish message");
+			Console.ReadLine();
+			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+			var _result = _SUT.PublishAsync(_message);
+			_result.Wait();
+
+			Console.WriteLine("Hit enter to close");
+			Console.ReadLine();
+			_SUT.Close();
+
+			Console.WriteLine("Hit enter to exit");
+			Console.ReadLine();
+		}
+
+
 		public void Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage()
 		{
 			var _capturedMessageId = string.Empty;
@@ -100,9 +128,9 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>(Configuration.ExchangeName, typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
-					Configuration.QueueName,
+					Configuration.QueueName1,
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
@@ -134,10 +162,10 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>(Configuration.ExchangeName, typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name)
 				.RegisterPublication<MyEvent>("A.Different.Exchange", typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
-					Configuration.QueueName,
+					Configuration.QueueName1,
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
@@ -187,11 +215,11 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>(Configuration.ExchangeName, typeof(MyEvent).Name)
+				.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
-					Configuration.ExchangeName);
+					Configuration.ExchangeName1);
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
@@ -222,9 +250,9 @@ namespace PMCG.Messaging.Client.Interactive
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
-				.RegisterPublication<MyEvent>(Configuration.ExchangeName, typeof(MyEvent).Name + "v1")
+				.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1")
 				.RegisterConsumer<MyEvent>(
-					Configuration.QueueName,
+					Configuration.QueueName1,
 					typeof(MyEvent).Name,
 					message => { _receivedMessages.Push(message); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
@@ -268,7 +296,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
-			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName, typeof(MyEvent).Name + "v1");
+			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1");
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
@@ -301,7 +329,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
-			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName, typeof(MyEvent).Name + "v1");
+			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1");
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
 
