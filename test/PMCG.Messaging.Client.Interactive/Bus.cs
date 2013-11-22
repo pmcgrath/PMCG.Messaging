@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -325,7 +326,47 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void Run_Where_Publication_Timeout_Encountered()
+		public void Run_Where_We_Continuously_Publish_Handling_All_Results()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
+			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1");
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to start publishing messages {0}", DateTime.Now);
+			Console.ReadLine();
+
+			var _sequence = 1;
+			while (true)
+			{
+				Console.WriteLine("About to publish {0}", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+
+				try
+				{
+					var _publicationTimeout = TimeSpan.FromTicks(0);
+					var _result = _SUT.PublishAsync(_message);
+					var _timedout = _result.Wait(_publicationTimeout);
+					var _resultResults = ((Task<PublicationResult[]>)_result).Result;
+					var _allAcked = _resultResults.All(result => result.Status == PublicationResultStatus.Acked);
+
+					// PENDING - What do clients do ?
+					Console.WriteLine("PENDING");
+				}
+				catch (Exception theException)
+				{
+					Console.WriteLine("Exception encountered {0}", theException);
+				}
+
+				Thread.Sleep(500);
+				_sequence++;
+			}
+		}
+
+
+		public void Run_Where_We_Attempt_A_Publication_Timeout()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
@@ -346,8 +387,8 @@ namespace PMCG.Messaging.Client.Interactive
 				try
 				{
 					var _result = _SUT.PublishAsync(_message);
-					_result.Wait();
-					var _resultResults = ((Task<PublicationResult[]>)_result).Result;
+					var _timedOut = _result.Wait(TimeSpan.FromTicks(1));
+					Console.WriteLine("Timed out = {0}", _timedOut);
 				}
 				catch (Exception theException)
 				{

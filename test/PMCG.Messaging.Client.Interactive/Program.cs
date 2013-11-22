@@ -22,7 +22,9 @@ namespace PMCG.Messaging.Client.Interactive
 			//new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage();
 			//new Bus().Run_Where_We_Publish_Multiple_Messages_And_Consume_For_The_Same_Messsages();
 			//new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage_On_A_Transient_Queue();
-			new Bus().Run_Where_We_Continuously_Publish_Until_Program_Killed();
+			//new Bus().Run_Where_We_Continuously_Publish_Until_Program_Killed();
+			//new Bus().Run_Where_Publication_Timeout_Encountered();
+			new Bus().Run_Where_We_Continuously_Publish_Handling_All_Results();
 			//new Bus().Run_Where_We_Publish_A_Message_To_Two_Exchanges_No_Consumption_For_The_Same_Messsage();
 		}
 	}

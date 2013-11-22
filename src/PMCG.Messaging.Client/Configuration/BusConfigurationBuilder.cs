@@ -100,7 +100,7 @@ namespace PMCG.Messaging.Client.Configuration
 			Func<TMessage, ConsumerHandlerResult> action)
 			where TMessage : Message
 		{
-			// Check that no exiting entry for the typeHeader
+			// Check that no existing entry for the typeHeader
 
 			Func<Message, ConsumerHandlerResult> _actionWrapper = message => action(message as TMessage);
 
@@ -120,7 +120,7 @@ namespace PMCG.Messaging.Client.Configuration
 			string exchangeName)
 			where TMessage : Message
 		{
-			// Check that no exiting entry for the typeHeader
+			// Check that no existing entry for the typeHeader
 
 			Func<Message, ConsumerHandlerResult> _actionWrapper = message => action(message as TMessage);
 
