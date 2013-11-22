@@ -311,7 +311,8 @@ namespace PMCG.Messaging.Client.Interactive
 				{
 					var _result = _SUT.PublishAsync(_message);
 					_result.Wait();
-					Console.WriteLine(_result);
+					var _resultResults = ((Task<PublicationResult[]>)_result).Result;
+					Console.WriteLine("Result status is {0}, length is {1}, first statuis is {2}", _result.Status, _resultResults.Length, _resultResults[0].Status);
 				}
 				catch (Exception theException)
 				{
@@ -344,7 +345,9 @@ namespace PMCG.Messaging.Client.Interactive
 
 				try
 				{
-					_SUT.PublishAsync(_message);
+					var _result = _SUT.PublishAsync(_message);
+					_result.Wait();
+					var _resultResults = ((Task<PublicationResult[]>)_result).Result;
 				}
 				catch (Exception theException)
 				{

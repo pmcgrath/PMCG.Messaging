@@ -69,7 +69,7 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override Task PublishAsync<TMessage>(
+		public override Task<PublicationResult[]> PublishAsync<TMessage>(
 			TMessage message)
 		{
 			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
@@ -77,8 +77,13 @@ namespace PMCG.Messaging.Client.BusState
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
 				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
-//FIX				
-				Check.Ensure(typeof(TMessage).IsAssignableFrom(typeof(Command)), "Commands must have a publication configuration");
+				Check.Ensure(!typeof(Command).IsAssignableFrom(typeof(TMessage)), "Commands must have a publication configuration");
+
+				var _noConfigurationResult = new TaskCompletionSource<PublicationResult[]>();
+				_noConfigurationResult.SetResult(new PublicationResult[0]);
+
+				base.Logger.Info("PublishAsync Completed");
+				return _noConfigurationResult.Task;
 			}
 
 			var _queuedMessages = this.Configuration.MessagePublications[message.GetType()]
