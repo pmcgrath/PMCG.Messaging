@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="TaskInv2.cs" />
     <Compile Include="PublisherConfirmsWithTasksInv.cs" />
     <Compile Include="PublisherConfirmsInv.cs" />
     <Compile Include="SynchPublisherHttpHandler.cs" />
