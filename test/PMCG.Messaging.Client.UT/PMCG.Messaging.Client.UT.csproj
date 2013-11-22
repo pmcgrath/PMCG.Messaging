@@ -51,6 +51,7 @@
     <Compile Include="..\..\src\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BusState\Connected.cs" />
     <Compile Include="Configuration\BusConfigurationBuilder.cs" />
     <Compile Include="Configuration\ConnectionStringSettingsParser.cs" />
     <Compile Include="Configuration\MessagePublication.cs" />

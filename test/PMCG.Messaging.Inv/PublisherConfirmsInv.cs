@@ -43,11 +43,11 @@ namespace PMCG.Messaging.Inv
 			string[] args)
 		{
 			var _connectionUri = Configuration.LocalConnectionUri;
-			var _exchangeName = "test_publisher_confirms";
-			var _queueName = "test_publisher_confirms";
+			var _exchangeName = Configuration.ExchangeName;
+			var _queueName = Configuration.QueueName;
 			var _numberOfMessages = 1500;
 
-			//Console.WriteLine("\r\n\r\nDo not persist messages async, hit any key to start"); Console.ReadKey();
+			Console.WriteLine("\r\n\r\nDo not persist messages async, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
 				_connectionUri,
 				_exchangeName,
@@ -56,7 +56,7 @@ namespace PMCG.Messaging.Inv
 				false,
 				false).Run();
 
-			//Console.WriteLine("\r\n\r\nDo not persist messages sync, hit any key to start"); Console.ReadKey();
+			Console.WriteLine("\r\n\r\nDo not persist messages sync, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
 				_connectionUri,
 				_exchangeName,
@@ -65,7 +65,7 @@ namespace PMCG.Messaging.Inv
 				false,
 				true).Run();
 
-			//Console.WriteLine("\r\n\r\nDo persist messages async, hit any key to start"); Console.ReadKey();
+			Console.WriteLine("\r\n\r\nDo persist messages async, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
 				_connectionUri,
 				_exchangeName,
@@ -74,7 +74,7 @@ namespace PMCG.Messaging.Inv
 				true,
 				false).Run();
 
-			//Console.WriteLine("\r\n\r\nDo persist messages sync, hit any key to start"); Console.ReadKey();
+			Console.WriteLine("\r\n\r\nDo persist messages sync, hit any key to start"); Console.ReadKey();
 			new PublisherConfirmsInv(
 				_connectionUri,
 				_exchangeName,
@@ -104,7 +104,7 @@ namespace PMCG.Messaging.Inv
 				_channel.BasicNacks += this.OnChannelNack;
 			}
 
-			_channel.ExchangeDeclare(this.c_exchangeName, ExchangeType.Fanout, false, false, null);
+			_channel.ExchangeDeclare(this.c_exchangeName, ExchangeType.Fanout, true, false, null);
 			_channel.QueueDeclare(this.c_queueName, true, false, false, null);
 			_channel.QueueBind(this.c_queueName, this.c_exchangeName, string.Empty, null);
 
