@@ -8,6 +8,7 @@ namespace PMCG.Messaging.Client
 		None,
 		Acked,
 		Nacked,
-		ChannelShutdown
+		ChannelShutdown,
+		Disconnected
 	}
 }

@@ -1,4 +1,5 @@
-﻿using PMCG.Messaging.Client.Configuration;
+﻿using System.Linq;
+using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Collections.Generic;
@@ -41,11 +42,24 @@ namespace PMCG.Messaging.Client.BusState
 		public override Task PublishAsync<TMessage>(
 			TMessage message)
 		{
-			base.Logger.InfoFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
+			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
+
+			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
+			{
+				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
+//FIX				Check.Ensure(typeof(TMessage).IsAssignableFrom(typeof(Command)), "Commands must have a publication configuration");
+			}
 
 			this.c_disconnectedMessageStore.Add(message);
-			var _result = new TaskCompletionSource<bool>();
-			_result.SetResult(true);
+
+			// FIX What if none
+			var _firstConfiguration = this.Configuration.MessagePublications[message.GetType()]
+				.Configurations
+				.First();
+			var _queuedMessage = new QueuedMessage(_firstConfiguration, message);
+
+			var _result = new TaskCompletionSource<PublicationResult[]>();
+			_result.SetResult(new [] { new PublicationResult(_queuedMessage, PublicationResultStatus.Disconnected) });
 
 			base.Logger.Info("PublishAsync Completed");
 			return _result.Task;

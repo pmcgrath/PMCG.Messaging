@@ -77,6 +77,7 @@ namespace PMCG.Messaging.Client.BusState
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
 				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
+//FIX				
 				Check.Ensure(typeof(TMessage).IsAssignableFrom(typeof(Command)), "Commands must have a publication configuration");
 			}
 

@@ -291,8 +291,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Continuously_Publish_Until_Program_Killed()
 		{
-			var _receivedMessages = new ConcurrentStack<MyEvent>();
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
@@ -311,7 +309,9 @@ namespace PMCG.Messaging.Client.Interactive
 
 				try
 				{
-					_SUT.PublishAsync(_message);
+					var _result = _SUT.PublishAsync(_message);
+					_result.Wait();
+					Console.WriteLine(_result);
 				}
 				catch (Exception theException)
 				{
