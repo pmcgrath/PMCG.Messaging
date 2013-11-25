@@ -1,7 +1,6 @@
 ﻿using Common.Logging;
 using PMCG.Messaging.Client.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 

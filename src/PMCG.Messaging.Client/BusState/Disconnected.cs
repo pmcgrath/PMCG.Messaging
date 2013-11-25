@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using PMCG.Messaging.Client.Configuration;
+﻿using PMCG.Messaging.Client.Configuration;
 using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
@@ -42,7 +40,7 @@ namespace PMCG.Messaging.Client.BusState
 		public override Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 		{
-			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
+			base.Logger.InfoFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
 
 			var _result = new TaskCompletionSource<PublicationResult>();
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
