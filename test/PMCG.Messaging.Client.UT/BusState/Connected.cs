@@ -8,6 +8,11 @@ using System;
 
 namespace PMCG.Messaging.Client.UT.BusState
 {
+	// The tests with multiple publications are not quite right as we are using a single channel for all the publications, the internal 
+	// Parallel.ForEach call will result in the two publications being run on sperate tasks and probably seperate threads, could have
+	// created multiple channels and passed to the Returns method for CreateModel, would need to use different NextPublishSeqNo values
+	// and would need to invoke BasicAsk events on both channels, as the ToString() method on the channel returns the same value which 
+	// means they would all have the same unconfirmed publisher dictionary entry key and therefore some tasks could never complete
 	[TestFixture]
 	public class Connected
 	{
@@ -92,7 +97,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 			_channel.IsOpen.Returns(true);
-			_channel.NextPublishSeqNo.Returns(1UL, 2UL, 3UL, 4UL);
+			_channel.NextPublishSeqNo.Returns(1UL, 2UL);		// Not sure why it works here, see next method comment
 			
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,
@@ -101,7 +106,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 			var _theEvent = new MyEvent(Guid.NewGuid(), null, "Some detail", 1);
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
-			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = false, DeliveryTag = 1 });
+			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = 2 });
 			_publicationResult.Wait();
 
 			Assert.AreEqual(PublicationResultStatus.Published, _publicationResult.Result.Status);
@@ -134,7 +139,8 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 			_channel.IsOpen.Returns(true);
-			_channel.NextPublishSeqNo.Returns(1UL, 2UL);
+			var _nextPublishSeqNo = 1UL;
+			_channel.NextPublishSeqNo.Returns(callInfo => _nextPublishSeqNo++);		// Would not work when I used .Returns(1Ul, 2UL, 3UL); Not sure why this works !
 
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,
@@ -143,26 +149,12 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 			var _theEvent = new MyEvent(Guid.NewGuid(), null, "Some detail", 1);
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
-			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = false, DeliveryTag = 1 });
-			_channel.BasicNacks += Raise.Event<BasicNackEventHandler>(_channel, new BasicNackEventArgs { Multiple = false, DeliveryTag = 2 });
+			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = 2 });
+			_channel.BasicNacks += Raise.Event<BasicNackEventHandler>(_channel, new BasicNackEventArgs { Multiple = false, DeliveryTag = 3 });
 			_publicationResult.Wait();
 
 			Assert.AreEqual(PublicationResultStatus.NotPublished, _publicationResult.Result.Status);
 		}
 
-
-
-
-		[Test]
-		public void T()
-		{
-			var _channel = Substitute.For<IModel>();
-			_channel.NextPublishSeqNo.Returns(1UL, 2UL);
-
-			var _1 = _channel.NextPublishSeqNo;
-			var _2 = _channel.NextPublishSeqNo;
-			var _3 = _channel.NextPublishSeqNo;
-
-		}
 	}
 }
