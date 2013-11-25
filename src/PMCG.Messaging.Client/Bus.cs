@@ -53,7 +53,7 @@ namespace PMCG.Messaging.Client
 		}
 
 
-		public Task PublishAsync<TMessage>(
+		public Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message
 		{

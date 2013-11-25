@@ -46,7 +46,7 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public virtual Task<PublicationResult[]> PublishAsync<TMessage>(
+		public virtual Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message
 		{

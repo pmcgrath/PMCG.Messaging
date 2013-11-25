@@ -6,7 +6,7 @@ namespace PMCG.Messaging
 {
 	public interface IBus
 	{
-		Task PublishAsync<TMessage>(
+		Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message;
 	}

@@ -39,12 +39,14 @@
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command.cs" />
+    <Compile Include="PublicationResultStatus.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="IBus.cs" />
     <Compile Include="IBusController.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="ConsumerHandlerResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublicationResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

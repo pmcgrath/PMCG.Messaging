@@ -39,30 +39,26 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override Task<PublicationResult[]> PublishAsync<TMessage>(
+		public override Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 		{
 			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
 
+			var _result = new TaskCompletionSource<PublicationResult>();
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
 				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
 				Check.Ensure(!typeof(Command).IsAssignableFrom(typeof(TMessage)), "Commands must have a publication configuration");
 
-				var _noConfigurationResult = new TaskCompletionSource<PublicationResult[]>();
-				_noConfigurationResult.SetResult(new PublicationResult[0]);
+				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
 
 				base.Logger.Info("PublishAsync Completed");
-				return _noConfigurationResult.Task;
+				return _result.Task;
 			}
 
 			this.c_disconnectedMessageStore.Add(message);
 
-			var _queuedMessage = new QueuedMessage(
-				this.Configuration.MessagePublications[message.GetType()].Configurations.First(),
-				message);
-			var _result = new TaskCompletionSource<PublicationResult[]>();
-			_result.SetResult(new [] { new PublicationResult(_queuedMessage, PublicationResultStatus.Disconnected) });
+			_result.SetResult(new PublicationResult(PublicationResultStatus.Disconnected, message));
 
 			base.Logger.Info("PublishAsync Completed");
 			return _result.Task;

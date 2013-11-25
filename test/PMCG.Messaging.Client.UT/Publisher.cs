@@ -113,7 +113,7 @@ namespace PMCG.Messaging.Client.UT
 			_connection.CreateModel().Returns(_channel);
 			_channel.IsOpen.Returns(true);
 
-			var _tasks = new List<Task<PublicationResult>>();
+			var _tasks = new List<Task<PublisherResult>>();
 			var _numberOfMessagesToPublish = 10;
 			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, CancellationToken.None);
 			for (var _index = 1; _index <= 10; _index++)
@@ -132,7 +132,7 @@ namespace PMCG.Messaging.Client.UT
 			foreach(var _task in _tasks)
 			{
 				Assert.IsTrue(_task.IsCompleted);
-				Assert.AreEqual(PublicationResultStatus.Acked, _task.Result.Status);
+				Assert.AreEqual(PublisherResultStatus.Acked, _task.Result.Status);
 			}
 		}
 
@@ -147,7 +147,7 @@ namespace PMCG.Messaging.Client.UT
 			_channel.IsOpen.Returns(true);
 
 			var _numberOfMessagesToPublish = 100;
-			var _tasks = new Task<PublicationResult>[_numberOfMessagesToPublish];
+			var _tasks = new Task<PublisherResult>[_numberOfMessagesToPublish];
 			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, CancellationToken.None);
 			for (var _index = 0; _index < _numberOfMessagesToPublish; _index++)
 			{
@@ -168,7 +168,7 @@ namespace PMCG.Messaging.Client.UT
 			for (var _index = 0; _index < _deliveryTagToAcknowledge; _index++)
 			{
 				Assert.IsTrue(_tasks[_index].IsCompleted);
-				Assert.AreEqual(PublicationResultStatus.Acked, _tasks[_index].Result.Status);
+				Assert.AreEqual(PublisherResultStatus.Acked, _tasks[_index].Result.Status);
 			}
 			for (var _index = _deliveryTagToAcknowledge; _index < _numberOfMessagesToPublish; _index++)
 			{
@@ -198,7 +198,7 @@ namespace PMCG.Messaging.Client.UT
 			Assert.IsFalse(_task.IsCompleted);
 			_channel.BasicNacks += Raise.Event<BasicNackEventHandler>(_channel, new BasicNackEventArgs { Multiple = false, DeliveryTag = 1 });
 			Assert.IsTrue(_task.IsCompleted);
-			Assert.AreEqual(PublicationResultStatus.Nacked, _task.Result.Status);
+			Assert.AreEqual(PublisherResultStatus.Nacked, _task.Result.Status);
 			Assert.IsNull(_task.Result.StatusContext);
 		}
 
@@ -227,10 +227,10 @@ namespace PMCG.Messaging.Client.UT
 
 			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
 			Assert.IsTrue(_task1.IsCompleted);
-			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _task1.Result.Status);
+			Assert.AreEqual(PublisherResultStatus.ChannelShutdown, _task1.Result.Status);
 			Assert.IsTrue(_task1.Result.StatusContext.Contains("Bang!"));
 			Assert.IsTrue(_task2.IsCompleted);
-			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _task2.Result.Status);
+			Assert.AreEqual(PublisherResultStatus.ChannelShutdown, _task2.Result.Status);
 			Assert.IsTrue(_task2.Result.StatusContext.Contains("Bang!"));
 		}
 
@@ -257,7 +257,7 @@ namespace PMCG.Messaging.Client.UT
 			 
 			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
 			Assert.IsTrue(_task.IsCompleted);
-			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _task.Result.Status);
+			Assert.AreEqual(PublisherResultStatus.ChannelShutdown, _task.Result.Status);
 			Assert.IsTrue(_task.Result.StatusContext.Contains("404 Exchange does not exist !"));
 		}
 	}

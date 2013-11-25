@@ -69,34 +69,37 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override Task<PublicationResult[]> PublishAsync<TMessage>(
+		public override Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 		{
 			base.Logger.InfoFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
-			
+
+			var _result = new TaskCompletionSource<PublicationResult>();
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
 			{
 				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
 				Check.Ensure(!typeof(Command).IsAssignableFrom(typeof(TMessage)), "Commands must have a publication configuration");
 
-				var _noConfigurationResult = new TaskCompletionSource<PublicationResult[]>();
-				_noConfigurationResult.SetResult(new PublicationResult[0]);
+				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
 
 				base.Logger.Info("PublishAsync Completed");
-				return _noConfigurationResult.Task;
+				return _result.Task;
 			}
 
 			var _queuedMessages = this.Configuration.MessagePublications[message.GetType()]
 				.Configurations
 				.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
 
-			var _tasks = new List<Task<PublicationResult>>();
+			var _tasks = new List<Task<PublisherResult>>();
 			Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
-
-			var _result = Task.WhenAll(_tasks);
+			Task.WhenAll(_tasks).ContinueWith(taskResults =>
+				{
+					if (taskResults.IsFaulted)	{ _result.SetException(taskResults.Exception); }
+					else						{ _result.SetResult(this.CreateNonFaultedPublicationResult(message, taskResults)); }
+				});
 
 			base.Logger.Info("PublishAsync Completed");
-			return _result;
+			return _result.Task;
 		}
 
 
@@ -127,6 +130,17 @@ namespace PMCG.Messaging.Client.BusState
 			base.TransitionToNewState(typeof(Disconnected));
 
 			base.Logger.Info("OnConnectionDisconnected Completed");
+		}
+
+
+		private PublicationResult CreateNonFaultedPublicationResult(
+			Message message,
+			Task<PublisherResult[]> publisherResults)
+		{
+			var _allGood = publisherResults.Result.All(result => result.Status == PublisherResultStatus.Acked);
+			var _status = _allGood ? PublicationResultStatus.Published : PublicationResultStatus.NotPublished;
+
+			return new PublicationResult(_status, message);
 		}
 	}
 }

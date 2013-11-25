@@ -3,16 +3,16 @@
 
 namespace PMCG.Messaging.Client
 {
-	public class PublicationResult
+	public class PublisherResult
 	{
 		public readonly QueuedMessage QueuedMessage;
-		public readonly PublicationResultStatus Status;
+		public readonly PublisherResultStatus Status;
 		public readonly string StatusContext;
 
 
-		public PublicationResult(
+		public PublisherResult(
 			QueuedMessage queuedMessage,
-			PublicationResultStatus status,
+			PublisherResultStatus status,
 			string statusContext = null)
 		{
 			this.QueuedMessage = queuedMessage;

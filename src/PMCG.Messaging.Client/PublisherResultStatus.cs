@@ -3,12 +3,11 @@
 
 namespace PMCG.Messaging.Client
 {
-	public enum PublicationResultStatus
+	public enum PublisherResultStatus
 	{
 		None,
 		Acked,
 		Nacked,
-		ChannelShutdown,
-		Disconnected
+		ChannelShutdown
 	}
 }

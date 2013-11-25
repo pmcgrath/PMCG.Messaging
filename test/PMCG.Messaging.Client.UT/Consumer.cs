@@ -134,8 +134,8 @@ namespace PMCG.Messaging.Client.UT
 						BasicProperties = _messageProperties,
 						Body = _messageBody
 					});
-			// Time for delivery on the other thread
-			Thread.Sleep(10);
+			// Time for delivery on the other thread and the consumer callback to complete
+			Thread.Sleep(500);
 
 			Assert.AreEqual(_myEvent.Id, _capturedMessageId);
 		}

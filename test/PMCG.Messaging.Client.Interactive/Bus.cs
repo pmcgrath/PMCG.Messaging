@@ -312,8 +312,7 @@ namespace PMCG.Messaging.Client.Interactive
 				{
 					var _result = _SUT.PublishAsync(_message);
 					_result.Wait();
-					var _resultResults = ((Task<PublicationResult[]>)_result).Result;
-					Console.WriteLine("Result status is {0}, length is {1}, first statuis is {2}", _result.Status, _resultResults.Length, _resultResults[0].Status);
+					Console.WriteLine("Result status is {0}", _result.Status);
 				}
 				catch (Exception theException)
 				{
@@ -349,8 +348,6 @@ namespace PMCG.Messaging.Client.Interactive
 					var _publicationTimeout = TimeSpan.FromTicks(0);
 					var _result = _SUT.PublishAsync(_message);
 					var _timedout = _result.Wait(_publicationTimeout);
-					var _resultResults = ((Task<PublicationResult[]>)_result).Result;
-					var _allAcked = _resultResults.All(result => result.Status == PublicationResultStatus.Acked);
 
 					// PENDING - What do clients do ?
 					Console.WriteLine("PENDING");

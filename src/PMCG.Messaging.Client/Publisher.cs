@@ -17,7 +17,7 @@ namespace PMCG.Messaging.Client
 		private readonly ILog c_logger;
 		private readonly CancellationToken c_cancellationToken;
 		private readonly ThreadLocal<IModel> c_threadLocalChannel;
-		private readonly ConcurrentDictionary<string, TaskCompletionSource<PublicationResult>> c_unconfirmedPublicationResults;
+		private readonly ConcurrentDictionary<string, TaskCompletionSource<PublisherResult>> c_unconfirmedPublisherResults;
 
 
 		private IModel Channel { get { return this.c_threadLocalChannel.Value; } }
@@ -45,13 +45,13 @@ namespace PMCG.Messaging.Client
 					return _channel;
 				});
 
-			this.c_unconfirmedPublicationResults = new ConcurrentDictionary<string, TaskCompletionSource<PublicationResult>>();
+			this.c_unconfirmedPublisherResults = new ConcurrentDictionary<string, TaskCompletionSource<PublisherResult>>();
 
 			this.c_logger.Info("ctor Completed");
 		}
 
 
-		public Task<PublicationResult> PublishAsync(
+		public Task<PublisherResult> PublishAsync(
 			QueuedMessage message)
 		{
 			this.c_logger.DebugFormat("PublishAsync About to publish message with Id {0} to exchange {1}", message.Data.Id, message.ExchangeName);
@@ -71,11 +71,11 @@ namespace PMCG.Messaging.Client
 
 			var _channelIdentifier = this.Channel.ToString();
 			var _deliveryTag = this.Channel.NextPublishSeqNo;
-			var _unconfirmedPublicationResultKey = string.Format("{0}::{1}", _channelIdentifier, _deliveryTag);
-			var _result = new TaskCompletionSource<PublicationResult>(message);
+			var _unconfirmedPublisherResultKey = string.Format("{0}::{1}", _channelIdentifier, _deliveryTag);
+			var _result = new TaskCompletionSource<PublisherResult>(message);
 			try
 			{
-				this.c_unconfirmedPublicationResults.TryAdd(_unconfirmedPublicationResultKey, _result);
+				this.c_unconfirmedPublisherResults.TryAdd(_unconfirmedPublisherResultKey, _result);
 				this.Channel.BasicPublish(
 					message.ExchangeName,
 					message.RoutingKey,
@@ -84,7 +84,7 @@ namespace PMCG.Messaging.Client
 			}
 			catch
 			{
-				this.c_unconfirmedPublicationResults.TryRemove(_unconfirmedPublicationResultKey, out _result);
+				this.c_unconfirmedPublisherResults.TryRemove(_unconfirmedPublisherResultKey, out _result);
 				throw;
 			}
 
@@ -100,7 +100,7 @@ namespace PMCG.Messaging.Client
 			this.c_logger.WarnFormat("OnChannelShuutdown Starting, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 
 			var _channelIdentifier = channel.ToString();
-			var _highestDeliveryTag = this.c_unconfirmedPublicationResults
+			var _highestDeliveryTag = this.c_unconfirmedPublisherResults
 				.Select(item => item.Key)
 				.Where(key => key.StartsWith(_channelIdentifier))
 				.Select(key => ulong.Parse(key.Substring(key.IndexOf("::") + "::".Length)))
@@ -113,11 +113,11 @@ namespace PMCG.Messaging.Client
 					_channelIdentifier,
 					true,
 					_highestDeliveryTag,
-					publicationResult => publicationResult.SetResult(
-					new PublicationResult(
-						(QueuedMessage)publicationResult.Task.AsyncState,
-						PublicationResultStatus.ChannelShutdown,
-						_context)));
+					publisherResult => publisherResult.SetResult(
+						new PublisherResult(
+							(QueuedMessage)publisherResult.Task.AsyncState,
+							PublisherResultStatus.ChannelShutdown,
+							_context)));
 			}
 
 			this.c_logger.WarnFormat("OnChannelShuutdown Completed, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
@@ -134,10 +134,10 @@ namespace PMCG.Messaging.Client
 				channel.ToString(),
 				args.Multiple,
 				args.DeliveryTag,
-				publicationResult => publicationResult.SetResult(
-					new PublicationResult(
-						(QueuedMessage)publicationResult.Task.AsyncState,
-						PublicationResultStatus.Acked)));
+				publisherResult => publisherResult.SetResult(
+					new PublisherResult(
+						(QueuedMessage)publisherResult.Task.AsyncState,
+						PublisherResultStatus.Acked)));
 
 			this.c_logger.DebugFormat("OnChannelAcked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
@@ -153,10 +153,10 @@ namespace PMCG.Messaging.Client
 				channel.ToString(),
 				args.Multiple,
 				args.DeliveryTag,
-				publicationResult => publicationResult.SetResult(
-					new PublicationResult(
-						(QueuedMessage)publicationResult.Task.AsyncState,
-						PublicationResultStatus.Nacked)));
+				publisherResult => publisherResult.SetResult(
+					new PublisherResult(
+						(QueuedMessage)publisherResult.Task.AsyncState,
+						PublisherResultStatus.Nacked)));
 
 			this.c_logger.DebugFormat("OnChannelNacked Completed, is multiple = {0} and delivery tag = {1}", args.Multiple, args.DeliveryTag);
 		}
@@ -166,13 +166,13 @@ namespace PMCG.Messaging.Client
 			string channelIdentifier,
 			bool isMultiple,
 			ulong highestDeliveryTag,
-			Action<TaskCompletionSource<PublicationResult>> action)
+			Action<TaskCompletionSource<PublisherResult>> action)
 		{
 			// Critical section - What if an ack followed by a nack and the two trying to do work at the same time
 			var _deliveryTags = new[] { highestDeliveryTag };
 			if (isMultiple)
 			{
-				_deliveryTags = this.c_unconfirmedPublicationResults
+				_deliveryTags = this.c_unconfirmedPublisherResults
 					.Select(item => item.Key)
 					.Where(key => key.StartsWith(channelIdentifier))
 					.Select(key => ulong.Parse(key.Substring(key.IndexOf("::") + "::".Length)))
@@ -182,12 +182,12 @@ namespace PMCG.Messaging.Client
 
 			foreach (var _deliveryTag in _deliveryTags)
 			{
-				var _unconfirmedPublicationResultKey = string.Format("{0}::{1}", channelIdentifier, _deliveryTag);
-				if (!this.c_unconfirmedPublicationResults.ContainsKey(_unconfirmedPublicationResultKey)) { continue; }
+				var _unconfirmedPublisherResultKey = string.Format("{0}::{1}", channelIdentifier, _deliveryTag);
+				if (!this.c_unconfirmedPublisherResults.ContainsKey(_unconfirmedPublisherResultKey)) { continue; }
 
-				TaskCompletionSource<PublicationResult> _publicationResult = null;
-				this.c_unconfirmedPublicationResults.TryRemove(_unconfirmedPublicationResultKey, out _publicationResult);
-				action(_publicationResult);
+				TaskCompletionSource<PublisherResult> _publisherResult = null;
+				this.c_unconfirmedPublisherResults.TryRemove(_unconfirmedPublisherResultKey, out _publisherResult);
+				action(_publisherResult);
 			}
 		}
 	}
