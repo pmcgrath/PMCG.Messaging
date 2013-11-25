@@ -52,12 +52,14 @@
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BusState\Connected.cs" />
+    <Compile Include="BusState\Disconnected.cs" />
     <Compile Include="Configuration\BusConfigurationBuilder.cs" />
     <Compile Include="Configuration\ConnectionStringSettingsParser.cs" />
     <Compile Include="Configuration\MessagePublication.cs" />
     <Compile Include="Configuration\DefaultPasswordParser.cs" />
     <Compile Include="Configuration\MessageConsumer.cs" />
     <Compile Include="Configuration\MessageConsumers.cs" />
+    <Compile Include="Bus.cs" />
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="Consumer.cs" />
     <Compile Include="ConsumerMessageProcessor.cs" />

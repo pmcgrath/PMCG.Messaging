@@ -1,6 +1,6 @@
-﻿using PMCG.Messaging.Client.BusState;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
+using PMCG.Messaging.Client.BusState;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -47,13 +47,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
 			var _connectionManager = Substitute.For<IConnectionManager>();
-			var _connection = Substitute.For<IConnection>();
-			var _channel = Substitute.For<IModel>();
 			var _context = Substitute.For<IBusContext>();
-
-			_connectionManager.Connection.Returns(_connection);
-			_connection.CreateModel().Returns(_channel);
-			_channel.IsOpen.Returns(true);
 
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,

@@ -15,7 +15,8 @@ namespace PMCG.Messaging.Inv
 			//new TopicsUsage().Run();
 			//new TaskInv().RunCase1();
 			//new TaskInv().RunCase2();
-			new TaskInv2().RunCase();
+			//new TaskInv2().RunCase();
+			new ParallelExecution().Run();
 		}
 	}
 }
