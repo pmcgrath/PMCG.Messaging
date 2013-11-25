@@ -39,6 +39,36 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 
 		[Test]
+		public void Publish_Where_No_Publication_Configurations_Which_Results_In_A_NoConfigurationFound_Result()
+		{
+			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
+			var _busConfirguration = _busConfigurationBuilder.Build();
+
+			var _connectionManager = Substitute.For<IConnectionManager>();
+			var _connection = Substitute.For<IConnection>();
+			var _channel = Substitute.For<IModel>();
+			var _context = Substitute.For<IBusContext>();
+
+			_connectionManager.Connection.Returns(_connection);
+			_connection.CreateModel().Returns(_channel);
+			_channel.IsOpen.Returns(true);
+
+			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+				_busConfirguration,
+				_connectionManager,
+				_context);
+
+			var _theEvent = new MyEvent(Guid.NewGuid(), null, "Some detail", 1);
+			var _publicationResult = _SUT.PublishAsync(_theEvent);
+			_publicationResult.Wait();
+
+			Assert.AreEqual(PublicationResultStatus.NoConfigurationFound, _publicationResult.Result.Status);
+		}
+
+	
+		[Test]
 		public void Publish_Where_A_Single_Publication_Configurations_Which_Results_In_Successfull_Publication()
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
@@ -155,6 +185,5 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 			Assert.AreEqual(PublicationResultStatus.NotPublished, _publicationResult.Result.Status);
 		}
-
 	}
 }
