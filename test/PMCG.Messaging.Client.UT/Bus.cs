@@ -34,6 +34,7 @@ namespace PMCG.Messaging.Client.UT
 			_result.SetResult(new PublicationResult(PublicationResultStatus.Published, _event));
 			
 			_bus.PublishAsync(_event).Returns(_result.Task);
+			_bus.PublishAsync(Arg.Any<MyEvent>()).Returns(_result.Task);
 		}
 	}
 }
