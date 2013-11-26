@@ -358,6 +358,53 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
+		public void Run_Where_We_Publish_1000_Messages_Waiting_On_Result()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
+			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1");
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to start publishing messages {0}", DateTime.Now);
+			Console.ReadLine();
+
+			var _tasks = new Task[4];
+			for (var _taskIndex = 0; _taskIndex < _tasks.Length; _taskIndex++)
+			{
+				_tasks[_taskIndex] = new Task(() =>
+					{
+						for (var _sequence = 1; _sequence <= 1000; _sequence++)
+						{
+							Console.WriteLine("About to publish {0}", _sequence);
+							var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+
+							try
+							{
+								var _result = _SUT.PublishAsync(_message);
+								_result.Wait();
+								Console.WriteLine("Result status is {0}", _result.Status);
+							}
+							catch (Exception theException)
+							{
+								Console.WriteLine("Exception encountered {0}", theException);
+							}
+						}
+					});
+			}
+
+			var _stopwatch = Stopwatch.StartNew();
+			foreach(var _task in _tasks) { _task.Start(); }
+			Task.WaitAll(_tasks);
+
+			_stopwatch.Stop();
+			Console.WriteLine("Done {0} elapsed = {1} ms", DateTime.Now, _stopwatch.ElapsedMilliseconds);
+			Console.ReadLine();
+			_SUT.Close();
+		}
+
+
 		public void Run_Where_We_Continuously_Publish_Handling_All_Results()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
