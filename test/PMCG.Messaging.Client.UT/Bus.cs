@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿using NSubstitute;
+using NUnit.Framework;
 using System;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client.UT
@@ -19,6 +21,19 @@ namespace PMCG.Messaging.Client.UT
 			_bus.Connect();
 
 			_bus.PublishAsync<MyEvent>(null);
+		}
+
+
+		[Test]
+		public void TestMockingingTheBus()
+		{
+			var _bus = Substitute.For<IBus>();
+
+			var _event = new MyEvent(Guid.NewGuid(), "", "", 1);
+			var _result = new TaskCompletionSource<PublicationResult>();
+			_result.SetResult(new PublicationResult(PublicationResultStatus.Published, _event));
+			
+			_bus.PublishAsync(_event).Returns(_result.Task);
 		}
 	}
 }
