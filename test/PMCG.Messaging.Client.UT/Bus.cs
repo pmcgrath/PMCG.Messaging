@@ -25,7 +25,7 @@ namespace PMCG.Messaging.Client.UT
 
 
 		[Test]
-		public void TestMockingingTheBus()
+		public void TestMockingingABus()
 		{
 			var _bus = Substitute.For<IBus>();
 
