@@ -40,7 +40,7 @@ namespace PMCG.Messaging.Client.BusState
 		public override Task<PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 		{
-			base.Logger.InfoFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
+			base.Logger.DebugFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
 
 			var _result = new TaskCompletionSource<PublicationResult>();
 			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
@@ -50,7 +50,7 @@ namespace PMCG.Messaging.Client.BusState
 
 				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
 
-				base.Logger.Info("PublishAsync Completed");
+				base.Logger.Debug("PublishAsync Completed");
 				return _result.Task;
 			}
 
@@ -58,7 +58,7 @@ namespace PMCG.Messaging.Client.BusState
 
 			_result.SetResult(new PublicationResult(PublicationResultStatus.Disconnected, message));
 
-			base.Logger.Info("PublishAsync Completed");
+			base.Logger.Debug("PublishAsync Completed");
 			return _result.Task;
 		}
 

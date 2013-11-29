@@ -57,12 +57,12 @@ namespace PMCG.Messaging.Client
 			TMessage message)
 			where TMessage : Message
 		{
-			this.c_logger.Info("PublishAsync Starting");
+			this.c_logger.Debug("PublishAsync Starting");
 			Check.RequireArgumentNotNull("message", message);
 
 			var _result = this.State.PublishAsync(message);
 
-			this.c_logger.Info("PublishAsync Completed");
+			this.c_logger.Debug("PublishAsync Completed");
 			return _result;
 		}
 	}
