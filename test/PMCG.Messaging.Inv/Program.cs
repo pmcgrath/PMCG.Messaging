@@ -16,7 +16,9 @@ namespace PMCG.Messaging.Inv
 			//new TaskInv().RunCase1();
 			//new TaskInv().RunCase2();
 			//new TaskInv2().RunCase();
-			new ParallelExecution().Run();
+			//new ParallelExecution().Run();
+			//new TaskInv3().Run_Where_We_Wait_On_IsCompleted_No_Unhandled_Exception();
+			new TaskInv3().Run_Where_We_Call_Wait_Results_In_Exception_Handler_Being_Invoked();
 		}
 	}
 }
