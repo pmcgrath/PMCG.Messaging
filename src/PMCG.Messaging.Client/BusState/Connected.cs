@@ -90,11 +90,10 @@ namespace PMCG.Messaging.Client.BusState
 				.Configurations
 				.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
 
-			// Should we use foreach (var _queuedMessage in _queuedMessages) { _tasks.Add(this.c_publisher.PublishAsync(_queuedMessage)); }
-			// instead of Parallel.ForEach, when i tested using a single thread and multiple threads was not very conclusive, need to also
-			// test in aps.net where we have many threadpool threads active at the same time
+			// Could use Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
+			// but we expect that there will only one publication for each message in most cases
 			var _tasks = new List<Task<PublisherResult>>();
-			Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
+			foreach (var _queuedMessage in _queuedMessages) { _tasks.Add(this.c_publisher.PublishAsync(_queuedMessage)); }
 			Task.WhenAll(_tasks).ContinueWith(taskResults =>
 				{
 					if (taskResults.IsFaulted)	{ _result.SetException(taskResults.Exception); }
