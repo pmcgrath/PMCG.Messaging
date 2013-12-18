@@ -1,4 +1,7 @@
-﻿using System;
+﻿using log4net;
+using log4net.Config;
+using System;
+using System.Diagnostics;
 
 
 namespace PMCG.Messaging.Client.Interactive
@@ -7,6 +10,9 @@ namespace PMCG.Messaging.Client.Interactive
 	{
 		static void Main()
 		{
+			XmlConfigurator.Configure();
+			GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id;	// See http://stackoverflow.com/questions/2075603/log4net-process-id-information
+
 			//new ConnectionManager().Run_Open_Where_Server_Is_Already_Stopped_And_Instruct_To_Start_Server();
 
 			//new Publisher().Run_Where_We_Instruct_To_Stop_The_Broker();
@@ -22,12 +28,12 @@ namespace PMCG.Messaging.Client.Interactive
 			//new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage();
 			//new Bus().Run_Where_We_Publish_Multiple_Messages_And_Consume_For_The_Same_Messsages();
 			//new Bus().Run_Where_We_Publish_A_Message_And_Consume_For_The_Same_Messsage_On_A_Transient_Queue();
-			//new Bus().Run_Where_We_Continuously_Publish_Until_Program_Killed();
+			new Bus().Run_Where_We_Continuously_Publish_Until_Program_Killed();
 			//new Bus().Run_Where_Publication_Timeout_Encountered();
 			//new Bus().Run_Where_We_Continuously_Publish_Handling_All_Results();
 			//new Bus().Run_Where_We_Publish_A_Message_To_Two_Exchanges_No_Consumption_For_The_Same_Messsage();
 			//new Bus().Run_Where_We_Publish_A_Null_Message_Results_In_An_Exception();
-			new Bus().Run_Where_We_Publish_1000_Messages_Waiting_On_Result();
+			//new Bus().Run_Where_We_Publish_1000_Messages_Waiting_On_Result();
 		}
 	}
 }
