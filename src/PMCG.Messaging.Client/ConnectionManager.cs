@@ -13,6 +13,7 @@ namespace PMCG.Messaging.Client
 	{
 		private readonly ILog c_logger;
 		private readonly IEnumerable<string> c_connectionUris;
+		private readonly TimeSpan c_heartbeatInterval;
 		private readonly TimeSpan c_reconnectionPauseInterval;
 
 
@@ -31,6 +32,7 @@ namespace PMCG.Messaging.Client
 
 		public ConnectionManager(
 			IEnumerable<string> connectionUris,
+			TimeSpan heartbeatInterval,
 			TimeSpan reconnectionPauseInterval)
 		{
 			this.c_logger = LogManager.GetCurrentClassLogger();
@@ -40,6 +42,7 @@ namespace PMCG.Messaging.Client
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.Ticks > 0);
 
 			this.c_connectionUris = connectionUris;
+			this.c_heartbeatInterval = heartbeatInterval;
 			this.c_reconnectionPauseInterval = reconnectionPauseInterval;
 
 			this.c_logger.Info("ctor Completed");
@@ -61,7 +64,7 @@ namespace PMCG.Messaging.Client
 					this.c_logger.InfoFormat("Open Trying to connect, sequence {0}", _attemptSequence);
 					foreach (var _connectionUri in this.c_connectionUris)
 					{
-						var _connectionFactory = new ConnectionFactory { Uri = _connectionUri, RequestedHeartbeat = 5 };
+						var _connectionFactory = new ConnectionFactory{ Uri = _connectionUri, RequestedHeartbeat = (ushort)this.c_heartbeatInterval.TotalSeconds };
 						var _connectionInfo = string.Format("Host {0}, port {1}, vhost {2}", _connectionFactory.HostName, _connectionFactory.Port, _connectionFactory.VirtualHost);
 						this.c_logger.InfoFormat("Open Attempting to connect to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						this.c_connection = _connectionFactory.CreateConnection();

@@ -12,6 +12,7 @@ namespace PMCG.Messaging.Client.UT
 		{
 			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
 				new [] { TestingConfiguration.LocalConnectionUri.Replace("5672", "25672") },
+				TimeSpan.FromSeconds(10),
 				TimeSpan.FromSeconds(5));
 			_SUT.Open(1);
 
@@ -24,6 +25,7 @@ namespace PMCG.Messaging.Client.UT
 		{
 			var _SUT = new PMCG.Messaging.Client.ConnectionManager(
 				new[] { TestingConfiguration.LocalConnectionUri },
+				TimeSpan.FromSeconds(10),
 				TimeSpan.FromSeconds(5));
 			_SUT.Open();
 
