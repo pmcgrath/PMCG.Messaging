@@ -20,7 +20,9 @@ namespace PMCG.Messaging.Client
 		private bool c_isCloseRequested;
 
 
+		public event EventHandler<ConnectionBlockedEventArgs> Blocked = (sender, eventArgs) => { };
 		public event EventHandler<ConnectionDisconnectedEventArgs> Disconnected = (sender, eventArgs) => { };
+		public event EventHandler<EventArgs> Unblocked = (sender, eventArgs) => { };
 
 
 		public bool IsOpen { get { return this.c_connection != null && this.c_connection.IsOpen; } }
@@ -59,11 +61,14 @@ namespace PMCG.Messaging.Client
 					this.c_logger.InfoFormat("Open Trying to connect, sequence {0}", _attemptSequence);
 					foreach (var _connectionUri in this.c_connectionUris)
 					{
-						var _connectionFactory = new ConnectionFactory { Uri = _connectionUri };
+						var _connectionFactory = new ConnectionFactory { Uri = _connectionUri, RequestedHeartbeat = 5 };
 						var _connectionInfo = string.Format("Host {0}, port {1}, vhost {2}", _connectionFactory.HostName, _connectionFactory.Port, _connectionFactory.VirtualHost);
 						this.c_logger.InfoFormat("Open Attempting to connect to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						this.c_connection = _connectionFactory.CreateConnection();
+						this.c_connection.ConnectionBlocked += this.OnConnectionBlocked;
 						this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
+						this.c_connection.ConnectionUnblocked += this.OnConnectionUnblocked;
+
 						this.c_logger.InfoFormat("Open Connected to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						break;
 					}
@@ -105,6 +110,16 @@ namespace PMCG.Messaging.Client
 		}
 
 
+		private void OnConnectionBlocked(
+			IConnection connection,
+			RabbitMQ.Client.Events.ConnectionBlockedEventArgs reason)
+		{
+			this.c_logger.Info("OnConnectionBlocked Starting");
+			this.Blocked(null, new ConnectionBlockedEventArgs(reason.Reason));
+			this.c_logger.Info("OnConnectionBlocked Completed");
+		}
+
+
 		private void OnConnectionShutdown(
 			IConnection connection,
 			ShutdownEventArgs reason)
@@ -112,6 +127,15 @@ namespace PMCG.Messaging.Client
 			this.c_logger.Info("OnConnectionShutdown Starting");
 			this.Disconnected(null, new ConnectionDisconnectedEventArgs(reason.ReplyCode, reason.ReplyText));
 			this.c_logger.Info("OnConnectionShutdown Completed");
+		}
+
+
+		private void OnConnectionUnblocked(
+			IConnection connection)
+		{
+			this.c_logger.Info("OnConnectionUnblocked Starting");
+			this.Unblocked(null, new EventArgs());
+			this.c_logger.Info("OnConnectionUnblocked Completed");
 		}
 	}
 }
