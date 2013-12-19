@@ -13,6 +13,7 @@ namespace PMCG.Messaging.Client.BusState
 		protected readonly IConnectionManager ConnectionManager;
 		protected readonly IBusContext Context;
 
+
 		protected uint NumberOfConsumers { get { return this.Configuration.NumberOfConsumers; } }
 
 

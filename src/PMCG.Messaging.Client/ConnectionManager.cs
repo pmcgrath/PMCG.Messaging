@@ -117,9 +117,9 @@ namespace PMCG.Messaging.Client
 			IConnection connection,
 			RabbitMQ.Client.Events.ConnectionBlockedEventArgs reason)
 		{
-			this.c_logger.Info("OnConnectionBlocked Starting");
+			this.c_logger.Warn("OnConnectionBlocked Starting");
 			this.Blocked(null, new ConnectionBlockedEventArgs(reason.Reason));
-			this.c_logger.Info("OnConnectionBlocked Completed");
+			this.c_logger.Warn("OnConnectionBlocked Completed");
 		}
 
 
