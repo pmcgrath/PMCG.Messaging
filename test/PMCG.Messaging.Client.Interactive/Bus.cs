@@ -93,6 +93,38 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
+		public void Run_Where_We_Transition_Between_States_By_Instructing_The_Broker()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
+			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name);
+
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Stop the broker by running the following command as an admin");
+			Console.WriteLine("\t rabbitmqctl.bat stop");
+
+			Console.WriteLine("Block the broker by running the following command as an admin");
+			Console.WriteLine("\t rabbitmqctl.bat set_vm_memory_high_watermark 0.0000001");
+
+			var _index = 1;
+			do
+			{
+				var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
+				var _task = _SUT.PublishAsync(_myEvent);
+				_task.Wait();
+				_index++;
+				Console.WriteLine("Hit enter to publish a message, x to exit");
+			} while (Console.ReadLine() != "x");
+
+			Console.WriteLine("After stopping the broker hit enter to exit");
+			Console.ReadLine();
+			_SUT.Close();
+		}
+
+
 		public void Run_Where_We_Publish_A_Null_Message_Results_In_An_Exception()
 		{
 			var _capturedMessageId = string.Empty;

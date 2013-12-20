@@ -86,5 +86,20 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			this.ConnectionManager.Close();
 		}
+
+
+		protected bool DoesPublicationConfigurationExist<TMessage>(
+			TMessage message)
+			where TMessage : Message
+		{
+			if (!this.Configuration.MessagePublications.HasConfiguration(message.GetType()))
+			{
+				this.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
+				Check.Ensure(!typeof(Command).IsAssignableFrom(typeof(TMessage)), "Commands must have a publication configuration");
+				return false;
+			}
+
+			return true;
+		}
 	}
 }

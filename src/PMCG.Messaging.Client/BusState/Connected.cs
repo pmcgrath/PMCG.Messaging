@@ -25,6 +25,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.Info("ctor Starting");
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();
+			base.ConnectionManager.Blocked += this.OnConnectionBlocked;					// Only seems to get fired if a publication is attempted
 			base.ConnectionManager.Disconnected += this.OnConnectionDisconnected;
 
 			base.Logger.Info("ctor About to create publisher");
@@ -75,33 +76,59 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.DebugFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
 
 			var _result = new TaskCompletionSource<PublicationResult>();
-			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
+			if (!base.DoesPublicationConfigurationExist(message))
 			{
-				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
-				Check.Ensure(!typeof(Command).IsAssignableFrom(typeof(TMessage)), "Commands must have a publication configuration");
-
 				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
-
-				base.Logger.Debug("PublishAsync Completed");
-				return _result.Task;
 			}
+			else
+			{
+				var _queuedMessages = this.Configuration.MessagePublications[message.GetType()]
+					.Configurations
+					.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
 
-			var _queuedMessages = this.Configuration.MessagePublications[message.GetType()]
-				.Configurations
-				.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
-
-			// Could use Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
-			// but we expect that there will only one publication for each message in most cases
-			var _tasks = new List<Task<PublisherResult>>();
-			foreach (var _queuedMessage in _queuedMessages) { _tasks.Add(this.c_publisher.PublishAsync(_queuedMessage)); }
-			Task.WhenAll(_tasks).ContinueWith(taskResults =>
-				{
-					if (taskResults.IsFaulted)	{ _result.SetException(taskResults.Exception); }
-					else						{ _result.SetResult(this.CreateNonFaultedPublicationResult(message, taskResults)); }
-				});
+				// Could use Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
+				// but we expect that there will only one publication for each message in most cases
+				var _tasks = new List<Task<PublisherResult>>();
+				foreach (var _queuedMessage in _queuedMessages) { _tasks.Add(this.c_publisher.PublishAsync(_queuedMessage)); }
+				Task.WhenAll(_tasks).ContinueWith(taskResults =>
+					{
+						if (taskResults.IsFaulted) { _result.SetException(taskResults.Exception); }
+						else { _result.SetResult(this.CreateNonFaultedPublicationResult(message, taskResults)); }
+					});
+			}
 
 			base.Logger.Debug("PublishAsync Completed");
 			return _result.Task;
+		}
+
+
+		private void OnConnectionBlocked(
+			object sender,
+			ConnectionBlockedEventArgs eventArgs)
+		{
+			base.Logger.InfoFormat("OnConnectionBlocked Connection has been blocked for reason ({0})", eventArgs.Reason);
+
+			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
+			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
+			this.c_cancellationTokenSource.Cancel();
+			base.TransitionToNewState(typeof(Blocked));
+
+			base.Logger.Info("OnConnectionBlocked Completed");
+		}
+
+
+		private void OnConnectionDisconnected(
+			object sender,
+			ConnectionDisconnectedEventArgs eventArgs)
+		{
+			base.Logger.InfoFormat("OnConnectionDisconnected Connection has been disconnected for code ({0}) and reason ({1})", eventArgs.Code, eventArgs.Reason);
+
+			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
+			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
+			this.c_cancellationTokenSource.Cancel();
+			base.TransitionToNewState(typeof(Disconnected));
+
+			base.Logger.Info("OnConnectionDisconnected Completed");
 		}
 
 
@@ -118,20 +145,6 @@ namespace PMCG.Messaging.Client.BusState
 			}
 
 			this.Logger.Info("RequeueDisconnectedMessages Completed");
-		}
-
-
-		private void OnConnectionDisconnected(
-			object sender,
-			ConnectionDisconnectedEventArgs eventArgs)
-		{
-			base.Logger.InfoFormat("OnConnectionDisconnected Connection has been disconnected for code ({0}) and reason ({1})", eventArgs.Code, eventArgs.Reason);
-
-			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
-			this.c_cancellationTokenSource.Cancel();
-			base.TransitionToNewState(typeof(Disconnected));
-
-			base.Logger.Info("OnConnectionDisconnected Completed");
 		}
 
 

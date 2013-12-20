@@ -43,20 +43,15 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.DebugFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
 
 			var _result = new TaskCompletionSource<PublicationResult>();
-			if (!base.Configuration.MessagePublications.HasConfiguration(message.GetType()))
+			if (!base.DoesPublicationConfigurationExist(message))
 			{
-				base.Logger.WarnFormat("No configuration exists for publication of message ({0}) with Id {1}", message, message.Id);
-				Check.Ensure(!typeof(Command).IsAssignableFrom(typeof(TMessage)), "Commands must have a publication configuration");
-
 				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
-
-				base.Logger.Debug("PublishAsync Completed");
-				return _result.Task;
 			}
-
-			this.c_disconnectedMessageStore.Add(message);
-
-			_result.SetResult(new PublicationResult(PublicationResultStatus.Disconnected, message));
+			else
+			{
+				this.c_disconnectedMessageStore.Add(message);
+				_result.SetResult(new PublicationResult(PublicationResultStatus.Disconnected, message));
+			}
 
 			base.Logger.Debug("PublishAsync Completed");
 			return _result.Task;
