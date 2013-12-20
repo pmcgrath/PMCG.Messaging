@@ -8,7 +8,6 @@ namespace PMCG.Messaging.Client.Configuration
 	{
 		public readonly IEnumerable<string> ConnectionUris;
 		public readonly TimeSpan HeartbeatInterval;
-		public readonly string DisconnectedMessagesStoragePath;
 		public readonly TimeSpan ReconnectionPauseInterval;
 		public readonly ushort NumberOfConsumers;
 		public readonly ushort ConsumerMessagePrefetchCount;
@@ -20,7 +19,6 @@ namespace PMCG.Messaging.Client.Configuration
 		public BusConfiguration(
 			IEnumerable<string> connectionUris,
 			TimeSpan heartbeatInterval,
-			string disconnectedMessagesStoragePath,
 			TimeSpan reconnectionPauseInterval,
 			ushort numberOfConsumers,
 			ushort consumerMessagePrefetchCount,
@@ -29,7 +27,6 @@ namespace PMCG.Messaging.Client.Configuration
 			MessageConsumers messageConsumers)
 		{
 			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
-			Check.RequireArgumentNotEmpty("disconnectedMessagesStoragePath", disconnectedMessagesStoragePath);
 			Check.RequireArgument("reconnectionPauseInterval", reconnectionPauseInterval, reconnectionPauseInterval.TotalSeconds > 0);
 			Check.RequireArgument("numberOfConsumers", numberOfConsumers, numberOfConsumers > 0);
 			Check.RequireArgument("consumerMessagePrefetchCount", consumerMessagePrefetchCount, consumerMessagePrefetchCount > 0);
@@ -39,7 +36,6 @@ namespace PMCG.Messaging.Client.Configuration
 			
 			this.ConnectionUris = connectionUris;
 			this.HeartbeatInterval = heartbeatInterval;
-			this.DisconnectedMessagesStoragePath = disconnectedMessagesStoragePath;
 			this.ReconnectionPauseInterval = reconnectionPauseInterval;
 			this.NumberOfConsumers = numberOfConsumers;
 			this.ConsumerMessagePrefetchCount = consumerMessagePrefetchCount;

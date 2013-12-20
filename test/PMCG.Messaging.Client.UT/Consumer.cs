@@ -27,7 +27,6 @@ namespace PMCG.Messaging.Client.UT
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(20);
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				TestingConfiguration.QueueName,
@@ -85,7 +84,6 @@ namespace PMCG.Messaging.Client.UT
 
 			var _configurationBuilder = new BusConfigurationBuilder();
 			_configurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_configurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_configurationBuilder.RegisterConsumer<MyEvent>(
 				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,

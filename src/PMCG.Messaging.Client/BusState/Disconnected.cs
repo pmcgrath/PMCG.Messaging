@@ -1,5 +1,4 @@
 ﻿using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Threading.Tasks;
 
@@ -8,9 +7,6 @@ namespace PMCG.Messaging.Client.BusState
 {
 	public class Disconnected : State
 	{
-		private readonly IStore c_disconnectedMessageStore;
-
-
 		public Disconnected(
 			BusConfiguration configuration,
 			IConnectionManager connectionManager,
@@ -19,7 +15,6 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			base.Logger.Info("ctor Starting");
 			
-			this.c_disconnectedMessageStore = ServiceLocator.GetNewDisconnectedStore(base.Configuration);
 			new Task(this.TryRestablishingConnection).Start();
 
 			base.Logger.Info("ctor Completed");
@@ -49,7 +44,6 @@ namespace PMCG.Messaging.Client.BusState
 			}
 			else
 			{
-				this.c_disconnectedMessageStore.Add(message);
 				_result.SetResult(new PublicationResult(PublicationResultStatus.Disconnected, message));
 			}
 

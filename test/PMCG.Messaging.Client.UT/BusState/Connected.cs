@@ -21,7 +21,6 @@ namespace PMCG.Messaging.Client.UT.BusState
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
 					TestingConfiguration.ExchangeName,
@@ -43,7 +42,6 @@ namespace PMCG.Messaging.Client.UT.BusState
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
 			var _connectionManager = Substitute.For<IConnectionManager>();
@@ -67,7 +65,6 @@ namespace PMCG.Messaging.Client.UT.BusState
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
 					TestingConfiguration.ExchangeName,
@@ -103,7 +100,6 @@ namespace PMCG.Messaging.Client.UT.BusState
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
 					TestingConfiguration.ExchangeName,
@@ -142,7 +138,6 @@ namespace PMCG.Messaging.Client.UT.BusState
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
 					TestingConfiguration.ExchangeName,

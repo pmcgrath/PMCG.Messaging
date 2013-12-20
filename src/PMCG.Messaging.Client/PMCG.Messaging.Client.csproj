@@ -75,8 +75,6 @@
     <Compile Include="ConnectionBlockedEventArgs.cs" />
     <Compile Include="PublisherResultStatus.cs" />
     <Compile Include="PublisherResult.cs" />
-    <Compile Include="DisconnectedStorage\FileSystemStore.cs" />
-    <Compile Include="DisconnectedStorage\IStore.cs" />
     <Compile Include="ExceptionExt.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="IConnectionManager.cs" />

@@ -1,5 +1,4 @@
 ﻿using PMCG.Messaging.Client.Configuration;
-using PMCG.Messaging.Client.DisconnectedStorage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,12 +30,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.Info("ctor About to create publisher");
 			this.c_publisher = new Publisher(base.ConnectionManager.Connection, this.c_cancellationTokenSource.Token);
 
-			base.Logger.Info("ctor About to requeue disconnected messages");
-			// Wrap in try catch - so we do not prevent starting - how long will this take ?
-			// Also this is a problem if a lot of disconnected messages - will slow the the ctor completion, so any calls to publish will fail while this is running
-			this.RequeueDisconnectedMessages(ServiceLocator.GetNewDisconnectedStore(base.Configuration));
-
-			base.Logger.Info("ctor About to create subcriber tasks");
+			base.Logger.Info("ctor About to create consumer tasks");
 			this.c_consumerTasks = new Task[base.NumberOfConsumers];
 			for (var _index = 0; _index < this.c_consumerTasks.Length; _index++)
 			{
@@ -129,22 +123,6 @@ namespace PMCG.Messaging.Client.BusState
 			base.TransitionToNewState(typeof(Disconnected));
 
 			base.Logger.Info("OnConnectionDisconnected Completed");
-		}
-
-
-		private void RequeueDisconnectedMessages(
-			IStore disconnectedMessageStore)
-		{
-			this.Logger.Info("RequeueDisconnectedMessages Starting");
-
-			foreach (var _messageId in disconnectedMessageStore.GetAllIds())
-			{
-				var _message = disconnectedMessageStore.Get(_messageId);
-				this.PublishAsync(_message);
-				disconnectedMessageStore.Delete(_messageId);
-			}
-
-			this.Logger.Info("RequeueDisconnectedMessages Completed");
 		}
 
 

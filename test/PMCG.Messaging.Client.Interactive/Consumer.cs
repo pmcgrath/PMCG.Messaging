@@ -44,7 +44,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
 					Configuration.ExchangeName1,
@@ -73,7 +72,6 @@ namespace PMCG.Messaging.Client.Interactive
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 
 			this.InstantiateConsumer(_busConfigurationBuilder.Build());
 		}

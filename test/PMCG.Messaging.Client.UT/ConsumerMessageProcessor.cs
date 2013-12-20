@@ -23,7 +23,6 @@ namespace PMCG.Messaging.Client.UT
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add("....");
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			_busConfigurationBuilder.RegisterConsumer<MyEvent>(
 				TestingConfiguration.QueueName,
 				typeof(MyEvent).Name,

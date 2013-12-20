@@ -63,7 +63,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(_connectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = Configuration.DisconnectedMessagesStoragePath;
 
 			this.c_cancellationTokenSource = new CancellationTokenSource();
 

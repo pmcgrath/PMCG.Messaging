@@ -9,7 +9,6 @@ namespace PMCG.Messaging.Client.Configuration
 	{
 		public IList<string> ConnectionUris;
 		public TimeSpan HeartbeatInterval;
-		public string DisconnectedMessagesStoragePath;
 		public TimeSpan ReconnectionPauseInterval;
 		public ushort NumberOfConsumers;
 		public ushort ConsumerMessagePrefetchCount;
@@ -141,7 +140,6 @@ namespace PMCG.Messaging.Client.Configuration
 			return new BusConfiguration(
 				this.ConnectionUris,
 				this.HeartbeatInterval,
-				this.DisconnectedMessagesStoragePath,
 				this.ReconnectionPauseInterval,
 				this.NumberOfConsumers,
 				this.ConsumerMessagePrefetchCount,

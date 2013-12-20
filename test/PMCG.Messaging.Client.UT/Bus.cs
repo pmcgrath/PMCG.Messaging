@@ -14,7 +14,6 @@ namespace PMCG.Messaging.Client.UT
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
-			_busConfigurationBuilder.DisconnectedMessagesStoragePath = TestingConfiguration.DisconnectedMessagesStoragePath;
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
 			var _bus = new PMCG.Messaging.Client.Bus(_busConfirguration);

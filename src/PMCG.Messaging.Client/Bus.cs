@@ -2,7 +2,6 @@
 using PMCG.Messaging.Client.BusState;
 using PMCG.Messaging.Client.Configuration;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 
@@ -23,8 +22,6 @@ namespace PMCG.Messaging.Client
 			this.c_logger.Info("ctor Starting");
 
 			Check.RequireArgumentNotNull("configuration", configuration);
-			Check.RequireArgument("configuration.DisconnectedMessagesStoragePath", configuration.DisconnectedMessagesStoragePath,
-				Directory.Exists(configuration.DisconnectedMessagesStoragePath));
 
 			var _connectionManager = ServiceLocator.GetConnectionManager(configuration);
 
