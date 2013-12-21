@@ -454,7 +454,7 @@ namespace PMCG.Messaging.Client.Interactive
 					Console.WriteLine("Exception encountered {0}", theException);
 				}
 
-				Thread.Sleep(500);
+				//Thread.Sleep(5);
 				_sequence++;
 			}
 		}

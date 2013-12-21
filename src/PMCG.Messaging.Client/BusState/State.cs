@@ -14,6 +14,7 @@ namespace PMCG.Messaging.Client.BusState
 		protected readonly IBusContext Context;
 
 
+		protected uint NumberOfPublishers { get { return this.Configuration.NumberOfPublishers; } }
 		protected uint NumberOfConsumers { get { return this.Configuration.NumberOfConsumers; } }
 
 

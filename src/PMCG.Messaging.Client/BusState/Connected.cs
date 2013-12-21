@@ -1,5 +1,6 @@
 ﻿using PMCG.Messaging.Client.Configuration;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,7 +12,8 @@ namespace PMCG.Messaging.Client.BusState
 	public class Connected : State
 	{
 		private readonly CancellationTokenSource c_cancellationTokenSource;
-		private readonly Publisher c_publisher;
+		private readonly BlockingCollection<TaskCompletionSource<PublisherResult>> c_queuedMessagePublicationTasks;
+		private readonly Task[] c_publisherTasks;
 		private readonly Task[] c_consumerTasks;
 
 
@@ -27,8 +29,24 @@ namespace PMCG.Messaging.Client.BusState
 			base.ConnectionManager.Blocked += this.OnConnectionBlocked;					// Only seems to get fired if a publication is attempted
 			base.ConnectionManager.Disconnected += this.OnConnectionDisconnected;
 
+			this.c_queuedMessagePublicationTasks = new BlockingCollection<TaskCompletionSource<PublisherResult>>();
+
 			base.Logger.Info("ctor About to create publisher");
-			this.c_publisher = new Publisher(base.ConnectionManager.Connection, this.c_cancellationTokenSource.Token);
+			this.c_publisherTasks = new Task[base.NumberOfPublishers];
+			for (var _index = 0; _index < this.c_publisherTasks.Length; _index++)
+			{
+				this.c_publisherTasks[_index] = new Task(
+					() =>
+						{
+							new Publisher(
+								base.ConnectionManager.Connection,
+								this.c_queuedMessagePublicationTasks,
+								this.c_cancellationTokenSource.Token)
+								.Start();
+						},
+					TaskCreationOptions.LongRunning);
+				this.c_publisherTasks[_index].Start();
+			}
 
 			base.Logger.Info("ctor About to create consumer tasks");
 			this.c_consumerTasks = new Task[base.NumberOfConsumers];
@@ -36,13 +54,13 @@ namespace PMCG.Messaging.Client.BusState
 			{
 				this.c_consumerTasks[_index] = new Task(
 					() =>
-					{
-						new Consumer(
-							base.ConnectionManager.Connection,
-							base.Configuration,
-							this.c_cancellationTokenSource.Token)
-							.Start();
-					},
+						{
+							new Consumer(
+								base.ConnectionManager.Connection,
+								base.Configuration,
+								this.c_cancellationTokenSource.Token)
+								.Start();
+						},
 					TaskCreationOptions.LongRunning);
 				this.c_consumerTasks[_index].Start();
 			}
@@ -55,6 +73,7 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			base.Logger.Info("Close Starting");
 
+			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
 			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
 			this.c_cancellationTokenSource.Cancel();
 			base.CloseConnection();
@@ -76,14 +95,17 @@ namespace PMCG.Messaging.Client.BusState
 			}
 			else
 			{
-				var _queuedMessages = this.Configuration.MessagePublications[message.GetType()]
+				var _queuedMessagePublicationTaskSources = this.Configuration.MessagePublications[message.GetType()]
 					.Configurations
-					.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message));
+					.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message))
+					.Select(queuedMessage => new TaskCompletionSource<PublisherResult>(queuedMessage));
 
-				// Could use Parallel.ForEach(_queuedMessages, queuedMessage => _tasks.Add(this.c_publisher.PublishAsync(queuedMessage)));
-				// but we expect that there will only one publication for each message in most cases
 				var _tasks = new List<Task<PublisherResult>>();
-				foreach (var _queuedMessage in _queuedMessages) { _tasks.Add(this.c_publisher.PublishAsync(_queuedMessage)); }
+				foreach (var _queuedMessagePublicationTaskSource in _queuedMessagePublicationTaskSources)
+				{
+					this.c_queuedMessagePublicationTasks.Add(_queuedMessagePublicationTaskSource);
+					_tasks.Add(_queuedMessagePublicationTaskSource.Task);
+				}
 				Task.WhenAll(_tasks).ContinueWith(taskResults =>
 					{
 						if (taskResults.IsFaulted) { _result.SetException(taskResults.Exception); }

@@ -10,6 +10,7 @@ namespace PMCG.Messaging.Client.Configuration
 		public IList<string> ConnectionUris;
 		public TimeSpan HeartbeatInterval;
 		public TimeSpan ReconnectionPauseInterval;
+		public ushort NumberOfPublishers;
 		public ushort NumberOfConsumers;
 		public ushort ConsumerMessagePrefetchCount;
 		public TimeSpan ConsumerDequeueTimeout;
@@ -21,6 +22,7 @@ namespace PMCG.Messaging.Client.Configuration
 		{
 			this.HeartbeatInterval = TimeSpan.FromSeconds(10);
 			this.ReconnectionPauseInterval = TimeSpan.FromSeconds(4);
+			this.NumberOfPublishers = 2;
 			this.NumberOfConsumers = 1;
 			this.ConsumerMessagePrefetchCount = 1;
 			this.ConsumerDequeueTimeout = TimeSpan.FromMilliseconds(100);
@@ -141,6 +143,7 @@ namespace PMCG.Messaging.Client.Configuration
 				this.ConnectionUris,
 				this.HeartbeatInterval,
 				this.ReconnectionPauseInterval,
+				this.NumberOfPublishers,
 				this.NumberOfConsumers,
 				this.ConsumerMessagePrefetchCount,
 				this.ConsumerDequeueTimeout,
