@@ -5,7 +5,7 @@ namespace PMCG.Messaging
 {
 	public class PublicationResult
 	{
-		public readonly	PublicationResultStatus Status;
+		public readonly PublicationResultStatus Status;
 		public readonly Message Message;
 		
 

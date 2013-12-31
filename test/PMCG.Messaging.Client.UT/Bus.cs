@@ -29,8 +29,8 @@ namespace PMCG.Messaging.Client.UT
 			var _bus = Substitute.For<IBus>();
 
 			var _event = new MyEvent(Guid.NewGuid(), "", "", 1);
-			var _result = new TaskCompletionSource<PublicationResult>();
-			_result.SetResult(new PublicationResult(PublicationResultStatus.Published, _event));
+			var _result = new TaskCompletionSource<PMCG.Messaging.PublicationResult>();
+			_result.SetResult(new PMCG.Messaging.PublicationResult(PMCG.Messaging.PublicationResultStatus.Published, _event));
 			
 			_bus.PublishAsync(_event).Returns(_result.Task);
 			_bus.PublishAsync(Arg.Any<MyEvent>()).Returns(_result.Task);

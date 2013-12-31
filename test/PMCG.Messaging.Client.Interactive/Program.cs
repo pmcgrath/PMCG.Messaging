@@ -16,7 +16,7 @@ namespace PMCG.Messaging.Client.Interactive
 			//new ConnectionManager().Run_Open_Where_Server_Is_Already_Stopped_And_Instruct_To_Start_Server();
 
 			//new Publisher().Run_Where_We_Instruct_To_Stop_The_Broker();
-			//new Publisher().Run_Where_We_Publish_A_Message_To_A_Non_Existent_Exchange_Will_Close_The_Internal_Channel();
+			new Publisher().Run_Where_We_Publish_A_Message_To_A_Non_Existent_Exchange_Will_Close_The_Internal_Channel();
 			//new Publisher().Run_Where_We_Publish_Messages_Waiting_For_Completion_Each_Time();
 			//new Publisher().Run_Where_We_Batch_Publish_Messages_Waiting_For_Batch_Completion_Each_Time();
 
@@ -31,7 +31,7 @@ namespace PMCG.Messaging.Client.Interactive
 			//new Bus().Run_Where_We_Continuously_Publish_Until_Program_Killed();
 			//new Bus().Run_Where_We_Transition_Between_States_By_Instructing_The_Broker();
 			//new Bus().Run_Where_Publication_Timeout_Encountered();
-			new Bus().Run_Where_We_Continuously_Publish_Handling_All_Results();
+			//new Bus().Run_Where_We_Continuously_Publish_Handling_All_Results();
 			//new Bus().Run_Where_We_Publish_A_Message_To_Two_Exchanges_No_Consumption_For_The_Same_Messsage();
 			//new Bus().Run_Where_We_Publish_A_Null_Message_Results_In_An_Exception();
 			//new Bus().Run_Where_We_Publish_1000_Messages_Waiting_On_Result();

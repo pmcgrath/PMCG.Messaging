@@ -20,7 +20,7 @@ namespace PMCG.Messaging.Inv
 					Thread.Sleep(200);
 				}
 			}
-			catch (Exception theException)
+			catch
 			{
 				Console.WriteLine("We never get here");
 			}
@@ -39,7 +39,7 @@ namespace PMCG.Messaging.Inv
 			{
 				_task.Wait();
 			}
-			catch (Exception theException)
+			catch
 			{
 				Console.WriteLine("We get here");
 			}

@@ -73,14 +73,14 @@
     <Compile Include="Consumer.cs" />
     <Compile Include="ConsumerMessageProcessor.cs" />
     <Compile Include="ConnectionBlockedEventArgs.cs" />
-    <Compile Include="PublisherResultStatus.cs" />
-    <Compile Include="PublisherResult.cs" />
+    <Compile Include="PublicationResultStatus.cs" />
+    <Compile Include="PublicationResult.cs" />
     <Compile Include="ExceptionExt.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="IConnectionManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
-    <Compile Include="QueuedMessage.cs" />
+    <Compile Include="Publication.cs" />
     <Compile Include="Check.cs" />
   </ItemGroup>
   <ItemGroup>

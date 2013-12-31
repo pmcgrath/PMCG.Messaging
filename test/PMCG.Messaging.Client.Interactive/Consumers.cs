@@ -69,13 +69,9 @@ namespace PMCG.Messaging.Client.Interactive
 			this.c_consumerTasks = new Task[this.c_numberOfConsumers];
 			for(var _index = 0; _index < this.c_numberOfConsumers; _index++)
 			{
-				this.c_consumerTasks[_index] = new Task(() =>
-					new PMCG.Messaging.Client.Consumer(
-						this.c_connection,
-						_busConfigurationBuilder.Build(),
-						this.c_cancellationTokenSource.Token)
-						.Start());
-				};
+				var _consumer = new PMCG.Messaging.Client.Consumer(this.c_connection, _busConfigurationBuilder.Build(), this.c_cancellationTokenSource.Token);
+				this.c_consumerTasks[_index] = _consumer.Start();
+			}
 		}
 	}
 }

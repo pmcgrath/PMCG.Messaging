@@ -3,7 +3,6 @@ using RabbitMQ.Client;
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client.Interactive
@@ -17,8 +16,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Instruct_To_Stop_The_Broker()
 		{
-			this.InstantiateConsumer();
-			new Task(this.c_consumer.Start).Start();
+			this.InstantiateAndStartConsumer();
 
 			Console.WriteLine("Stop the broker by running the following command as an admin");
 			Console.WriteLine("\t rabbitmqctl.bat stop");
@@ -29,8 +27,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Close_The_Connection_Using_The_DashBoard()
 		{
-			this.InstantiateConsumer();
-			new Task(this.c_consumer.Start).Start();
+			this.InstantiateAndStartConsumer();
 
 			Console.WriteLine("Close the connection from the dashboard");
 			Console.WriteLine("After closing the connecton hit enter to exit");
@@ -52,8 +49,7 @@ namespace PMCG.Messaging.Client.Interactive
 					typeof(MyEvent).Name,
 					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
 				Configuration.ExchangeName1);
-			this.InstantiateConsumer(_busConfigurationBuilder.Build());
-			new Task(this.c_consumer.Start).Start();
+			this.InstantiateAndStartConsumer(_busConfigurationBuilder.Build());
 
 			Console.WriteLine("You should see a new transient queue in the dashboard)");
 			Console.ReadLine();
@@ -68,16 +64,16 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
-		public void InstantiateConsumer()
+		public void InstantiateAndStartConsumer()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 
-			this.InstantiateConsumer(_busConfigurationBuilder.Build());
+			this.InstantiateAndStartConsumer(_busConfigurationBuilder.Build());
 		}
 
 
-		public void InstantiateConsumer(
+		public void InstantiateAndStartConsumer(
 			BusConfiguration busConfiguration)
 		{
 			this.c_connection = new ConnectionFactory { Uri = busConfiguration.ConnectionUris.First() }.CreateConnection();
@@ -87,6 +83,7 @@ namespace PMCG.Messaging.Client.Interactive
 				this.c_connection,
 				busConfiguration,
 				this.c_cancellationTokenSource.Token);
+			this.c_consumer.Start();
 		}
 	}
 }

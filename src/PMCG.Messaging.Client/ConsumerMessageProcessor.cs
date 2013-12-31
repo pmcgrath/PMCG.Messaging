@@ -30,7 +30,7 @@ namespace PMCG.Messaging.Client
 			IModel channel,
 			BasicDeliverEventArgs message)
 		{
-			var _logMessageContext = string.Format("type header = {0}, message Id = {1}, correlation Id = {2} and delivery tag = {3}", 
+			var _logMessageContext = string.Format("type header = {0}, message Id = {1}, correlation Id = {2} and delivery tag = {3}",
 				message.BasicProperties.Type,
 				message.BasicProperties.MessageId,
 				message.BasicProperties.CorrelationId,

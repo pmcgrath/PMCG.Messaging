@@ -51,7 +51,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
 			_publicationResult.Wait();
 
-			Assert.AreEqual(PublicationResultStatus.NoConfigurationFound, _publicationResult.Result.Status);
+			Assert.AreEqual(PMCG.Messaging.PublicationResultStatus.NoConfigurationFound, _publicationResult.Result.Status);
 		}
 
 	
@@ -78,7 +78,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
 			_publicationResult.Wait();
 
-			Assert.AreEqual(PublicationResultStatus.Disconnected, _publicationResult.Result.Status);
+			Assert.AreEqual(PMCG.Messaging.PublicationResultStatus.Disconnected, _publicationResult.Result.Status);
 		}
 	}
 }

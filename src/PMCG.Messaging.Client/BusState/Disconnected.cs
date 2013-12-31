@@ -32,20 +32,19 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override Task<PublicationResult> PublishAsync<TMessage>(
+		public override Task<PMCG.Messaging.PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 		{
 			base.Logger.DebugFormat("PublishAsync Storing message ({0}) with Id {1}", message, message.Id);
 
-			var _result = new TaskCompletionSource<PublicationResult>();
+			var _publicationResultStatus = PMCG.Messaging.PublicationResultStatus.Disconnected;
 			if (!base.DoesPublicationConfigurationExist(message))
 			{
-				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
+				_publicationResultStatus = PMCG.Messaging.PublicationResultStatus.NoConfigurationFound;
 			}
-			else
-			{
-				_result.SetResult(new PublicationResult(PublicationResultStatus.Disconnected, message));
-			}
+
+			var _result = new TaskCompletionSource<PMCG.Messaging.PublicationResult>();
+			_result.SetResult(new PMCG.Messaging.PublicationResult(_publicationResultStatus, message));
 
 			base.Logger.Debug("PublishAsync Completed");
 			return _result.Task;

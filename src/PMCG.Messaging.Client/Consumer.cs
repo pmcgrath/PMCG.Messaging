@@ -5,6 +5,7 @@ using RabbitMQ.Client.Events;
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace PMCG.Messaging.Client
@@ -49,35 +50,45 @@ namespace PMCG.Messaging.Client
 		}
 
 
-		public void Start()
+		public Task Start()
 		{
 			this.c_logger.Info("Start Starting");
-			Check.Ensure(!this.c_hasBeenStarted, "Subsriber has already been started, can only do so once");
+			Check.Ensure(!this.c_hasBeenStarted, "Consumer has already been started, can only do so once");
 			Check.Ensure(!this.c_cancellationToken.IsCancellationRequested, "Cancellation token is already canceled");
 
-			try
-			{
-				this.c_hasBeenStarted = true;
-				this.EnsureTransientQueuesExist();
-				this.CreateAndConfigureConsumer();
-				this.RunConsumeLoop();
-			}
-			catch (Exception exception)
-			{
-				this.c_logger.ErrorFormat("Start Exception : {0}", exception.InstrumentationString());
-				throw;
-			}
-			finally
-			{
-				if (this.c_channel.IsOpen)
-				{
-					// Cater for race condition, when stopping - Is open but when we get to this line it is closed
-					try { this.c_channel.Close(); } catch { }
-				}
+			var _result = new Task(
+				() =>
+					{
+						try
+						{
+							this.c_hasBeenStarted = true;
+							this.EnsureTransientQueuesExist();
+							this.CreateAndConfigureConsumer();
+							this.RunConsumeLoop();
+						}
+						catch (Exception exception)
+						{
+							this.c_logger.ErrorFormat("Start Exception : {0}", exception.InstrumentationString());
+							throw;
+						}
+						finally
+						{
+							if (this.c_channel.IsOpen)
+							{
+								// Cater for race condition, when stopping - Is open but when we get to this line it is closed
+								try { this.c_channel.Close(); } catch { }
+							}
 
-				this.c_isCompleted = true;
-				this.c_logger.Info("Start Completed consuming");
-			}
+							this.c_isCompleted = true;
+							this.c_logger.Info("Start Consumer task completed");
+						}
+					},
+				this.c_cancellationToken,
+				TaskCreationOptions.LongRunning);
+			_result.Start();
+
+			this.c_logger.Info("Start Completed consuming");
+			return _result;
 		}
 
 

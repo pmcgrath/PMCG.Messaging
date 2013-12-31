@@ -12,7 +12,7 @@ namespace PMCG.Messaging.Client.BusState
 	public class Connected : State
 	{
 		private readonly CancellationTokenSource c_cancellationTokenSource;
-		private readonly BlockingCollection<TaskCompletionSource<PublisherResult>> c_queuedMessagePublicationTasks;
+		private readonly BlockingCollection<Publication> c_publicationQueue;
 		private readonly Task[] c_publisherTasks;
 		private readonly Task[] c_consumerTasks;
 
@@ -29,40 +29,22 @@ namespace PMCG.Messaging.Client.BusState
 			base.ConnectionManager.Blocked += this.OnConnectionBlocked;					// Only seems to get fired if a publication is attempted
 			base.ConnectionManager.Disconnected += this.OnConnectionDisconnected;
 
-			this.c_queuedMessagePublicationTasks = new BlockingCollection<TaskCompletionSource<PublisherResult>>();
+			this.c_publicationQueue = new BlockingCollection<Publication>();
 
 			base.Logger.Info("ctor About to create publisher");
 			this.c_publisherTasks = new Task[base.NumberOfPublishers];
 			for (var _index = 0; _index < this.c_publisherTasks.Length; _index++)
 			{
-				this.c_publisherTasks[_index] = new Task(
-					() =>
-						{
-							new Publisher(
-								base.ConnectionManager.Connection,
-								this.c_queuedMessagePublicationTasks,
-								this.c_cancellationTokenSource.Token)
-								.Start();
-						},
-					TaskCreationOptions.LongRunning);
-				this.c_publisherTasks[_index].Start();
+				var _publisher = new Publisher(base.ConnectionManager.Connection, this.c_publicationQueue, this.c_cancellationTokenSource.Token);
+				this.c_publisherTasks[_index] = _publisher.Start();
 			}
 
 			base.Logger.Info("ctor About to create consumer tasks");
 			this.c_consumerTasks = new Task[base.NumberOfConsumers];
 			for (var _index = 0; _index < this.c_consumerTasks.Length; _index++)
 			{
-				this.c_consumerTasks[_index] = new Task(
-					() =>
-						{
-							new Consumer(
-								base.ConnectionManager.Connection,
-								base.Configuration,
-								this.c_cancellationTokenSource.Token)
-								.Start();
-						},
-					TaskCreationOptions.LongRunning);
-				this.c_consumerTasks[_index].Start();
+				var _consumer = new Consumer(base.ConnectionManager.Connection, base.Configuration, this.c_cancellationTokenSource.Token);
+				this.c_consumerTasks[_index] = _consumer.Start();
 			}
 
 			base.Logger.Info("ctor Completed");
@@ -73,9 +55,7 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			base.Logger.Info("Close Starting");
 
-			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
-			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
-			this.c_cancellationTokenSource.Cancel();
+			this.PrepareForTransition(PublicationResultStatus.Closed);
 			base.CloseConnection();
 			base.TransitionToNewState(typeof(Closed));
 
@@ -83,33 +63,46 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public override Task<PublicationResult> PublishAsync<TMessage>(
+		public override Task<PMCG.Messaging.PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 		{
 			base.Logger.DebugFormat("PublishAsync Publishing message ({0}) with Id {1}", message, message.Id);
 
-			var _result = new TaskCompletionSource<PublicationResult>();
-			if (!base.DoesPublicationConfigurationExist(message))
+			var _result = new TaskCompletionSource<PMCG.Messaging.PublicationResult>();
+			if (this.c_cancellationTokenSource.IsCancellationRequested)
 			{
-				_result.SetResult(new PublicationResult(PublicationResultStatus.NoConfigurationFound, message));
+				_result.SetResult(
+					new PMCG.Messaging.PublicationResult(
+						PMCG.Messaging.PublicationResultStatus.NotPublished,
+						message));
+			}
+			else if (!base.DoesPublicationConfigurationExist(message))
+			{
+				_result.SetResult(
+					new PMCG.Messaging.PublicationResult(
+						PMCG.Messaging.PublicationResultStatus.NoConfigurationFound,
+						message));
 			}
 			else
 			{
-				var _queuedMessagePublicationTaskSources = this.Configuration.MessagePublications[message.GetType()]
+				var _thisInstancesPublications = this.Configuration.MessagePublications[message.GetType()]
 					.Configurations
-					.Select(deliveryConfiguration => new QueuedMessage(deliveryConfiguration, message))
-					.Select(queuedMessage => new TaskCompletionSource<PublisherResult>(queuedMessage));
+					.Select(deliveryConfiguration =>
+						new Publication(
+							deliveryConfiguration,
+							message,
+							new TaskCompletionSource<PublicationResult>()));
 
-				var _tasks = new List<Task<PublisherResult>>();
-				foreach (var _queuedMessagePublicationTaskSource in _queuedMessagePublicationTaskSources)
+				var _tasks = new List<Task<PublicationResult>>();
+				foreach (var _publication in _thisInstancesPublications)
 				{
-					this.c_queuedMessagePublicationTasks.Add(_queuedMessagePublicationTaskSource);
-					_tasks.Add(_queuedMessagePublicationTaskSource.Task);
+					this.c_publicationQueue.Add(_publication);
+					_tasks.Add(_publication.ResultTask);
 				}
 				Task.WhenAll(_tasks).ContinueWith(taskResults =>
 					{
-						if (taskResults.IsFaulted) { _result.SetException(taskResults.Exception); }
-						else { _result.SetResult(this.CreateNonFaultedPublicationResult(message, taskResults)); }
+						if (taskResults.IsFaulted)	{ _result.SetException(taskResults.Exception); }
+						else						{ _result.SetResult(this.CreateNonFaultedPublicationResult(message, taskResults)); }
 					});
 			}
 
@@ -124,9 +117,7 @@ namespace PMCG.Messaging.Client.BusState
 		{
 			base.Logger.InfoFormat("OnConnectionBlocked Connection has been blocked for reason ({0})", eventArgs.Reason);
 
-			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
-			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
-			this.c_cancellationTokenSource.Cancel();
+			this.PrepareForTransition(PublicationResultStatus.ConnectionBlocked);
 			base.TransitionToNewState(typeof(Blocked));
 
 			base.Logger.Info("OnConnectionBlocked Completed");
@@ -137,25 +128,34 @@ namespace PMCG.Messaging.Client.BusState
 			object sender,
 			ConnectionDisconnectedEventArgs eventArgs)
 		{
-			base.Logger.InfoFormat("OnConnectionDisconnected Connection has been disconnected for code ({0}) and reason ({1})", eventArgs.Code, eventArgs.Reason);
+			base.Logger.WarnFormat("OnConnectionDisconnected Connection has been disconnected for code ({0}) and reason ({1})", eventArgs.Code, eventArgs.Reason);
 
-			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
-			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
-			this.c_cancellationTokenSource.Cancel();
+			this.PrepareForTransition(PublicationResultStatus.ConnectionDisconnected);
 			base.TransitionToNewState(typeof(Disconnected));
 
-			base.Logger.Info("OnConnectionDisconnected Completed");
+			base.Logger.Warn("OnConnectionDisconnected Completed");
 		}
 
 
-		private PublicationResult CreateNonFaultedPublicationResult(
-			Message message,
-			Task<PublisherResult[]> publisherResults)
+		private void PrepareForTransition(
+			PublicationResultStatus status)
 		{
-			var _allGood = publisherResults.Result.All(result => result.Status == PublisherResultStatus.Acked);
-			var _status = _allGood ? PublicationResultStatus.Published : PublicationResultStatus.NotPublished;
+			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
+			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
+			this.c_cancellationTokenSource.Cancel();
+			this.c_publicationQueue.CompleteAdding();			
+			foreach (var _publication in this.c_publicationQueue) { _publication.SetResult(status); }
+		}
 
-			return new PublicationResult(_status, message);
+
+		private PMCG.Messaging.PublicationResult CreateNonFaultedPublicationResult(
+			Message message,
+			Task<PublicationResult[]> publicationResults)
+		{
+			var _allGood = publicationResults.Result.All(result => result.Status == PublicationResultStatus.Acked);
+			var _status = _allGood ? PMCG.Messaging.PublicationResultStatus.Published : PMCG.Messaging.PublicationResultStatus.NotPublished;
+
+			return new PMCG.Messaging.PublicationResult(_status, message);
 		}
 	}
 }

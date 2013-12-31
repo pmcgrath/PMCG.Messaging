@@ -27,7 +27,7 @@ namespace PMCG.Messaging.Client.UT
 				new[] { TestingConfiguration.LocalConnectionUri },
 				TimeSpan.FromSeconds(10),
 				TimeSpan.FromSeconds(5));
-			_SUT.Open();
+			_SUT.Open();	// Requires a running instance of RabbitMQ
 
 			_SUT.Open();
 		}

@@ -46,7 +46,7 @@ namespace PMCG.Messaging.Client.BusState
 		}
 
 
-		public virtual Task<PublicationResult> PublishAsync<TMessage>(
+		public virtual Task<PMCG.Messaging.PublicationResult> PublishAsync<TMessage>(
 			TMessage message)
 			where TMessage : Message
 		{
@@ -65,7 +65,7 @@ namespace PMCG.Messaging.Client.BusState
 					{
 						this.Configuration,
 						this.ConnectionManager,
-						this.Context 
+						this.Context
 					});
 			this.Logger.Info("TransitionToNewState Completed");
 		}

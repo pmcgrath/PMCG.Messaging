@@ -66,7 +66,7 @@ namespace PMCG.Messaging.Client.UT
 				this.c_connection,
 				this.c_busConfiguration,
 				this.c_cancellationTokenSource.Token);
-			new Task(_SUT.Start).Start();
+			var _consumerTask = _SUT.Start();
 
 			Thread.Sleep(40);	// Allow task to start
 			this.c_cancellationTokenSource.Cancel();
@@ -115,7 +115,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _capturedConsumer = callInfo[2] as QueueingBasicConsumer);
 
 			var _SUT = new PMCG.Messaging.Client.Consumer(_connection, _configuration, CancellationToken.None);
-			new Thread(_SUT.Start).Start();
+			var _consumerTask = _SUT.Start();
 			// Time for other consumer to start on other thread, we need to wait for start to complete before we publish
 			Thread.Sleep(50);		// To get to work on first run, needs to be much higher (5000), but this value will work for subsequent calls
 
