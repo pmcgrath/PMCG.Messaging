@@ -144,7 +144,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
 			this.c_cancellationTokenSource.Cancel();
 			this.c_publicationQueue.CompleteAdding();
-			foreach (var _publication in this.c_publicationQueue) { _publication.SetResult(status); }
+			foreach (var _publication in this.c_publicationQueue) { _publication.SetResult(preEmptiveCompletionStatus); }
 		}
 
 
