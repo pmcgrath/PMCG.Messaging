@@ -85,7 +85,7 @@ namespace PMCG.Messaging.Client.BusState
 			}
 			else
 			{
-				var _thisInstancesPublications = this.Configuration.MessagePublications[message.GetType()]
+				var _thisPublicationsPublications = this.Configuration.MessagePublications[message.GetType()]
 					.Configurations
 					.Select(deliveryConfiguration =>
 						new Publication(
@@ -94,7 +94,7 @@ namespace PMCG.Messaging.Client.BusState
 							new TaskCompletionSource<PublicationResult>()));
 
 				var _tasks = new List<Task<PublicationResult>>();
-				foreach (var _publication in _thisInstancesPublications)
+				foreach (var _publication in _thisPublicationsPublications)
 				{
 					this.c_publicationQueue.Add(_publication);
 					_tasks.Add(_publication.ResultTask);
@@ -138,12 +138,12 @@ namespace PMCG.Messaging.Client.BusState
 
 
 		private void PrepareForTransition(
-			PublicationResultStatus status)
+			PublicationResultStatus preEmptiveCompletionStatus)
 		{
 			base.ConnectionManager.Blocked -= this.OnConnectionBlocked;
 			base.ConnectionManager.Disconnected -= this.OnConnectionDisconnected;
 			this.c_cancellationTokenSource.Cancel();
-			this.c_publicationQueue.CompleteAdding();			
+			this.c_publicationQueue.CompleteAdding();
 			foreach (var _publication in this.c_publicationQueue) { _publication.SetResult(status); }
 		}
 
