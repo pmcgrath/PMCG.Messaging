@@ -25,6 +25,9 @@ namespace PMCG.Messaging.Client
 		private bool c_isCompleted;
 
 
+		public bool IsCompleted { get { return this.c_isCompleted; } }
+
+
 		public Publisher(
 			IConnection connection,
 			BlockingCollection<Publication> publicationQueue,
