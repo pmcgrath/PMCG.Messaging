@@ -492,5 +492,54 @@ namespace PMCG.Messaging.Client.Interactive
 				_sequence++;
 			}
 		}
+
+
+		public void Run_Where_A_Consumer_Also_Publishes_A_Message_Consumer_Handler_Uses_A_Closure_To_Allow_Publishing_Using_The_Same_Bus_Reference()
+		{
+			PMCG.Messaging.Client.Bus _bus = null;
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1");
+			_busConfigurationBuilder.RegisterPublication<MyOtherEvent>(Configuration.ExchangeName2, typeof(MyOtherEvent).Name + "v1");
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>(Configuration.QueueName1, typeof(MyEvent).Name + "v1",
+				message =>
+					{
+						Console.WriteLine("Consuming message");
+						_bus.PublishAsync(new MyOtherEvent(Guid.NewGuid(), message.CorrelationId, "Pub with closure", message.Number));
+						Thread.Sleep(4000);
+						return ConsumerHandlerResult.Completed;
+					});
+
+			_bus = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_bus.Connect();
+
+			Console.WriteLine("Hit enter to try publishing message");
+			Console.ReadLine();
+
+			var _sequence = 1;
+			do
+			{
+				Console.WriteLine("About to publish {0}", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+
+				try
+				{
+					var _result = _bus.PublishAsync(_message);
+					var _timedOut = _result.Wait(TimeSpan.FromTicks(1));
+					Console.WriteLine("Timed out = {0}", _timedOut);
+				}
+				catch (Exception theException)
+				{
+					Console.WriteLine("Exception encountered {0}", theException);
+				}
+
+				_sequence++;
+			} while (Console.ReadLine() != "x");
+
+			_bus.Close();
+			Console.WriteLine("Hit enter to finish");
+			Console.ReadLine();
+		}
 	}
 }

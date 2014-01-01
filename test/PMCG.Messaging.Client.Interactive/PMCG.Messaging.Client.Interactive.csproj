@@ -52,6 +52,7 @@
     <Compile Include="ConnectionManager.cs" />
     <Compile Include="Consumer.cs" />
     <Compile Include="Consumers.cs" />
+    <Compile Include="MyOtherEvent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="MyEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
