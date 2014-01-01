@@ -1,6 +1,6 @@
 ﻿using NSubstitute;
-using PMCG.Messaging.Client.BusState;
 using NUnit.Framework;
+using PMCG.Messaging.Client.BusState;
 using RabbitMQ.Client;
 using System;
 

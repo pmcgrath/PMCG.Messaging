@@ -67,8 +67,8 @@ namespace PMCG.Messaging.Client.UT
 				this.c_busConfiguration,
 				this.c_cancellationTokenSource.Token);
 			var _consumerTask = _SUT.Start();
+			while (_consumerTask.Status != TaskStatus.Running) { } // Spin till task starts
 
-			Thread.Sleep(40);	// Allow task to start
 			this.c_cancellationTokenSource.Cancel();
 			Thread.Sleep(30);	// Allow queue dequeue call to timeout
 

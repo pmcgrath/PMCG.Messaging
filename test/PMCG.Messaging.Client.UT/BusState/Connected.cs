@@ -57,7 +57,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 	
 		[Test]
-		public void PublishAsync_Where_A_Single_Publication_Configurations_Which_Results_In_Successfull_Publication()
+		public void PublishAsync_Where_A_Single_Publication_Configuration_Which_Results_In_A_Successfull_Publication()
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
@@ -71,10 +71,14 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _context = Substitute.For<IBusContext>();
+			var _waitHandle = new AutoResetEvent(false);
 
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 			_channel.NextPublishSeqNo.Returns(1UL);
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Set());
 
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,
@@ -83,7 +87,8 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 			var _theEvent = new MyEvent(Guid.NewGuid(), null, "Some detail", 1);
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
-			Thread.Sleep(100);										// Allow time for publisher tasks to start
+
+			_waitHandle.WaitOne();	// Allow publication to complete
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = 10 });
 			_publicationResult.Wait();
 
@@ -92,7 +97,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 
 		[Test]
-		public void PublishAsync_Where_Multiple_Publication_Configurations_Which_Results_In_Successfull_Publication()
+		public void PublishAsync_Where_Multiple_Publication_Configurations_Which_Results_In_A_Successfull_Publication()
 		{
 			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
@@ -109,11 +114,15 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _context = Substitute.For<IBusContext>();
+			var _waitHandle = new CountdownEvent(2);
 
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 			_channel.NextPublishSeqNo.Returns(1UL, 2UL);		// Not sure why it works here, see next method comment
-			
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Signal());
+
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,
 				_connectionManager,
@@ -121,7 +130,8 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 			var _theEvent = new MyEvent(Guid.NewGuid(), null, "Some detail", 1);
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
-			Thread.Sleep(100);										// Allow time for publisher tasks to start
+
+			_waitHandle.Wait();	// Allow publication to complete
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = 2 });
 			_publicationResult.Wait();
 
@@ -150,11 +160,15 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _context = Substitute.For<IBusContext>();
+			var _waitHandle = new CountdownEvent(3);
 
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 			var _nextPublishSeqNo = 1UL;
 			_channel.NextPublishSeqNo.Returns(callInfo => _nextPublishSeqNo++);		// Would not work when I used .Returns(1Ul, 2UL, 3UL); Not sure why this works !
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Signal());
 
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,
@@ -163,7 +177,8 @@ namespace PMCG.Messaging.Client.UT.BusState
 
 			var _theEvent = new MyEvent(Guid.NewGuid(), null, "Some detail", 1);
 			var _publicationResult = _SUT.PublishAsync(_theEvent);
-			Thread.Sleep(100);										// Allow time for publisher tasks to start
+
+			_waitHandle.Wait();			// Wait for publications to complete
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = 2 });
 			_channel.BasicNacks += Raise.Event<BasicNackEventHandler>(_channel, new BasicNackEventArgs { Multiple = false, DeliveryTag = 3 });
 			_publicationResult.Wait();

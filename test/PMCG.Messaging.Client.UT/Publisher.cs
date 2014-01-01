@@ -30,7 +30,7 @@ namespace PMCG.Messaging.Client.UT
 
 
 		[Test]
-		public void Publish_Where_Channel_Is_Closed_Results_In_Faulted_Task()
+		public void Publish_Where_Channel_Is_Closed_Results_In_Faulted_Publisher_Task()
 		{
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
@@ -48,14 +48,16 @@ namespace PMCG.Messaging.Client.UT
 			var _publisherTask = _SUT.Start();
 
 			_publicationQueue.Add(_publication);
-			Thread.Sleep(100);
 
-			Assert.IsTrue(_publisherTask.IsFaulted);
+			bool _isFaultedPublisherTask = false;
+			try { _publisherTask.Wait(); } catch { _isFaultedPublisherTask = true; }
+
+			Assert.IsTrue(_isFaultedPublisherTask);
 		}
 
 
 		[Test]
-		public void Publish_Where_Channel_Publication_Fails_Results_In_A_Completed_Publisher_Task()
+		public void Publish_Where_Channel_Publication_Fails_Results_In_A_Non_Completed_Publication_Task_Which_Is_Placed_Back_On_The_Publication_Queue()
 		{
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
@@ -64,9 +66,9 @@ namespace PMCG.Messaging.Client.UT
 			_connection.CreateModel().Returns(_channel);
 			_channel
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
-				.Do(callInfo => { throw new ApplicationException("Bang !"); } );
+				.Do(callInfo => { throw new ApplicationException("Bang !"); });
 
-			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
+			var _messageDelivery = new MessageDelivery("EXCHANGE", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 1);
 			var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 			var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
@@ -75,9 +77,10 @@ namespace PMCG.Messaging.Client.UT
 			var _publisherTask = _SUT.Start();
 
 			_publicationQueue.Add(_publication);
-			Thread.Sleep(100);
+			try { _publisherTask.Wait(); } catch { }
 
-			Assert.IsTrue(_publisherTask.IsCompleted);
+			Assert.IsFalse(_publication.ResultTask.IsCompleted);
+			Assert.AreSame(_publication, _publicationQueue.First());
 		}
 
 
@@ -88,27 +91,28 @@ namespace PMCG.Messaging.Client.UT
 			var _channel = Substitute.For<IModel>();
 			var _publicationQueue = new BlockingCollection<Publication>();
 			var _messageProperties = Substitute.For<IBasicProperties>();
+			var _waitHandle = new AutoResetEvent(false);
 
 			_connection.CreateModel().Returns(_channel);
 			_channel.CreateBasicProperties().Returns(_messageProperties);
 			_channel.NextPublishSeqNo.Returns(1UL);
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Set());
+
+			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 1);
 			var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 			var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
-
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
-			while (_publisherTask.Status != TaskStatus.Running) { }		// Spin till the task is running
-
 			_publicationQueue.Add(_publication);
-			Thread.Sleep(100);											// Allow publication to be read from queue
 
-			Assert.IsFalse(_publication.ResultTask.IsCompleted);
+			_waitHandle.WaitOne();	// Allow publication to complete
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = false, DeliveryTag = 1 });
+			
 			Assert.IsTrue(_publication.ResultTask.IsCompleted);
-
 			_messageProperties.Received().ContentType = "application/json";
 			_messageProperties.Received().DeliveryMode = (byte)_messageDelivery.DeliveryMode;
 			_messageProperties.Received().Type = _messageDelivery.TypeHeader;
@@ -124,14 +128,17 @@ namespace PMCG.Messaging.Client.UT
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _publicationQueue = new BlockingCollection<Publication>();
+			var _waitHandle = new CountdownEvent(10);
 
 			_connection.CreateModel().Returns(_channel);
 			var _nextPublishSeqNo = 1UL;
 			_channel.NextPublishSeqNo.Returns(callInfo => _nextPublishSeqNo++);		// Would not work when I used .Returns(1Ul, 2UL, 3UL); Not sure why this works !
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Signal());
 
 			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
-			while (_publisherTask.Status != TaskStatus.Running) { }		// Spin till the task is running
 
 			var _publications = new List<Publication>();
 			for (var _index = 1; _index <= 10; _index++)
@@ -144,8 +151,8 @@ namespace PMCG.Messaging.Client.UT
 				_publicationQueue.Add(_publication);
 				_publications.Add(_publication);
 			}
-			Thread.Sleep(100);											// Allow publications to be read from queue
 
+			_waitHandle.Wait();	// Allow publications to complete
 			foreach(var _publication in _publications) { Assert.IsFalse(_publication.ResultTask.IsCompleted); }
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = (ulong)_publications.Count });
 			foreach(var _publication in _publications)
@@ -162,14 +169,17 @@ namespace PMCG.Messaging.Client.UT
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _publicationQueue = new BlockingCollection<Publication>();
+			var _waitHandle = new CountdownEvent(100);
 
 			_connection.CreateModel().Returns(_channel);
 			var _nextPublishSeqNo = 1UL;
 			_channel.NextPublishSeqNo.Returns(callInfo => _nextPublishSeqNo++);		// Would not work when I used .Returns(1Ul, 2UL, 3UL); Not sure why this works !
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Signal());
 
 			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
-			while (_publisherTask.Status != TaskStatus.Running) { }		// Spin till the task is running
 
 			var _publications = new List<Publication>();
 			for (var _index = 1; _index <= 100; _index++)
@@ -182,8 +192,8 @@ namespace PMCG.Messaging.Client.UT
 				_publicationQueue.Add(_publication);
 				_publications.Add(_publication);
 			}
-			Thread.Sleep(100);											// Allow publications to be read from queue
 
+			_waitHandle.Wait();		// Allow channel publications to complete
 			foreach(var _publication in _publications) { Assert.IsFalse(_publication.ResultTask.IsCompleted); }
 			var _deliveryTagToAcknowledge = 73;
 			_channel.BasicAcks += Raise.Event<BasicAckEventHandler>(_channel, new BasicAckEventArgs { Multiple = true, DeliveryTag = (ulong)_deliveryTagToAcknowledge });
@@ -200,22 +210,24 @@ namespace PMCG.Messaging.Client.UT
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _publicationQueue = new BlockingCollection<Publication>();
+			var _waitHandle = new AutoResetEvent(false);
 
 			_connection.CreateModel().Returns(_channel);
 			_channel.NextPublishSeqNo.Returns(1Ul);
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Set());
 
 			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
-			while (_publisherTask.Status != TaskStatus.Running) { }		// Spin till the task is running
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 100);
 			var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 			var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
-
 			_publicationQueue.Add(_publication);
-			Thread.Sleep(100);											// Allow publications to be read from queue
 
+			_waitHandle.WaitOne();		// Allow channel publication to complete
 			_channel.BasicNacks += Raise.Event<BasicNackEventHandler>(_channel, new BasicNackEventArgs { Multiple = true, DeliveryTag = 1UL });
 
 			Assert.IsTrue(_publication.ResultTask.IsCompleted);
@@ -230,9 +242,16 @@ namespace PMCG.Messaging.Client.UT
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _publicationQueue = new BlockingCollection<Publication>();
+			var _waitHandle = new CountdownEvent(2);
 
 			_connection.CreateModel().Returns(_channel);
 			_channel.NextPublishSeqNo.Returns(1Ul, 2UL);
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Signal());
+
+			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 100);
@@ -241,15 +260,10 @@ namespace PMCG.Messaging.Client.UT
 			var _publication1 = new Publication(_messageDelivery, _myEvent, _taskCompletionSource1);
 			var _taskCompletionSource2 = new TaskCompletionSource<PublicationResult>();
 			var _publication2 = new Publication(_messageDelivery, _myEvent, _taskCompletionSource2);
-
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
-			while (_publisherTask.Status != TaskStatus.Running) { }		// Spin till the task is running
-
 			_publicationQueue.Add(_publication1);
 			_publicationQueue.Add(_publication2);
-			Thread.Sleep(100);											// Allow publications to be read from queue
-
+			
+			_waitHandle.Wait();		// Allow channel publications to complete
 			_channel.ModelShutdown += Raise.Event<ModelShutdownEventHandler>(_channel, new ShutdownEventArgs(ShutdownInitiator.Peer, 1, "Bang!"));
 
 			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
@@ -268,23 +282,26 @@ namespace PMCG.Messaging.Client.UT
 			var _connection = Substitute.For<IConnection>();
 			var _channel = Substitute.For<IModel>();
 			var _publicationQueue = new BlockingCollection<Publication>();
+			var _waitHandle = new AutoResetEvent(false);
 
 			_connection.CreateModel().Returns(_channel);
 			_channel.NextPublishSeqNo.Returns(1Ul);
+			_channel
+				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
+				.Do(callInfo => _waitHandle.Set());
+
+			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("NON_EXISTENT_EXCHANGE", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 100);
 			var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 			var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
-
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
-			while (_publisherTask.Status != TaskStatus.Running) { }		// Spin till the task is running
-
 			_publicationQueue.Add(_publication);
-			Thread.Sleep(100);											// Allow publications to be read from queue
 
+			_waitHandle.WaitOne();		// Allow channel publication to complete
 			_channel.ModelShutdown += Raise.Event<ModelShutdownEventHandler>(_channel, new ShutdownEventArgs(ShutdownInitiator.Peer, 1, "404 Exchange does not exist !"));
+
 			// Since all running on the same thread we do not need to wait - this is also not relaistic as we know the channel shutdown event will happen on a different thread
 			Assert.IsTrue(_publication.ResultTask.IsCompleted);
 			Assert.AreEqual(PublicationResultStatus.ChannelShutdown, _publication.ResultTask.Result.Status);
