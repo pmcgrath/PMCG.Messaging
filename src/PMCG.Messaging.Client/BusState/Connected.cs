@@ -31,7 +31,7 @@ namespace PMCG.Messaging.Client.BusState
 
 			this.c_publicationQueue = new BlockingCollection<Publication>();
 
-			base.Logger.Info("ctor About to create publisher");
+			base.Logger.Info("ctor About to create publisher tasks");
 			this.c_publisherTasks = new Task[base.NumberOfPublishers];
 			for (var _index = 0; _index < this.c_publisherTasks.Length; _index++)
 			{
