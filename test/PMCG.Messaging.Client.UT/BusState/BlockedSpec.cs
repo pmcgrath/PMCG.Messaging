@@ -32,6 +32,25 @@ namespace PMCG.Messaging.Client.UT.BusState
 		}
 
 
+		[Test, ExpectedException(typeof(InvalidOperationException))]
+		public void Connect_Results_In_An_Invalid_Operation_Exception()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
+			var _busConfirguration = _busConfigurationBuilder.Build();
+
+			var _connectionManager = Substitute.For<IConnectionManager>();
+			var _context = Substitute.For<IBusContext>();
+
+			var _SUT = new Blocked(
+				_busConfirguration,
+				_connectionManager,
+				_context);
+
+			_SUT.Connect();
+		}
+
+
 		[Test]
 		public void Publish_Where_No_Publication_Configurations_Which_Results_In_A_NoConfigurationFound_Result()
 		{
@@ -40,7 +59,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
 			var _connectionManager = Substitute.For<IConnectionManager>();
-			var _connection = Substitute.For<IConnection>();
+			//var _connection = Substitute.For<IConnection>();
 			var _context = Substitute.For<IBusContext>();
 
 			var _SUT = new Blocked(
@@ -91,7 +110,6 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
 			var _connectionManager = Substitute.For<IConnectionManager>();
-			var _connection = Substitute.For<IConnection>();
 			var _context = Substitute.For<IBusContext>();
 
 			var _SUT = new Blocked(

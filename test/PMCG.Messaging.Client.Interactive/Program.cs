@@ -14,10 +14,10 @@ namespace PMCG.Messaging.Client.Interactive
 			XmlConfigurator.Configure();
 			GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id;	// See http://stackoverflow.com/questions/2075603/log4net-process-id-information
 
-			new Bus().Run_Where_A_Consumer_Also_Publishes_A_Message_Consumer_Handler_Uses_A_Closure_To_Allow_Publishing_Using_The_Same_Bus_Reference();
+			//new Bus().Run_Where_A_Consumer_Also_Publishes_A_Message_Consumer_Handler_Uses_A_Closure_To_Allow_Publishing_Using_The_Same_Bus_Reference();
 			//new Bus().Run_Where_We_Attempt_A_Publication_Timeout();
 			//new Bus().Run_Where_We_Connect_And_Instruct_To_Close_The_Connection_Using_The_DashBoard();
-			//new Bus().Run_Where_We_Connect_And_Then_Close();
+			new Bus().Run_Where_We_Connect_And_Then_Close();
 			//new Bus().Run_Where_We_Connect_And_Then_Instruct_To_Stop_The_Broker();
 			//new Bus().Run_Where_We_Continuously_Publish_Handling_All_Results();
 			//new Bus().Run_Where_We_Continuously_Publish_Until_Program_Killed();

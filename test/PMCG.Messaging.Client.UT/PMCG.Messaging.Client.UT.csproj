@@ -56,6 +56,7 @@
     <Compile Include="BusSpec.cs" />
     <Compile Include="BusState\BlockedSpec.cs" />
     <Compile Include="BusState\ConnectedSpec.cs" />
+    <Compile Include="BusState\ClosedSpec.cs" />
     <Compile Include="BusState\DisconnectedSpec.cs" />
     <Compile Include="Configuration\BusConfigurationBuilderSpec.cs" />
     <Compile Include="Configuration\ConnectionStringSettingsParserSpec.cs" />
