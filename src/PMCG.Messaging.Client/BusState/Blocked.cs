@@ -21,7 +21,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.Info("ctor Completed");
 		}
 
-
+	
 		public override void Close()
 		{
 			base.Logger.Info("Close Starting");

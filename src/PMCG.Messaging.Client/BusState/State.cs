@@ -36,13 +36,13 @@ namespace PMCG.Messaging.Client.BusState
 
 		public virtual void Connect()
 		{
-			this.Logger.Info("Connect Completed - no override");
+			throw new InvalidOperationException(string.Format("Connect operation is invalid for current state ({0})", this.GetType().Name));
 		}
 
 
 		public virtual void Close()
 		{
-			this.Logger.Info("Close Completed - no override");
+			throw new InvalidOperationException(string.Format("Close operation is invalid for current state ({0})", this.GetType().Name));
 		}
 
 
@@ -50,7 +50,7 @@ namespace PMCG.Messaging.Client.BusState
 			TMessage message)
 			where TMessage : Message
 		{
-			throw new InvalidOperationException(string.Format("Publish is invalid for current state ({0})", this.GetType().Name));
+			throw new InvalidOperationException(string.Format("Publish operation is invalid for current state ({0})", this.GetType().Name));
 		}
 
 

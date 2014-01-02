@@ -21,7 +21,7 @@ namespace PMCG.Messaging.Client.BusState
 			base.Logger.Info("Connect Starting");
 
 			base.TransitionToNewState(typeof(Connecting));
-			base.OpenConnection();
+			base.OpenConnection();							// This is a blocking call, is this okay ?
 			base.TransitionToNewState(typeof(Connected));
 
 			base.Logger.Info("Connect Completed");
