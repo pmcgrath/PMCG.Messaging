@@ -249,7 +249,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_context.When(context => context.State = Arg.Any<State>()).Do(callInfo => _capturedState = callInfo[0] as State);
 			_connectionManager.Blocked += Raise.Event<EventHandler<ConnectionBlockedEventArgs>>(_connection, new ConnectionBlockedEventArgs("."));
 
-			Assert.IsInstanceOf<Blocked>(_capturedState);
+			Assert.IsInstanceOf<PMCG.Messaging.Client.BusState.Blocked>(_capturedState);
 		}
 
 

@@ -57,6 +57,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BusState\Connected.cs" />
+    <Compile Include="BusState\Blocked.cs" />
     <Compile Include="BusState\Disconnected.cs" />
     <Compile Include="Configuration\BusConfigurationBuilder.cs" />
     <Compile Include="Configuration\ConnectionStringSettingsParser.cs" />
