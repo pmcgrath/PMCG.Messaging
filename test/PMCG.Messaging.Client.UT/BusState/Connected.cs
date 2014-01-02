@@ -343,7 +343,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_channel.NextPublishSeqNo.Returns(1UL, 2UL);
 			_channel
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
-				.Do(callInfo => { Thread.Sleep(1000); });		// Block for a second
+				.Do(callInfo => { Thread.Sleep(1000); });		// Slow down so second publication will not get a chance to be published as we have only one publisher - therefore only one queue consumer
 
 			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
 				_busConfirguration,

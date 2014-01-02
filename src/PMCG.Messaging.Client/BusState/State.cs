@@ -73,7 +73,7 @@ namespace PMCG.Messaging.Client.BusState
 
 		protected void OpenConnectionInitially()
 		{
-			this.ConnectionManager.Open(1);
+			this.ConnectionManager.Open(numberOfTimesToTry: 1);
 		}
 
 

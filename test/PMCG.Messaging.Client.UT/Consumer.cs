@@ -4,7 +4,6 @@ using NUnit.Framework;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Exceptions;
 using System;
 using System.Text;
 using System.Threading;
@@ -70,7 +69,7 @@ namespace PMCG.Messaging.Client.UT
 			while (_consumerTask.Status != TaskStatus.Running) { } // Spin till task starts
 
 			this.c_cancellationTokenSource.Cancel();
-			Thread.Sleep(30);	// Allow queue dequeue call to timeout
+			Thread.Sleep(30);	// Allow dequeue call to timeout, see above where we configured to be very short
 
 			Assert.IsTrue(_SUT.IsCompleted);
 			this.c_channel.Received().Close();
@@ -80,6 +79,7 @@ namespace PMCG.Messaging.Client.UT
 		[Test]
 		public void Consume_Where_We_Mock_All_Without_A_Real_Connection_Knows_Too_Much_About_RabbitMQ_Internals()
 		{
+			var _waitHandle = new AutoResetEvent(false);
 			var _capturedMessageId = Guid.Empty;
 
 			var _configurationBuilder = new BusConfigurationBuilder();
@@ -90,6 +90,7 @@ namespace PMCG.Messaging.Client.UT
 				message =>
 					{
 						_capturedMessageId = message.Id;
+						_waitHandle.Set();
 						return ConsumerHandlerResult.Completed;
 					});
 			var _configuration = _configurationBuilder.Build();
@@ -98,7 +99,6 @@ namespace PMCG.Messaging.Client.UT
 			var _channel = Substitute.For<IModel>();
 			
 			_connection.CreateModel().Returns(_channel);
-			_channel.IsOpen.Returns(true);
 	
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 1);
 			var _messageProperties = Substitute.For<IBasicProperties>();
@@ -112,12 +112,12 @@ namespace PMCG.Messaging.Client.UT
 			QueueingBasicConsumer _capturedConsumer = null;
 			_channel
 				.When(channel => channel.BasicConsume(TestingConfiguration.QueueName, false, Arg.Any<IBasicConsumer>()))
-				.Do(callInfo => _capturedConsumer = callInfo[2] as QueueingBasicConsumer);
+				.Do(callInfo => { _capturedConsumer = callInfo[2] as QueueingBasicConsumer; _waitHandle.Set(); });
 
 			var _SUT = new PMCG.Messaging.Client.Consumer(_connection, _configuration, CancellationToken.None);
 			var _consumerTask = _SUT.Start();
-			// Time for other consumer to start on other thread, we need to wait for start to complete before we publish
-			Thread.Sleep(50);		// To get to work on first run, needs to be much higher (5000), but this value will work for subsequent calls
+			_waitHandle.WaitOne();			// Wait till consumer task has called the BasicConsume method which captures the consumer
+			_waitHandle.Reset();			// Reset so we can block on the consumer message func
 
 			var _messageJson = JsonConvert.SerializeObject(_myEvent);
 			var _messageBody = Encoding.UTF8.GetBytes(_messageJson);
@@ -132,8 +132,7 @@ namespace PMCG.Messaging.Client.UT
 						BasicProperties = _messageProperties,
 						Body = _messageBody
 					});
-			// Time for delivery on the other thread and the consumer callback to complete
-			Thread.Sleep(500);
+			_waitHandle.WaitOne();		// Wait for message to be consumed
 
 			Assert.AreEqual(_myEvent.Id, _capturedMessageId);
 		}
