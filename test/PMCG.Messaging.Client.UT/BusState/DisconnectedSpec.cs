@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using PMCG.Messaging.Client.BusState;
+using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using System;
 
@@ -8,12 +9,12 @@ using System;
 namespace PMCG.Messaging.Client.UT.BusState
 {
 	[TestFixture]
-	public class Disconnected
+	public class DisconnectedSpec
 	{
 		[Test]
 		public void Ctor_Success()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -24,7 +25,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connectionManager = Substitute.For<IConnectionManager>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Disconnected(
+			var _SUT = new Disconnected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -34,7 +35,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void Publish_Where_No_Publication_Configurations_Which_Results_In_A_NoConfigurationFound_Result()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
@@ -42,7 +43,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connection = Substitute.For<IConnection>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Disconnected(
+			var _SUT = new Disconnected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -58,7 +59,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void Publish_Where_Publication_Configurations_Exist_Which_Results_In_Disconnected_Result()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -69,7 +70,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connectionManager = Substitute.For<IConnectionManager>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Disconnected(
+			var _SUT = new Disconnected(
 				_busConfirguration,
 				_connectionManager,
 				_context);

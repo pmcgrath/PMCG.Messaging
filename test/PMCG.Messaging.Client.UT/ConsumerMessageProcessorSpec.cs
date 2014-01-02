@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using PMCG.Messaging.Client;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -10,10 +11,10 @@ using System.Threading;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class ConsumerMessageProcessor
+	public class ConsumerMessageProcessorSpec
 	{
 		private IModel c_channel;
-		private PMCG.Messaging.Client.ConsumerMessageProcessor c_SUT;
+		private ConsumerMessageProcessor c_SUT;
 		private ConsumerHandlerResult c_messageProcessrResult;
 		private CancellationTokenSource c_cancellationTokenSource;
 
@@ -63,7 +64,7 @@ namespace PMCG.Messaging.Client.UT
 			this.c_channel = Substitute.For<IModel>();
 			_connection.CreateModel().Returns(this.c_channel);
 
-			this.c_SUT = new PMCG.Messaging.Client.ConsumerMessageProcessor(_busConfiguration);
+			this.c_SUT = new ConsumerMessageProcessor(_busConfiguration);
 
 			this.c_messageProcessrResult = ConsumerHandlerResult.None;
 		}

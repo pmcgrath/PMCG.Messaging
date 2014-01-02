@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using PMCG.Messaging.Client.BusState;
+using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -10,12 +11,12 @@ using System.Threading;
 namespace PMCG.Messaging.Client.UT.BusState
 {
 	[TestFixture]
-	public class Connected
+	public class ConnectedSpec
 	{
 		[Test]
 		public void Ctor_Success()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -26,7 +27,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connectionManager = Substitute.For<IConnectionManager>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -36,14 +37,14 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void PublishAsync_Where_No_Publication_Configurations_Which_Results_In_A_NoConfigurationFound_Result()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
 			var _connectionManager = Substitute.For<IConnectionManager>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -59,7 +60,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void PublishAsync_Where_A_Single_Publication_Configuration_Which_Results_In_A_Successfull_Publication()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -80,7 +81,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Set());
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -99,7 +100,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void PublishAsync_Where_Multiple_Publication_Configurations_Which_Results_In_A_Successfull_Publication()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -123,7 +124,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Signal());
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -142,7 +143,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void PublishAsync_Where_Multiple_Publication_Configurations_One_Of_Which_Is_Nacked_Results_In_Unsuccessfull_Publication()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -170,7 +171,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Signal());
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -190,7 +191,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void Close_Where_No_Pending_Publications_Which_Results_In_A_Context_Transition_To_Closed()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -206,7 +207,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -223,7 +224,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void State_Changed_Where_Connection_Is_Blocked_Results_In_A_Context_Transition_To_Blocked()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -239,7 +240,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -249,14 +250,14 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_context.When(context => context.State = Arg.Any<State>()).Do(callInfo => _capturedState = callInfo[0] as State);
 			_connectionManager.Blocked += Raise.Event<EventHandler<ConnectionBlockedEventArgs>>(_connection, new ConnectionBlockedEventArgs("."));
 
-			Assert.IsInstanceOf<PMCG.Messaging.Client.BusState.Blocked>(_capturedState);
+			Assert.IsInstanceOf<Blocked>(_capturedState);
 		}
 
 
 		[Test]
 		public void State_Changed_Where_Connection_Is_Disconnected_Results_In_A_Context_Transition_To_Diconnected()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -272,7 +273,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -282,14 +283,14 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_context.When(context => context.State = Arg.Any<State>()).Do(callInfo => _capturedState = callInfo[0] as State);
 			_connectionManager.Disconnected += Raise.Event<EventHandler<ConnectionDisconnectedEventArgs>>(_connection, new ConnectionDisconnectedEventArgs(1, "."));
 
-			Assert.IsInstanceOf<PMCG.Messaging.Client.BusState.Disconnected>(_capturedState);
+			Assert.IsInstanceOf<Disconnected>(_capturedState);
 		}
 
 
 		[Test]
 		public void PublishAsync_Where_Connection_Is_Disconnected_Results_In_A_Non_Published_Result()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder
 				.RegisterPublication<MyEvent>(
@@ -305,7 +306,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_connectionManager.Connection.Returns(_connection);
 			_connection.CreateModel().Returns(_channel);
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -324,7 +325,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 		[Test]
 		public void State_Changed_Where_Connection_Is_Disconnected_And_A_Pending_Publication_Results_In_Pending_Publication_Task_Completion()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			_busConfigurationBuilder.NumberOfPublishers = 1;	// Only one publisher
 			_busConfigurationBuilder
@@ -345,7 +346,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => { Thread.Sleep(1000); });		// Slow down so second publication will not get a chance to be published as we have only one publisher - therefore only one queue consumer
 
-			var _SUT = new PMCG.Messaging.Client.BusState.Connected(
+			var _SUT = new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NSubstitute;
 using NUnit.Framework;
+using PMCG.Messaging.Client;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class Consumer
+	public class ConsumerSpec
 	{
 		private BusConfiguration c_busConfiguration;
 		private IConnection c_connection;
@@ -48,7 +49,7 @@ namespace PMCG.Messaging.Client.UT
 		public void Start_Where_Cancellation_Token_Already_Canceled_Results_In_an_Exception()
 		{
 			this.c_cancellationTokenSource.Cancel();
-			var _SUT = new PMCG.Messaging.Client.Consumer(
+			var _SUT = new Consumer(
 				this.c_connection,
 				this.c_busConfiguration,
 				this.c_cancellationTokenSource.Token);
@@ -61,7 +62,7 @@ namespace PMCG.Messaging.Client.UT
 		{
 			this.c_channel.IsOpen.Returns(true);
 
-			var _SUT = new PMCG.Messaging.Client.Consumer(
+			var _SUT = new Consumer(
 				this.c_connection,
 				this.c_busConfiguration,
 				this.c_cancellationTokenSource.Token);
@@ -114,7 +115,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicConsume(TestingConfiguration.QueueName, false, Arg.Any<IBasicConsumer>()))
 				.Do(callInfo => { _capturedConsumer = callInfo[2] as QueueingBasicConsumer; _waitHandle.Set(); });
 
-			var _SUT = new PMCG.Messaging.Client.Consumer(_connection, _configuration, CancellationToken.None);
+			var _SUT = new Consumer(_connection, _configuration, CancellationToken.None);
 			var _consumerTask = _SUT.Start();
 			_waitHandle.WaitOne();			// Wait till consumer task has called the BasicConsume method which captures the consumer
 			_waitHandle.Reset();			// Reset so we can block on the consumer message func

@@ -1,5 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using PMCG.Messaging.Client;
+using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Threading.Tasks;
 
@@ -7,16 +9,16 @@ using System.Threading.Tasks;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class Bus
+	public class BusSpec
 	{
 		[Test, ExpectedException(typeof(ArgumentNullException))]
 		public void PublishAsync_Null_Message_Results_In_An_Exception()
 		{
-			var _busConfigurationBuilder = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
-			var _bus = new PMCG.Messaging.Client.Bus(_busConfirguration);
+			var _bus = new Bus(_busConfirguration);
 			_bus.Connect();
 
 			_bus.PublishAsync<MyEvent>(null);

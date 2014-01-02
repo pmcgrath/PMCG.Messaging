@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Linq;
 
@@ -6,15 +7,15 @@ using System.Linq;
 namespace PMCG.Messaging.Client.UT.Configuration
 {
 	[TestFixture]
-	public class BusConfigurationBuilder
+	public class BusConfigurationBuilderSpec
 	{
-		private PMCG.Messaging.Client.Configuration.BusConfigurationBuilder c_SUT;
+		private BusConfigurationBuilder c_SUT;
 
 
 		[SetUp]
 		public void SetUp()
 		{
-			this.c_SUT = new PMCG.Messaging.Client.Configuration.BusConfigurationBuilder();
+			this.c_SUT = new BusConfigurationBuilder();
 		}
 
 

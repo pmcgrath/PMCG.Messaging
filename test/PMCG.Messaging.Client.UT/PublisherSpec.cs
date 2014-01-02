@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using PMCG.Messaging.Client;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace PMCG.Messaging.Client.UT
 {
 	[TestFixture]
-	public class Publisher
+	public class PublisherSpec
 	{
 		[Test, ExpectedException]
 		public void Start_Where_Cancellation_Token_Is_Cancelled_Results_In_An_Exception()
@@ -23,7 +24,7 @@ namespace PMCG.Messaging.Client.UT
 			var _cancellationTokenSource = new CancellationTokenSource();
 			var _publicationQueue = new BlockingCollection<Publication>();
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, _cancellationTokenSource.Token);
+			var _SUT = new Publisher(_connection, _publicationQueue, _cancellationTokenSource.Token);
 			_cancellationTokenSource.Cancel();
 			_SUT.Start();
 		}
@@ -44,7 +45,7 @@ namespace PMCG.Messaging.Client.UT
 			var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 			var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			_publicationQueue.Add(_publication);
@@ -73,7 +74,7 @@ namespace PMCG.Messaging.Client.UT
 			var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 			var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			_publicationQueue.Add(_publication);
@@ -100,7 +101,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Set());
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
@@ -137,7 +138,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Signal());
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			var _publications = new List<Publication>();
@@ -178,7 +179,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Signal());
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			var _publications = new List<Publication>();
@@ -218,7 +219,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Set());
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
@@ -250,7 +251,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Signal());
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
@@ -290,7 +291,7 @@ namespace PMCG.Messaging.Client.UT
 				.When(channel => channel.BasicPublish(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<IBasicProperties>(), Arg.Any<byte[]>()))
 				.Do(callInfo => _waitHandle.Set());
 
-			var _SUT = new PMCG.Messaging.Client.Publisher(_connection, _publicationQueue, CancellationToken.None);
+			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
 			var _publisherTask = _SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("NON_EXISTENT_EXCHANGE", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
