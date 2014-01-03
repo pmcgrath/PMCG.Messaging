@@ -16,6 +16,8 @@ c:\windows\microsoft.net\framework64\v4.0.30319\msbuild.exe src\PMCG.Messaging.C
 
 # Prepare output directory
 if (test-path $outputDirectoryPath){ rm $outputDirectoryPath\*; } else { mkdir $outputDirectoryPath | out-null; }
+$version = git log -1 --pretty=format:%H;
+"Built @ {0}`r`nBy {1}`r`nVersion {2}" -f (get-date), $env:UserName, $version > (join-path $outputDirectoryPath 'BuildInfo.txt');
 
 # Merge RabbitMQ dependency - only RabbitMQ as I expect other dependencies will be used by clients independently of this project
 & $ilmergeExePath `
