@@ -60,6 +60,7 @@
     <Compile Include="BusState\DisconnectedSpec.cs" />
     <Compile Include="Configuration\BusConfigurationBuilderSpec.cs" />
     <Compile Include="Configuration\ConnectionStringSettingsParserSpec.cs" />
+    <Compile Include="Configuration\MessageDeliverySpec.cs" />
     <Compile Include="Configuration\DefaultPasswordParserSpec.cs" />
     <Compile Include="Configuration\MessageConsumerSpec.cs" />
     <Compile Include="Configuration\MessageConsumersSpec.cs" />

@@ -151,6 +151,32 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
+		public void Run_Where_We_Publish_A_Message_To_A_Queue_Using_The_Direct_Exchange()
+		{
+			var _capturedMessageId = string.Empty;
+
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder
+				.RegisterPublication<MyEvent>("", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => Configuration.QueueName1);
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to publish message");
+			Console.ReadLine();
+			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+			var _result = _SUT.PublishAsync(_message);
+			_result.Wait();
+
+			Console.WriteLine("Hit enter to close");
+			Console.ReadLine();
+			_SUT.Close();
+
+			Console.WriteLine("Hit enter to exit");
+			Console.ReadLine();
+		}
+
+
 		public void Run_Where_We_Publish_A_Message_To_Two_Exchanges_No_Consumption_For_The_Same_Messsage()
 		{
 			var _capturedMessageId = string.Empty;

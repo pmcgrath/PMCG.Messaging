@@ -12,12 +12,12 @@ namespace PMCG.Messaging.Client.Configuration
 
 
 		public MessageDelivery(
-			string exchangeName,
+			string exchangeName,						// Can be empty where publishing via direct exchange,
 			string typeHeader,
 			MessageDeliveryMode deliveryMode,
 			Func<Message, string> routingKeyFunc)
 		{
-			Check.RequireArgumentNotEmpty("exchangeName", exchangeName);
+			Check.RequireArgument("exchangeName", exchangeName, (exchangeName == string.Empty || exchangeName.Trim() != string.Empty));
 			Check.RequireArgumentNotEmpty("typeHeader", typeHeader);
 			Check.RequireArgument("deliveryMode", deliveryMode, Enum.IsDefined(typeof(MessageDeliveryMode), deliveryMode));
 			Check.RequireArgumentNotNull("routingKeyFunc", routingKeyFunc);
