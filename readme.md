@@ -2,7 +2,7 @@
 
 This library is lightweight library for interacting with RabbitMQ
 
-The following are richer alternatives
+The following are richer alternatives you should probably consider
 * [EasyNetQ](https://github.com/mikehadlow/EasyNetQ)
 * [MassTransit](https://github.com/MassTransit/MassTransit)
 * [NserviceBus](https://github.com/Particular/NServiceBus)
@@ -19,7 +19,20 @@ The following are richer alternatives
 * All but transient queues are pre-configured
 
 
-Sample usage
+## Build
+Run build.ps1  
+Binaries are placed in the bin directory  
+
+
+## Pre-configuring RabbitMQ
+Pending...  
+
+
+## Sample usage
+### Pre-configure
+Pending
+ 
+### Code in app.cs
 ```csharp
 using PMCG.Messaging;
 using PMCG.Messaging.Client;
@@ -28,7 +41,7 @@ using System;
 
 public class MyEvent : Event
 {
-    public readonly string Detail;
+    public readonly string Detail; 
     public readonly int Number;
 
     public MyEvent(
@@ -114,11 +127,10 @@ public class App
 }
 ```
 
-Compile as follows
-Place the content of the bins directory into a local directory
-Place above content in a file named app.cs in the same local directory
-Compile using 
+### Compile sample as follows  
+Place the content of the bins directory into a local directory  
+Place above content in a file named app.cs in the same local directory  
+Compile using  
 ```powershell
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe .\app.cs /r:PMCG.Messaging.Client.dll /r:PMCG.Messaging.dll
 ```
-
