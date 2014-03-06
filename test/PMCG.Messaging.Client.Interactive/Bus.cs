@@ -166,7 +166,7 @@ namespace PMCG.Messaging.Client.Interactive
 			Console.ReadLine();
 			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
 			var _result = _SUT.PublishAsync(_message);
-			_result.Wait();
+			var _completedWithinTimeout =_result.Wait(TimeSpan.FromSeconds(1));
 
 			Console.WriteLine("Hit enter to close");
 			Console.ReadLine();
@@ -470,7 +470,7 @@ namespace PMCG.Messaging.Client.Interactive
 				{
 					var _publicationTimeout = TimeSpan.FromTicks(0);
 					var _result = _SUT.PublishAsync(_message);
-					var _timedout = _result.Wait(_publicationTimeout);
+					var _completedWithinTimeout = _result.Wait(_publicationTimeout);
 
 					// PENDING - What do clients do ?
 					Console.WriteLine("PENDING");
@@ -506,8 +506,8 @@ namespace PMCG.Messaging.Client.Interactive
 				try
 				{
 					var _result = _SUT.PublishAsync(_message);
-					var _timedOut = _result.Wait(TimeSpan.FromTicks(1));
-					Console.WriteLine("Timed out = {0}", _timedOut);
+					var _completedWithinTimeout = _result.Wait(TimeSpan.FromTicks(1));
+					Console.WriteLine("Completed within time out = {0}", _completedWithinTimeout);
 				}
 				catch (Exception theException)
 				{
@@ -552,8 +552,8 @@ namespace PMCG.Messaging.Client.Interactive
 				try
 				{
 					var _result = _bus.PublishAsync(_message);
-					var _timedOut = _result.Wait(TimeSpan.FromTicks(1));
-					Console.WriteLine("Timed out = {0}", _timedOut);
+					var _completedWithinTimeout = _result.Wait(TimeSpan.FromTicks(1));
+					Console.WriteLine("Completed within time out = {0}", _completedWithinTimeout);
 				}
 				catch (Exception theException)
 				{
