@@ -3,7 +3,7 @@
 This library is lightweight library for interacting with RabbitMQ
 
 The following are richer alternatives
-*[EasyNetQ](https://github.com/mikehadlow/EasyNetQ)
+* [EasyNetQ](https://github.com/mikehadlow/EasyNetQ)
 * [MassTransit](https://github.com/MassTransit/MassTransit)
 * [NserviceBus](https://github.com/Particular/NServiceBus)
 * [Rebus](https://github.com/rebus-org/Rebus)
@@ -117,5 +117,8 @@ public class App
 Compile as follows
 Place the content of the bins directory into a local directory
 Place above content in a file named app.cs in the same local directory
-Compile using C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe .\app.cs /r:PMCG.Messaging.Client.dll /r:PMCG.Messaging.dll
+Compile using 
+```powershell
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe .\app.cs /r:PMCG.Messaging.Client.dll /r:PMCG.Messaging.dll
+```
 
