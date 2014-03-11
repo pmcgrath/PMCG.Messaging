@@ -22,6 +22,13 @@ curl -i -u 'guest:guest' -H 'Content-Type:application/json' -d $requestData -X P
 
 
 
+$requestData = '{ "count":500, "requeue":false, "encoding":"auto" }';
+$requestData = $requestData.Replace('"', '\"');
+curl -i -u 'ccsadmin:s9;]\/dknTXW)bZ' -H 'Content-Type:application/json' -d $requestData -X POST http://trdevmq01a.ccs.local:15672/api/queues/%2f/test.scheduler.longrunning/get
+
+
+
+
 # Powershell - horrific escaping - Run in loop
 $requestTemplate = '{ "routing_key": "", "properties": { "type": "RateSetActivated" }, "payload": "[[payload]]", "payload_encoding": "string" }';
 $payloadTemplate = '{ "Id": "[[Id]]" }';
