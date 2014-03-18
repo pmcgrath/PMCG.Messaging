@@ -56,8 +56,9 @@ namespace PMCG.Messaging.Client
 				this.c_logger.DebugFormat("Process About to invoke action for message, {0}", _logMessageContext);
 				_actionResult = _configuration.Action(_message as Message);
 			}
-			catch
+			catch (Exception exception)
 			{
+				this.c_logger.WarnFormat("Process Encountered error for message {0} Error: {1}", _logMessageContext, exception.InstrumentationString());
 				_actionResult = ConsumerHandlerResult.Errored;
 			}
 			this.c_logger.DebugFormat("Process Completed processing for message, {0}, result is {1}", _logMessageContext, _actionResult);
