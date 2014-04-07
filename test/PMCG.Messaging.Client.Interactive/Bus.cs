@@ -324,7 +324,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Publish_Multiple_Messages_And_Consume_For_The_Same_Messsages()
 		{
-			var _numberOfMessagesToPublish = 2500;
+			var _numberOfMessagesToPublish = 3;
 			var _receivedMessages = new ConcurrentStack<MyEvent>();
 
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
@@ -333,7 +333,7 @@ namespace PMCG.Messaging.Client.Interactive
 				.RegisterPublication<MyEvent>(Configuration.ExchangeName1, typeof(MyEvent).Name + "v1")
 				.RegisterConsumer<MyEvent>(
 					Configuration.QueueName1,
-					typeof(MyEvent).Name,
+					typeof(MyEvent).Name + "v1",
 					message => { _receivedMessages.Push(message); return ConsumerHandlerResult.Completed; });
 			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 			_SUT.Connect();
