@@ -12,6 +12,9 @@ namespace PMCG.Messaging.Client
 		private readonly ILog c_logger;
 
 
+		public BusStatus Status { get { return (BusStatus)Enum.Parse(typeof(BusStatus), this.State.GetType().Name); } }
+
+
 		public State State { get; set; }
 
 

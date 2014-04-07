@@ -11,6 +11,36 @@ namespace PMCG.Messaging.Client.UT
 	[TestFixture]
 	public class BusSpec
 	{
+		[Test]
+		public void Status_Initialised()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
+			var _busConfirguration = _busConfigurationBuilder.Build();
+
+			var _SUT = new Bus(_busConfirguration);
+
+			Assert.AreEqual(BusStatus.Initialised, _SUT.Status);
+		}
+
+
+		[Test]
+		public void Status_Connected_And_Then_Closed()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
+			var _busConfirguration = _busConfigurationBuilder.Build();
+
+			var _SUT = new Bus(_busConfirguration);
+
+			_SUT.Connect();
+			Assert.AreEqual(BusStatus.Connected, _SUT.Status);
+
+			_SUT.Close();
+			Assert.AreEqual(BusStatus.Closed, _SUT.Status);
+		}
+
+	
 		[Test, ExpectedException(typeof(ArgumentNullException))]
 		public void PublishAsync_Null_Message_Results_In_An_Exception()
 		{
@@ -18,10 +48,10 @@ namespace PMCG.Messaging.Client.UT
 			_busConfigurationBuilder.ConnectionUris.Add(TestingConfiguration.LocalConnectionUri);
 			var _busConfirguration = _busConfigurationBuilder.Build();
 
-			var _bus = new Bus(_busConfirguration);
-			_bus.Connect();
+			var _SUT = new Bus(_busConfirguration);
+			_SUT.Connect();
 
-			_bus.PublishAsync<MyEvent>(null);
+			_SUT.PublishAsync<MyEvent>(null);
 		}
 
 
