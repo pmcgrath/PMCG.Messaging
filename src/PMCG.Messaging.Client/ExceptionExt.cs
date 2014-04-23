@@ -3,7 +3,7 @@
 
 namespace PMCG.Messaging.Client
 {
-	public static class ExceptionExt
+	internal static class ExceptionExt
 	{
 		public static string InstrumentationString(
 			this Exception self)
