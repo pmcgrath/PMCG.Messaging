@@ -18,7 +18,7 @@ $version = git log -1 --pretty=format:%H;
 "Built @ {0}`r`nBy {1}`r`nVersion {2}" -f (get-date), $env:UserName, $version > (join-path $outputDirectoryPath 'BuildInfo.txt');
 
 # Copy content to output directory
-dir D:\myoss\PMCG.Messaging\src\PMCG.Messaging.Client\bin\Release | % { cp $_.Fullname $outputDirectoryPath }
+dir src\PMCG.Messaging.Client\bin\Release | % { cp $_.Fullname $outputDirectoryPath }
 
 # Result
 write-host "`n`n`n*****`nBinaries are available @ $outputDirectoryPath`n*****`n"
