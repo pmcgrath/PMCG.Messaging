@@ -106,7 +106,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _index = 1;
 			do
 			{
-				var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
+				var _myEvent = new MyEvent(Guid.NewGuid(), "", "R1", _index, "09:00", "DDD....");
 				var _task = _SUT.PublishAsync(_myEvent);
 				_task.Wait();
 				_index++;
@@ -164,7 +164,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), "", "R1", 1, "09:00", "DDD....");
 			var _result = _SUT.PublishAsync(_message);
 			var _completedWithinTimeout =_result.Wait(TimeSpan.FromSeconds(1));
 
@@ -191,7 +191,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), null, "R1", 1, "09:00", "DDD....");
 			var _result = _SUT.PublishAsync(_message);
 			_result.Wait();
 
@@ -221,7 +221,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), null, "R1", 1, "09:00", "DDD....");
 			_SUT.PublishAsync(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
@@ -255,7 +255,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), null, "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), null, null, 1, null, "DDD....");
 
 			try
 			{
@@ -306,7 +306,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			Console.WriteLine("Hit enter to publish message");
 			Console.ReadLine();
-			var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", 1);
+			var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", 1, "09:00", "....");
 			_SUT.PublishAsync(_message);
 
 			Console.WriteLine("Hit enter to display captured message Id");
@@ -344,7 +344,7 @@ namespace PMCG.Messaging.Client.Interactive
 			for (var _sequence = 1; _sequence <= _numberOfMessagesToPublish; _sequence++)
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
-				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", _sequence, "09:01", "...");
 				_SUT.PublishAsync(_message);
 				Thread.Sleep(100);
 			}
@@ -369,6 +369,28 @@ namespace PMCG.Messaging.Client.Interactive
 		}
 
 
+		public void Run_Where_We_Consume_From_A_Transient_Queue_On_A_Cluster()
+		{
+			var _busConfigurationBuilder = new BusConfigurationBuilder();
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
+			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri.Replace("rabbit1", "rabbit2"));
+			_busConfigurationBuilder.RegisterConsumer<MyEvent>("RunMessage",
+				message =>
+					{
+						Console.WriteLine("Received message");
+						Thread.Sleep(3000);
+						return ConsumerHandlerResult.Completed;
+					},
+				Configuration.ExchangeName2);
+			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			_SUT.Connect();
+
+			Console.WriteLine("Hit enter to stop consuming");
+			Console.ReadLine();
+			_SUT.Close();
+		}
+
+
 		public void Run_Where_We_Continuously_Publish_Until_Program_Killed()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
@@ -384,7 +406,7 @@ namespace PMCG.Messaging.Client.Interactive
 			while(true)
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
-				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", _sequence, "09:01", "...");
 
 				try
 				{
@@ -422,7 +444,7 @@ namespace PMCG.Messaging.Client.Interactive
 						for (var _sequence = 1; _sequence <= 1000; _sequence++)
 						{
 							Console.WriteLine("About to publish {0}", _sequence);
-							var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+							var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", _sequence, "09:01", "...");
 
 							try
 							{
@@ -464,7 +486,7 @@ namespace PMCG.Messaging.Client.Interactive
 			while (true)
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
-				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", _sequence, "09:01", "...");
 
 				try
 				{
@@ -501,7 +523,7 @@ namespace PMCG.Messaging.Client.Interactive
 			while (true)
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
-				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", _sequence, "09:12", "...");
 
 				try
 				{
@@ -532,7 +554,7 @@ namespace PMCG.Messaging.Client.Interactive
 				message =>
 					{
 						Console.WriteLine("Consuming message");
-						_bus.PublishAsync(new MyOtherEvent(Guid.NewGuid(), message.CorrelationId, "Pub with closure", message.Number));
+						_bus.PublishAsync(new MyOtherEvent(Guid.NewGuid(), message.CorrelationId, "Pub with closure", message.Sequence));
 						Thread.Sleep(4000);
 						return ConsumerHandlerResult.Completed;
 					});
@@ -547,7 +569,7 @@ namespace PMCG.Messaging.Client.Interactive
 			do
 			{
 				Console.WriteLine("About to publish {0}", _sequence);
-				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "...", _sequence);
+				var _message = new MyEvent(Guid.NewGuid(), "Correlation Id", "R1", _sequence, "09:01", "...");
 
 				try
 				{

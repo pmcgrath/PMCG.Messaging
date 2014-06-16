@@ -59,14 +59,15 @@ namespace PMCG.Messaging.Client
 			this.c_isCloseRequested = false;
 			while (!this.c_isCloseRequested)
 			{
-				try
+				this.c_logger.InfoFormat("Open Trying to connect, sequence {0}", _attemptSequence);
+				foreach (var _connectionUri in this.c_connectionUris)
 				{
-					this.c_logger.InfoFormat("Open Trying to connect, sequence {0}", _attemptSequence);
-					foreach (var _connectionUri in this.c_connectionUris)
+					var _connectionFactory = new ConnectionFactory { Uri = _connectionUri, RequestedHeartbeat = (ushort)this.c_heartbeatInterval.TotalSeconds };
+					var _connectionInfo = string.Format("Host {0}, port {1}, vhost {2}", _connectionFactory.HostName, _connectionFactory.Port, _connectionFactory.VirtualHost);
+					this.c_logger.InfoFormat("Open Attempting to connect to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
+
+					try
 					{
-						var _connectionFactory = new ConnectionFactory{ Uri = _connectionUri, RequestedHeartbeat = (ushort)this.c_heartbeatInterval.TotalSeconds };
-						var _connectionInfo = string.Format("Host {0}, port {1}, vhost {2}", _connectionFactory.HostName, _connectionFactory.Port, _connectionFactory.VirtualHost);
-						this.c_logger.InfoFormat("Open Attempting to connect to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						this.c_connection = _connectionFactory.CreateConnection();
 						this.c_connection.ConnectionBlocked += this.OnConnectionBlocked;
 						this.c_connection.ConnectionShutdown += this.OnConnectionShutdown;
@@ -75,17 +76,21 @@ namespace PMCG.Messaging.Client
 						this.c_logger.InfoFormat("Open Connected to ({0}), sequence {1}", _connectionInfo, _attemptSequence);
 						break;
 					}
-
-					if (this.IsOpen) { break; }
+					catch (SocketException exception)
+					{
+						this.c_logger.WarnFormat("Open Failed to connect {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
+					}
+					catch (BrokerUnreachableException exception)
+					{
+						this.c_logger.WarnFormat("Open Failed to connect, sequence {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
+					}
+					catch
+					{
+						throw;
+					}
 				}
-				catch (SocketException exception)
-				{
-					this.c_logger.WarnFormat("Open Failed to connect {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
-				}
-				catch (BrokerUnreachableException exception)
-				{
-					this.c_logger.WarnFormat("Open Failed to connect, sequence {0} - {1} {2}", _attemptSequence, exception.GetType().Name, exception.Message);
-				}
+				
+				if (this.IsOpen) { break; }
 
 				if (this.c_isCloseRequested) { return; }
 				if (numberOfTimesToTry > 0 && _attemptSequence == numberOfTimesToTry) { return; }

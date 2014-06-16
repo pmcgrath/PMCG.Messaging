@@ -47,7 +47,7 @@ namespace PMCG.Messaging.Client.Interactive
 				var _messageDelivery = new MessageDelivery(Configuration.ExchangeName1, "H", MessageDeliveryMode.Persistent, m => "Ted");
 				for (var _index = 1; _index <= 100; _index++)
 				{
-					var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
+					var _myEvent = new MyEvent(Guid.NewGuid(), "", "R1", _index, "09:00", "DDD....");
 					var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 					var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
 
@@ -80,7 +80,7 @@ namespace PMCG.Messaging.Client.Interactive
 				var _messageDelivery = new MessageDelivery(Configuration.ExchangeName1, "H", MessageDeliveryMode.Persistent, m => "Ted");
 				for (var _index = 1; _index <= 100; _index++)
 				{
-					var _myEvent = new MyEvent(Guid.NewGuid(), "", "DDD....", _index);
+					var _myEvent = new MyEvent(Guid.NewGuid(), "", "R1", _index, "09:00", "DDD....");
 					var _taskCompletionSource = new TaskCompletionSource<PublicationResult>();
 					var _publication = new Publication(_messageDelivery, _myEvent, _taskCompletionSource);
 
@@ -113,7 +113,7 @@ namespace PMCG.Messaging.Client.Interactive
 
 			var _publication = new Publication(
 				new MessageDelivery("NON_EXISTENT_EXCHANGE", "H", MessageDeliveryMode.Persistent, m => "Ted"),
-				new MyEvent(Guid.NewGuid(), "", "DDD....", 1),
+				new MyEvent(Guid.NewGuid(), "", "R1", 1, "09:00", "DDD...."),
 				new TaskCompletionSource<PublicationResult>());
 			this.c_publicationQueue.Add(_publication);
 
