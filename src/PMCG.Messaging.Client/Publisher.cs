@@ -67,7 +67,7 @@ namespace PMCG.Messaging.Client
 						}
 						catch (Exception exception)
 						{
-							this.c_logger.ErrorFormat("Exception : {0}", exception.InstrumentationString());
+							this.c_logger.ErrorFormat("Start Exception : {0}", exception.InstrumentationString());
 							throw;
 						}
 						finally
@@ -161,7 +161,7 @@ namespace PMCG.Messaging.Client
 			IModel channel,
 			ShutdownEventArgs reason)
 		{
-			this.c_logger.WarnFormat("OnChannelShuutdown Starting, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
+			this.c_logger.InfoFormat("OnChannelShuutdown Starting, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 
 			var _highestDeliveryTag = this.c_unconfirmedPublications
 				.Keys
@@ -176,7 +176,7 @@ namespace PMCG.Messaging.Client
 					publication => publication.SetResult(PublicationResultStatus.ChannelShutdown, _context));
 			}
 
-			this.c_logger.WarnFormat("OnChannelShuutdown Completed, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
+			this.c_logger.InfoFormat("OnChannelShuutdown Completed, code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 		}
 
 

@@ -96,7 +96,7 @@ namespace PMCG.Messaging.Client
 			IModel channel,
 			ShutdownEventArgs reason)
 		{
-			this.c_logger.WarnFormat("OnChannelShuutdown Code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
+			this.c_logger.InfoFormat("OnChannelShuutdown Code = {0} and text = {1}", reason.ReplyCode, reason.ReplyText);
 		}
 
 
