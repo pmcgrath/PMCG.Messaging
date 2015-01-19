@@ -81,7 +81,7 @@ namespace PMCG.Messaging.Inv
 				this.c_writeLog(string.Format("About to publish message ({0})", _messageBodyContent));
 				_channel.BasicPublish(this.c_exchangeName, string.Empty, _properties, _messageBody);
 				var _timedOut = false;
-				var _confirmed = _channel.WaitForConfirms(this.c_waitTimeOut, out _timedOut);
+				_channel.WaitForConfirms(this.c_waitTimeOut, out _timedOut);
 				if (_timedOut)
 				{
 					this.c_writeLog(string.Format("Timed out on publish message ({0})", _messageBodyContent));

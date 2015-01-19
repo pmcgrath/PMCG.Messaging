@@ -53,7 +53,7 @@ namespace PMCG.Messaging.Inv
 		{
 			var _result = new TaskCompletionSource<bool>();
 
-			var _timer = new Timer(state => _result.SetException(new ApplicationException("AAAAA !!!")), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(0));
+			new Timer(state => _result.SetException(new ApplicationException("AAAAA !!!")), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(0));
 
 			return _result.Task;
 		}

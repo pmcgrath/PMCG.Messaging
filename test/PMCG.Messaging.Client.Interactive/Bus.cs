@@ -33,7 +33,7 @@ namespace PMCG.Messaging.Client.Interactive
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 
-			var _SUT = new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
+			new PMCG.Messaging.Client.Bus(_busConfigurationBuilder.Build());
 
 			Console.WriteLine("Stop the broker by running the following command as an admin");
 			Console.WriteLine("\t rabbitmqctl.bat stop");
@@ -121,8 +121,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Publish_A_Null_Message_Results_In_An_Exception()
 		{
-			var _capturedMessageId = string.Empty;
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder
@@ -153,8 +151,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Publish_A_Message_To_A_Queue_Using_The_Direct_Exchange()
 		{
-			var _capturedMessageId = string.Empty;
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder
@@ -166,7 +162,7 @@ namespace PMCG.Messaging.Client.Interactive
 			Console.ReadLine();
 			var _message = new MyEvent(Guid.NewGuid(), "", "R1", 1, "09:00", "DDD....");
 			var _result = _SUT.PublishAsync(_message);
-			var _completedWithinTimeout =_result.Wait(TimeSpan.FromSeconds(1));
+			_result.Wait(TimeSpan.FromSeconds(1));
 
 			Console.WriteLine("Hit enter to close");
 			Console.ReadLine();
@@ -179,8 +175,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Publish_A_Message_To_Two_Exchanges_No_Consumption_For_The_Same_Messsage()
 		{
-			var _capturedMessageId = string.Empty;
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder
@@ -492,7 +486,7 @@ namespace PMCG.Messaging.Client.Interactive
 				{
 					var _publicationTimeout = TimeSpan.FromTicks(0);
 					var _result = _SUT.PublishAsync(_message);
-					var _completedWithinTimeout = _result.Wait(_publicationTimeout);
+					_result.Wait(_publicationTimeout);
 
 					// PENDING - What do clients do ?
 					Console.WriteLine("PENDING");

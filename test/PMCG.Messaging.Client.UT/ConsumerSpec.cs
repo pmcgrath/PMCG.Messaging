@@ -116,7 +116,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => { _capturedConsumer = callInfo[2] as QueueingBasicConsumer; _waitHandle.Set(); });
 
 			var _SUT = new Consumer(_connection, _configuration, CancellationToken.None);
-			var _consumerTask = _SUT.Start();
+			_SUT.Start();				// Can't capture result due to compiler treating warnings as errors 
 			_waitHandle.WaitOne();			// Wait till consumer task has called the BasicConsume method which captures the consumer
 			_waitHandle.Reset();			// Reset so we can block on the consumer message func
 

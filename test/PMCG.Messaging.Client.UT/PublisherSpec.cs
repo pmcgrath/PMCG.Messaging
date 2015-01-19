@@ -102,7 +102,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _waitHandle.Set());
 
 			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
+			_SUT.Start(); 	// Can't capture result due to compiler treating warnings as errors - var is not used
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 1);
@@ -139,7 +139,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _waitHandle.Signal());
 
 			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
+			_SUT.Start();	// Can't capture due to compiler treating warnings as errors
 
 			var _publications = new List<Publication>();
 			for (var _index = 1; _index <= 10; _index++)
@@ -180,7 +180,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _waitHandle.Signal());
 
 			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
+			_SUT.Start();
 
 			var _publications = new List<Publication>();
 			for (var _index = 1; _index <= 100; _index++)
@@ -220,7 +220,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _waitHandle.Set());
 
 			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
+			_SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 100);
@@ -252,7 +252,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _waitHandle.Signal());
 
 			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
+			_SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("test_publisher_confirms", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 100);
@@ -292,7 +292,7 @@ namespace PMCG.Messaging.Client.UT
 				.Do(callInfo => _waitHandle.Set());
 
 			var _SUT = new Publisher(_connection, _publicationQueue, CancellationToken.None);
-			var _publisherTask = _SUT.Start();
+			_SUT.Start();
 
 			var _messageDelivery = new MessageDelivery("NON_EXISTENT_EXCHANGE", typeof(MyEvent).Name, MessageDeliveryMode.Persistent, message => "ARoutingKey");
 			var _myEvent = new MyEvent(Guid.NewGuid(), "CorrlationId_1", "Detail", 100);

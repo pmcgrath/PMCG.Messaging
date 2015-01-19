@@ -53,7 +53,7 @@ namespace PMCG.Messaging.Client.UT.Configuration
 		[Test, ExpectedException]
 		public void Ctor_Where_Command_With_Multiple_Message_Deliveries_Results_In_An_Exception()
 		{
-			var _SUT = new MessagePublication(
+			new MessagePublication(
 				typeof(MyCommand),
 				new []
 					{

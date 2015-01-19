@@ -25,7 +25,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connectionManager = Substitute.For<IConnectionManager>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new Blocked(
+			new Blocked(
 				_busConfirguration,
 				_connectionManager,
 				_context);

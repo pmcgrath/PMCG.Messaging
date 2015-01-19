@@ -27,7 +27,7 @@ namespace PMCG.Messaging.Client.UT.BusState
 			var _connectionManager = Substitute.For<IConnectionManager>();
 			var _context = Substitute.For<IBusContext>();
 
-			var _SUT = new Connected(
+			new Connected(
 				_busConfirguration,
 				_connectionManager,
 				_context);
@@ -360,6 +360,9 @@ namespace PMCG.Messaging.Client.UT.BusState
 			_context.When(context => context.State = Arg.Any<State>()).Do(callInfo => _capturedState = callInfo[0] as State);
 			_connectionManager.Disconnected += Raise.Event<EventHandler<ConnectionDisconnectedEventArgs>>(_connection, new ConnectionDisconnectedEventArgs(1, "."));
 
+			Assert.IsNotNull(_publicationResult1);
+			Assert.IsNotNull(_capturedState);
+			
 			_publicationResult2.Wait();		// Second never gets pulled from queue due to slow BasicPublish on first message
 			Assert.AreEqual(PMCG.Messaging.PublicationResultStatus.NotPublished, _publicationResult2.Result.Status);
 		}

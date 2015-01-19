@@ -14,7 +14,7 @@ namespace PMCG.Messaging.Inv
 		{
 			var _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 			this.c_cancellationToken = _cancellationTokenSource.Token;
-			var _task = this.DoWork();
+			this.DoWork();
 
 			Console.WriteLine("{0:mm:ss.ffffff} [{1}] Hit enter to exit", DateTime.Now, Thread.CurrentThread.ManagedThreadId);
 			Console.ReadLine();

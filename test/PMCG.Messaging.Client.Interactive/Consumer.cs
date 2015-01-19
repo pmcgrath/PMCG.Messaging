@@ -37,8 +37,6 @@ namespace PMCG.Messaging.Client.Interactive
 
 		public void Run_Where_We_Create_A_Transient_Queue_And_Then_Close_Connection()
 		{
-			var _capturedMessageId = string.Empty;
-
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
 			_busConfigurationBuilder.ConnectionUris.Add(Configuration.LocalConnectionUri);
 			_busConfigurationBuilder
@@ -47,7 +45,7 @@ namespace PMCG.Messaging.Client.Interactive
 					typeof(MyEvent).Name)
 				.RegisterConsumer<MyEvent>(
 					typeof(MyEvent).Name,
-					message => { _capturedMessageId = message.Id.ToString(); return ConsumerHandlerResult.Completed; },
+					message => { return ConsumerHandlerResult.Completed; },
 				Configuration.ExchangeName1);
 			this.InstantiateAndStartConsumer(_busConfigurationBuilder.Build());
 

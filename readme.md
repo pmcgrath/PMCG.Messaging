@@ -20,8 +20,13 @@ The following are richer alternatives you should probably consider
 
 
 ## Build
+### Windows
 Run build.ps1  
-Binaries are placed in the bin directory  
+Binaries are placed in the bin sub directory  
+
+### Linux\mono
+Run build.sh  
+Binaries are placed in the bin sub directory  
 
 
 ## Pre-configuring RabbitMQ
@@ -29,8 +34,26 @@ Pending...
 
 
 ## Sample usage
+Will demonstrate connecting to a local instance where user name is guest and password is guest even though is [discouraged since v3.3.0)(http://www.rabbitmq.com/blog/2014/04/02/breaking-things-with-rabbitmq-3-3/) so can replace with your values
 ### Pre-configure
-Pending
+Enable the management plugin so we can use curl to pre-configure rabbitmq for our sample app
+```bash
+rabbitmq-plugins enable rabbitmq_management
+# Now restart service so we can access the management api on port 15672
+```
+
+Pre-configure rabbitmq for the sample app (Will need extra escaping if being run within powershell)
+```bash
+# Create 2 fanout exchanges
+curl -i -u guest:guest -H 'Content-Type:application/json' -d '{ "auto_delete": false, "durable": true, "type": "fanout" }' -X PUT http://localhost:15672/api/exchanges/%2f/test.exchange.1
+curl -i -u guest:guest -H 'Content-Type:application/json' -d '{ "auto_delete": false, "durable": true, "type": "fanout" }' -X PUT http://localhost:15672/api/exchanges/%2f/test.exchange.2
+
+# Create a queue
+curl -i -u guest:guest -H 'Content-Type:application/json' -d '{ "auto_delete": false, "durable": false, "exclusive": false }' -X PUT http://localhost:15672/api/queues/%2f/test.queue.1
+
+# Bind queue to one of the exchanges
+curl -i -u guest:guest -H 'Content-Type:application/json' -d '{ "routing_key": "" }' -X POST http://localhost:15672/api/bindings/%2f/e/test.exchange.1/q/test.queue.1
+```
  
 ### Code in app.cs
 ```csharp
@@ -110,7 +133,7 @@ public class App
             {
                 var _result = _bus.PublishAsync(_message);
                 var _completedWithinTimeout = _result.Wait(TimeSpan.FromSeconds(1));
-                Console.WriteLine("Completed within timed out = {0}, result status is {1}", _completedWithinTimeout, _result.Result.Status);
+                Console.WriteLine("Completed within timed out [true\false] = {0}, result status is {1}", _completedWithinTimeout, _result.Result.Status);
             }
             catch (Exception theException)
             {
@@ -128,9 +151,14 @@ public class App
 ```
 
 ### Compile sample as follows  
-Place the content of the bins directory into a local directory  
+Place the content of the bin's directory into a local directory  
 Place above content in a file named app.cs in the same local directory  
-Compile using  
+On windows compile using  
 ```powershell
-C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe .\app.cs /r:PMCG.Messaging.Client.dll /r:PMCG.Messaging.dll
+C:\windows\microsoft.net\framework64\v4.0.30319\csc.exe .\app.cs /r:PMCG.Messaging.Client.dll /r:PMCG.Messaging.dll
 ```
+On linux\mono compile using  
+```bash
+mcs app.cs /r:PMCG.Messaging.Client.dll /r:PMCG.Messaging.dll
+```
+

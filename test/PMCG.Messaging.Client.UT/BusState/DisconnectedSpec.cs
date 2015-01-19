@@ -30,6 +30,8 @@ namespace PMCG.Messaging.Client.UT.BusState
 				_busConfirguration,
 				_connectionManager,
 				_context);
+
+			Assert.IsNotNull(_SUT);
 		}
 
 

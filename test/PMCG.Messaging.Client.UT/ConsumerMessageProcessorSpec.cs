@@ -16,7 +16,6 @@ namespace PMCG.Messaging.Client.UT
 		private IModel c_channel;
 		private ConsumerMessageProcessor c_SUT;
 		private ConsumerHandlerResult c_messageProcessrResult;
-		private CancellationTokenSource c_cancellationTokenSource;
 
 
 		[SetUp]
@@ -58,8 +57,6 @@ namespace PMCG.Messaging.Client.UT
 			var _busConfiguration = _busConfigurationBuilder.Build();
 
 			var _connection = Substitute.For<IConnection>();
-
-			this.c_cancellationTokenSource = new CancellationTokenSource();
 
 			this.c_channel = Substitute.For<IModel>();
 			_connection.CreateModel().Returns(this.c_channel);
