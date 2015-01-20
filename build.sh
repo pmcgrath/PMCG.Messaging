@@ -2,10 +2,10 @@
 # Have kept the same as the powershell file
 
 # Ensure runtime available
-[ -z $(which xbuild)] && (echo 'mono not available ?' && exit 1)
+[ -z $(which xbuild) ] && (echo 'mono not available ?' && exit 1)
 
 # Push current location
-pushd .
+pushd . > /dev/null
 
 # Paths
 rootDirectoryPath=$(dirname $(readlink -f $0))
@@ -31,4 +31,5 @@ cp ./src/PMCG.Messaging.Client/bin/Release/* $outputDirectoryPath
 echo -e "\n\n\n*****\nBinaries are available @ $outputDirectoryPath\n*****\n"
 
 # Pop back to original location
-popd
+popd > /dev/null
+
