@@ -50,6 +50,7 @@
     <Compile Include="TaskInv2.cs" />
     <Compile Include="PublisherConfirmsWithTasksInv.cs" />
     <Compile Include="PublisherConfirmsInv.cs" />
+    <Compile Include="ReconnectionsIntroducedInv3_4.cs" />
     <Compile Include="SynchPublisherHttpHandler.cs" />
     <Compile Include="SyncPublisherConfirms.cs" />
     <Compile Include="PublisherConfirmsUsage.cs" />
