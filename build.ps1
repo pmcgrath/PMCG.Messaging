@@ -13,7 +13,7 @@ $rootDirectoryPath = (split-path ($MyInvocation.MyCommand.Path))
 $solutionFilePath = join-path $rootDirectoryPath (join-path src PMCG.Messaging.sln)
 $versionAttributeFilePath = join-path $rootDirectoryPath (join-path src SharedAssemblyInfo.cs)
 $releaseDirectoryPath = join-path $rootDirectoryPath release
-$nugetSpecFilePath = join-path $rootDirectoryPath PMCG.Messaging.Client.nuspec
+$nugetSpecFilePath = join-path $rootDirectoryPath PMCG.Messaging.nuspec
 
 
 write-host "### Compile"
@@ -39,3 +39,4 @@ if (test-path $releaseDirectoryPath) { rm -recurse -force $releaseDirectoryPath 
 mkdir $releaseDirectoryPath | out-null
 # nuget pack
 nuget pack $nugetSpecFilePath -outputdirectory $releaseDirectoryPath -version $version -verbosity detailed
+

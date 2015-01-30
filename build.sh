@@ -15,7 +15,7 @@ echo "### Paths"
 root_directory_path=$(dirname $(readlink -f $0))
 solution_file_path=$root_directory_path/src/PMCG.Messaging.sln
 version_attribute_file_path=$root_directory_path/src/SharedAssemblyInfo.cs
-nuget_spec_file_path=$root_directory_path/PMCG.Messaging.Client.nuspec
+nuget_spec_file_path=$root_directory_path/PMCG.Messaging.nuspec
 release_directory_path=$root_directory_path/release
 
 
