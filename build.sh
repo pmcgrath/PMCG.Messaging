@@ -16,6 +16,7 @@ root_directory_path=$(dirname $(readlink -f $0))
 solution_file_path=$root_directory_path/src/PMCG.Messaging.sln
 version_attribute_file_path=$root_directory_path/src/SharedAssemblyInfo.cs
 nuget_spec_file_path=$root_directory_path/PMCG.Messaging.Client.nuspec
+release_directory_path=$root_directory_path/release
 
 
 echo "### Compile"
@@ -37,7 +38,6 @@ echo "### nuget pack"
 # Switch to unix style path separators
 sed -i 's#\\#/#g' $nuget_spec_file_path
 # Ensure we have an empty release directory
-release_directory_path=$root_directory_path/release
 [ -d $release_directory_path ] && rm $release_directory_path -r
 mkdir $release_directory_path
 # nuget pack

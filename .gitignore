@@ -2,6 +2,9 @@
 bin/
 obj/
 
+# Build result directory
+release
+
 # Visual studio files
 *.sln.DotSettings.user
 *.csproj.user
