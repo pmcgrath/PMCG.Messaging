@@ -12,12 +12,13 @@ echo "### Is environment available"
 
 
 echo "### Paths"
+nuget_spec_file_name=PMCG.Messaging.nuspec
 root_directory_path=$(dirname $(readlink -f $0))
 solution_file_path=$root_directory_path/src/PMCG.Messaging.sln
 version_attribute_file_path=$root_directory_path/src/SharedAssemblyInfo.cs
-nuget_spec_file_path=$root_directory_path/PMCG.Messaging.nuspec
 release_directory_path=$root_directory_path/release
-
+nuget_spec_file_path=$root_directory_path/$nuget_spec_file_name
+nuget_package_file_path=$release_directory_path/${nuget_spec_file_name/.nuspec/.${version}.nupkg}
 
 echo "### Compile"
 # Change version attribute - Assembly and file
@@ -44,3 +45,7 @@ mkdir $release_directory_path
 nuget pack $nuget_spec_file_path -outputdirectory $release_directory_path -version $version -verbosity detailed
 # Restore nuget spec file - windows separators
 git checkout $nuget_spec_file_path
+
+
+echo "### Push instruction"
+echo -e "You can push the package just created to the default source (nuget.org) with the following command\n\tapi_key=key_from_nuget.org\n\tnuget push $nuget_package_file_path -apikey \$api_key -verbosity detailed"

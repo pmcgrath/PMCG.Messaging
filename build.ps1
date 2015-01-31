@@ -1,7 +1,7 @@
 ### Args
 if ($args.Count -ne 1) { write-host "Usage is $($MyInvocation.MyCommand.Path) version"; exit 1 }
 # Version
-$version = $args[0]
+[string]$version = $args[0]
 
 
 write-host "### Is environment available"
@@ -9,11 +9,13 @@ if (!(test-path c:\windows\microsoft.net\framework64\v4.0.30319\msbuild.exe)) { 
 
 
 write-host "### Paths"
+$nugetSpecFileName = 'PMCG.Messaging.nuspec'
 $rootDirectoryPath = (split-path ($MyInvocation.MyCommand.Path))
 $solutionFilePath = join-path $rootDirectoryPath (join-path src PMCG.Messaging.sln)
 $versionAttributeFilePath = join-path $rootDirectoryPath (join-path src SharedAssemblyInfo.cs)
 $releaseDirectoryPath = join-path $rootDirectoryPath release
-$nugetSpecFilePath = join-path $rootDirectoryPath PMCG.Messaging.nuspec
+$nugetSpecFilePath = join-path $rootDirectoryPath $nugetSpecFileName
+$nugetPackageFilePath = join-path $releaseDirectoryPath $nugetSpecFileName.Replace('.nuspec', '.' + $version + '.nupkg')
 
 
 write-host "### Compile"
@@ -40,3 +42,6 @@ mkdir $releaseDirectoryPath | out-null
 # nuget pack
 nuget pack $nugetSpecFilePath -outputdirectory $releaseDirectoryPath -version $version -verbosity detailed
 
+
+write-host "### Push instruction"
+write-host "You can push the package just created to the default source (nuget.org) with the following command`n`t`$apiKey=key_from_nuget.org`n`tnuget push $nugetPackageFilePath -apikey `$apiKey -verbosity detailed"
