@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using log4net;
 using PMCG.Messaging.Client.Configuration;
 using System;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace PMCG.Messaging.Client.BusState
 			IConnectionManager connectionManager,
 			IBusContext context)
 		{
-			this.Logger = LogManager.GetLogger(this.GetType().FullName);
+			this.Logger = LogManager.GetLogger(this.GetType());
 			this.Logger.Info("ctor Starting");
 
 			this.Configuration = configuration;

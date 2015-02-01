@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using log4net;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -32,7 +32,7 @@ namespace PMCG.Messaging.Client
 			BusConfiguration configuration,
 			CancellationToken cancellationToken)
 		{
-			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger = LogManager.GetLogger(this.GetType());
 			this.c_logger.Info("ctor Starting");
 
 			this.c_configuration = configuration;

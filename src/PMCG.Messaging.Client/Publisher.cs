@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using log4net;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -33,7 +33,7 @@ namespace PMCG.Messaging.Client
 			BlockingCollection<Publication> publicationQueue,
 			CancellationToken cancellationToken)
 		{
-			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger = LogManager.GetLogger(this.GetType());
 			this.c_logger.Info("ctor Starting");
 
 			this.c_publicationQueue = publicationQueue;

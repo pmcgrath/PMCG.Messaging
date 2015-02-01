@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using log4net;
 using Newtonsoft.Json;
 using PMCG.Messaging.Client.Configuration;
 using RabbitMQ.Client;
@@ -18,7 +18,7 @@ namespace PMCG.Messaging.Client
 		public ConsumerMessageProcessor(
 			BusConfiguration configuration)
 		{
-			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger = LogManager.GetLogger(this.GetType());
 			this.c_logger.Info("ctor Starting");
 			
 			this.c_configuration = configuration;

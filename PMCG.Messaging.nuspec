@@ -12,7 +12,7 @@
     <copyright>Copyright 2015</copyright>
     <tags>RabbitMQ AMQP</tags>
     <dependencies>
-      <dependency id="Common.Logging" version="2.1.2"/>
+      <dependency id="log4net" version="2.0.3"/>
       <dependency id="Newtonsoft.Json" version="6.0.1"/>
       <dependency id="RabbitMQ.Client" version="3.4.3"/>
     </dependencies>

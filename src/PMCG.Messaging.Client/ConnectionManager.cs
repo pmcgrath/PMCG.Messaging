@@ -1,4 +1,4 @@
-﻿using Common.Logging;
+﻿using log4net;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -35,7 +35,7 @@ namespace PMCG.Messaging.Client
 			TimeSpan heartbeatInterval,
 			TimeSpan reconnectionPauseInterval)
 		{
-			this.c_logger = LogManager.GetCurrentClassLogger();
+			this.c_logger = LogManager.GetLogger(this.GetType());
 			this.c_logger.Info("ctor Starting");
 			
 			Check.RequireArgumentNotEmptyAndNonEmptyItems("connectionUris", connectionUris);
