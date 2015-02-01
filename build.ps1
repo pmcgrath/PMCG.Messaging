@@ -30,7 +30,7 @@ git checkout $versionAttributeFilePath
 
 write-host "### Run tests - Test all release UT assemblies within the test directory"
 dir test -recurse -include *.UT.dll | ? { $_.FullName.IndexOf('bin\Release') -gt -1 } | % {
-	.\lib\NUnit\bin\nunit-console.exe $_.FullName
+	.\lib\NUnit.Runners\tools\nunit-console.exe -framework:net-4.5 $_.FullName
 	if ($LastExitCode -ne 0) { write-host 'Run tests failure !'; exit 1 }
 }
 

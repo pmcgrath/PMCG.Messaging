@@ -25,6 +25,7 @@ namespace PMCG.Messaging.Client.UT
 
 
 		[Test]
+		[Category("RequiresRunningInstance")]
 		public void Status_Connected_And_Then_Closed()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();
@@ -42,6 +43,7 @@ namespace PMCG.Messaging.Client.UT
 
 	
 		[Test, ExpectedException(typeof(ArgumentNullException))]
+		[Category("RequiresRunningInstance")]
 		public void PublishAsync_Null_Message_Results_In_An_Exception()
 		{
 			var _busConfigurationBuilder = new BusConfigurationBuilder();

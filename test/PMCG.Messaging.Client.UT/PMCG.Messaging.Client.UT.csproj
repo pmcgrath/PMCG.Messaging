@@ -40,7 +40,7 @@
       <HintPath>..\..\lib\NSubstitute\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\lib\NUnit\bin\nunit.framework.dll</HintPath>
+      <HintPath>..\..\lib\NUnit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\..\lib\RabbitMQ\RabbitMQ.Client.dll</HintPath>

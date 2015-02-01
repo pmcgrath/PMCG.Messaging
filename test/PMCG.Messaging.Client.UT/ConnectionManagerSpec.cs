@@ -22,6 +22,7 @@ namespace PMCG.Messaging.Client.UT
 
 
 		[Test, ExpectedException]
+		[Category("RequiresRunningInstance")]
 		public void Open_Where_Already_Opened_And_Second_Open_Call_Made_Results_In_Connection_Not_Being_Opened()
 		{
 			var _SUT = new ConnectionManager(

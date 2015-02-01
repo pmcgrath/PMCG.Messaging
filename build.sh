@@ -31,7 +31,7 @@ git checkout $version_attribute_file_path
 
 
 echo "### Run tests - Test all release UT assemblies within the test directory"
-find ./test -name '*.UT.dll' | grep '/bin/Release/' | xargs mono ./lib/NUnit/bin/nunit-console.exe
+find ./test -name '*.UT.dll' | grep '/bin/Release/' | xargs mono ./lib/NUnit.Runners/tools/nunit-console.exe
 [ $? != 0 ] && echo "Run tests failure !" && exit 1
 
 
