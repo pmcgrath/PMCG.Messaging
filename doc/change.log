@@ -1,0 +1,22 @@
+Reverted to just using log4net for logging
+	log4net now includes a ILog interface
+	Got rid of all Common.Logging interfaces
+
+Updated reference assembly versions
+	log4net			1.2.12		2.0.3 (1.2.13)
+	Newtonsoft.Json		6.0.1		6.0.8
+	NSubstitute		1.6.1		1.8.1
+	Nunit			2.6.2		2.6.4
+	RabbitMQ		3.3.4		3.4.3
+
+	I have manually added these changes, used nuget install to pull down, and then manually placed assemblies in the lib directory
+	Need to move towards just specifying the dependencies - like ruby Gemfile
+
+Added nuget package management creation to build scripts
+	
+Testing issues
+	Why does the test run take so long to complete 
+		On mono have narrowed this down to issues with PublisherSpec
+
+RabbitMQ 3.4 recovery options
+	Have left as defaulted to not do recovery for now as this is a very like what the connection manager in this library does
