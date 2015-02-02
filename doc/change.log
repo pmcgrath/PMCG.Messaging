@@ -3,15 +3,15 @@ Reverted to just using log4net for logging
 	Got rid of all Common.Logging interfaces
 
 Updated reference assembly versions
-	log4net			1.2.12		2.0.3 (1.2.13)
+	log4net				1.2.12		2.0.3 (1.2.13)
 	Newtonsoft.Json		6.0.1		6.0.8
-	NSubstitute		1.6.1		1.8.1
-	Nunit			2.6.2		2.6.4
-	RabbitMQ		3.3.4		3.4.3
+	NSubstitute			1.6.1		1.8.1
+	Nunit				2.6.2		2.6.4
+	RabbitMQ			3.3.4		3.4.3
 
-	I have manually added these changes, used nuget install to pull down, and then manually placed assemblies in the lib directory
-	Need to move towards just specifying the dependencies - like ruby Gemfile
-
+	I manually added these changes, used nuget install to pull down, and then manually placed assemblies in the lib directory
+	I have now updated to use nuget - hence the package.config files in each of the projects - NUnit.Runners is taken care of by the build scripts
+	
 Added nuget package management creation to build scripts
 	
 Testing issues
