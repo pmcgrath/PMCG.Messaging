@@ -1,4 +1,4 @@
-# RabbitMQ .Net library
+﻿# RabbitMQ .Net library
 
 This library is lightweight library for interacting with RabbitMQ
 
