@@ -20,6 +20,11 @@ release_directory_path=$root_directory_path/release
 nuget_spec_file_path=$root_directory_path/$nuget_spec_file_name
 nuget_package_file_path=$release_directory_path/${nuget_spec_file_name/.nuspec/.${version}.nupkg}
 
+
+echo "### nuget ensure we have our dependencies"
+nuget restore $solution_file_path -verbosity detailed
+
+
 echo "### Compile"
 # Change version attribute - Assembly and file
 sed -i "s/Version(\"[0-9.]*/Version(\"$version/g" $version_attribute_file_path
@@ -30,8 +35,12 @@ xbuild $solution_file_path /target:ReBuild /property:Configuration=Release
 git checkout $version_attribute_file_path
 
 
-echo "### Run tests - Test all release UT assemblies within the test directory"
-find ./test -name '*.UT.dll' | grep '/bin/Release/' | xargs mono ./lib/NUnit.Runners/tools/nunit-console.exe
+echo "### Run tests"
+# Ensure we have NUnit.Runners and get console app path
+nuget install NUnit.Runners -outputdirectory packages -verbosity detailed
+nunit_console_file_path=$(find -name 'nunit-console.exe')
+# Test all release UT assemblies within the test directory
+find ./test -name '*.UT.dll' | grep '/bin/Release/' | xargs mono $nunit_console_file_path
 [ $? != 0 ] && echo "Run tests failure !" && exit 1
 
 

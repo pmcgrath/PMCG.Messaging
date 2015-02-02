@@ -2,6 +2,9 @@
 bin/
 obj/
 
+# nuget packages
+packages
+
 # Build result directory
 release
 

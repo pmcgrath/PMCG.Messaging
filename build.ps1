@@ -18,6 +18,10 @@ $nugetSpecFilePath = join-path $rootDirectoryPath $nugetSpecFileName
 $nugetPackageFilePath = join-path $releaseDirectoryPath $nugetSpecFileName.Replace('.nuspec', '.' + $version + '.nupkg')
 
 
+echo "### nuget ensure we have our dependencies"
+nuget restore $solutionFilePath -verbosity detailed
+
+
 write-host "### Compile"
 # Change version attribute - Assembly and file
 (get-content $versionAttributeFilePath) | % { $_ -replace 'Version\("[\d.]*"', "Version(`"$version`"" } | set-content $versionAttributeFilePath -encoding utf8
@@ -28,9 +32,13 @@ if ($LastExitCode -ne 0) { write-host 'Compile failure !'; exit 1 }
 git checkout $versionAttributeFilePath
 
 
-write-host "### Run tests - Test all release UT assemblies within the test directory"
+write-host "### Run tests"
+# Ensure we have NUnit.Runners and get console app path
+nuget install NUnit.Runners -outputdirectory packages -verbosity detailed
+$nunitConsoleFilePath=(dir packages -r -include 'nunit-console.exe')[0].Fullname
+# Test all release UT assemblies within the test directory
 dir test -recurse -include *.UT.dll | ? { $_.FullName.IndexOf('bin\Release') -gt -1 } | % {
-	.\lib\NUnit.Runners\tools\nunit-console.exe -framework:net-4.5 $_.FullName
+	& $nunitConsoleFilePath -framework:net-4.5 $_.FullName
 	if ($LastExitCode -ne 0) { write-host 'Run tests failure !'; exit 1 }
 }
 
