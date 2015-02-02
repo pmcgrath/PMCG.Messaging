@@ -5,6 +5,9 @@ obj/
 # Build result directory
 release
 
+# NUnit files 
+TestResult.xml
+
 # Visual studio files
 *.sln.DotSettings.user
 *.csproj.user
