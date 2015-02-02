@@ -14,7 +14,7 @@ echo "### Is environment available"
 echo "### Paths"
 nuget_spec_file_name=PMCG.Messaging.nuspec
 root_directory_path=$(dirname $(readlink -f $0))
-solution_file_path=$root_directory_path/src/PMCG.Messaging.sln
+solution_file_path=$root_directory_path/PMCG.Messaging.sln
 version_attribute_file_path=$root_directory_path/src/SharedAssemblyInfo.cs
 release_directory_path=$root_directory_path/release
 nuget_spec_file_path=$root_directory_path/$nuget_spec_file_name

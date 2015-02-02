@@ -11,7 +11,7 @@ if (!(test-path c:\windows\microsoft.net\framework64\v4.0.30319\msbuild.exe)) { 
 write-host "### Paths"
 $nugetSpecFileName = 'PMCG.Messaging.nuspec'
 $rootDirectoryPath = (split-path ($MyInvocation.MyCommand.Path))
-$solutionFilePath = join-path $rootDirectoryPath (join-path src PMCG.Messaging.sln)
+$solutionFilePath = join-path $rootDirectoryPath PMCG.Messaging.sln
 $versionAttributeFilePath = join-path $rootDirectoryPath (join-path src SharedAssemblyInfo.cs)
 $releaseDirectoryPath = join-path $rootDirectoryPath release
 $nugetSpecFilePath = join-path $rootDirectoryPath $nugetSpecFileName
