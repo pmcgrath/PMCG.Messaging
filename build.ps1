@@ -1,4 +1,7 @@
-﻿### Args
+﻿# Stop on error, see http://redsymbol.net/articles/unofficial-bash-strict-mode/
+$ErrorActionPreference = 'Stop'
+
+### Args
 if ($args.Count -ne 1) { write-host "Usage is $($MyInvocation.MyCommand.Path) version"; exit 1 }
 # Version
 [string]$version = $args[0]

@@ -5,7 +5,7 @@ This library is lightweight library for interacting with RabbitMQ
 The following are richer alternatives you should probably consider
 * [EasyNetQ](https://github.com/mikehadlow/EasyNetQ)
 * [MassTransit](https://github.com/MassTransit/MassTransit)
-* [NserviceBus](https://github.com/Particular/NServiceBus)
+* [NServiceBus](https://github.com/Particular/NServiceBus)
 * [Rebus](https://github.com/rebus-org/Rebus)
 
 
@@ -21,12 +21,20 @@ The following are richer alternatives you should probably consider
 
 ## Build
 ### Windows
-Run build.ps1  
-Binaries are placed in the bin sub directory  
+Run 
+```bash
+$version = '1.0.0.1'
+./build.ps1 $version
+```
+Creates a nuget package in the release sub directory
 
 ### Linux\mono
-Run build.sh  
-Binaries are placed in the bin sub directory  
+Run 
+```bash
+version='1.0.0.1'
+./build.sh $version
+```
+Creates a nuget package in the release sub directory
 
 
 ## Pre-configuring RabbitMQ

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Stop on error, see http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+
 ### Args
 [ $# -ne 1 ] && echo "Usage is $0 version" && exit 1
 # Version
@@ -30,7 +33,6 @@ echo "### Compile"
 sed -i "s/Version(\"[0-9.]*/Version(\"$version/g" $version_attribute_file_path
 # Build
 xbuild $solution_file_path /target:ReBuild /property:Configuration=Release
-[ $? != 0 ] && echo "Compile failure !" && exit 1
 # Restore version attribute file
 git checkout $version_attribute_file_path
 
@@ -41,7 +43,6 @@ nuget install NUnit.Runners -outputdirectory packages -verbosity detailed
 nunit_console_file_path=$(find -name 'nunit-console.exe')
 # Test all release UT assemblies within the test directory
 find ./test -name '*.UT.dll' | grep '/bin/Release/' | xargs mono $nunit_console_file_path
-[ $? != 0 ] && echo "Run tests failure !" && exit 1
 
 
 echo "### nuget pack"
