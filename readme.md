@@ -1,8 +1,8 @@
 ﻿# RabbitMQ .Net library
 
-This library is lightweight library for interacting with RabbitMQ
+This is a lightweight library for interacting with RabbitMQ
 
-The following are richer alternatives you should probably consider
+The following are richer alternatives you may want to consider
 * [EasyNetQ](https://github.com/mikehadlow/EasyNetQ)
 * [MassTransit](https://github.com/MassTransit/MassTransit)
 * [NServiceBus](https://github.com/Particular/NServiceBus)
