@@ -12,11 +12,11 @@ The following are richer alternatives you may want to consider
 ## Features
 * Connection retries
 * Synchronous and asynchronous message publication
-* Classifies messages as commands or events based on CQRS messaging ideas
+* Classifies messages as commands or events based on CQRS
 * Events can be published to multiple exchanges
 * A publication of a command message will result in an error if no configuration pre-configured
-* Transient queues are created for dynamic subscribers and are auto deleted queues, they are named as follows [machinename]_[pid]_[appdomainid]
-* All but transient queues are pre-configured
+* Transient queues are created for dynamic subscribers and are "auto deleted" queues, they are named as follows [machinename]_[pid]_[appdomainid]
+* All but transient queues are pre-configured (Allows locking down permissions on the broker)
 
 
 ## Build
@@ -38,16 +38,19 @@ Creates a nuget package in the release sub directory
 
 
 ## Pre-configuring RabbitMQ
+See the example below, which just uses curl to configure via the management plugin. 
+You can also use rabbitmqctl or configure using powershell via the RabbitMQ client library.
 Pending...  
+Explain what I mean by pre-configuring and why I can pre-configure all but transient queues (Security).
 
 
 ## Sample usage
-Will demonstrate connecting to a local instance where user name is guest and password is guest even though is [discouraged since v3.3.0)(http://www.rabbitmq.com/blog/2014/04/02/breaking-things-with-rabbitmq-3-3/) so can replace with your values
+Will demonstrate connecting to a local instance where user name is "guest" and password is "guest" [This is discouraged since v3.3.0)(http://www.rabbitmq.com/blog/2014/04/02/breaking-things-with-rabbitmq-3-3/). You should replace with your own values
 ### Pre-configure
 Enable the management plugin so we can use curl to pre-configure rabbitmq for our sample app
 ```bash
 rabbitmq-plugins enable rabbitmq_management
-# Now restart service so we can access the management api on port 15672
+# Now restart service so we can access the management api on port 15672 (I believe this restart is no longer required with latter versions)
 ```
 
 Pre-configure rabbitmq for the sample app (Will need extra escaping if being run within powershell)
