@@ -50,7 +50,7 @@ Will demonstrate connecting to a local instance where user name is "guest" and p
 Enable the management plugin so we can use curl to pre-configure rabbitmq for our sample app
 ```bash
 rabbitmq-plugins enable rabbitmq_management
-# Now restart service so we can access the management api on port 15672 (I believe this restart is no longer required with latter versions)
+# No need to restart the daemon\service since v3.4.0, so we can access the management api on port 15672
 ```
 
 Pre-configure rabbitmq for the sample app (Will need extra escaping if being run within powershell)
