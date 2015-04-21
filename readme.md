@@ -1,6 +1,6 @@
 ﻿# RabbitMQ .Net library
 
-This is a lightweight library for interacting with RabbitMQ
+This is a lightweight library for interacting with RabbitMQ, this only deals with pub\sub and does not currently support RPC currently
 
 The following are richer alternatives you may want to consider
 * [EasyNetQ](https://github.com/mikehadlow/EasyNetQ)
